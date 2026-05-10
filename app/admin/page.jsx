@@ -123,40 +123,35 @@ export default function AdminPage() {
 
   const crearProducto = async (e) => {
     e.preventDefault();
-    if (!supabase) return;
     setLoading(true);
     
     const productoData = {
       nombre: formData.nombre,
       precio: formData.precio,
       imagen: formData.imagen || null,
+      categoria_id: formData.categoria_id || null,
       telefono: formData.telefono || '5493416971479'
     };
     
-    if (formData.categoria_id && formData.categoria_id !== '') {
-      productoData.categoria_id = parseInt(formData.categoria_id);
-    }
-    
-    console.log('Creando producto:', productoData);
-    
-    const { data, error } = await supabase
-      .from('productos')
-      .insert([productoData])
-      .select();
-    
-    console.log('Respuesta:', data, error);
-    
-    if (error) {
-      console.error('Error al crear producto:', error);
-      alert('Error: ' + error.message);
-    } else if (data && data.length > 0) {
-      console.log('Producto creado:', data[0].id);
-      for (let i = 0; i < 100; i++) {
-        await supabase.from('boletos').insert([{ numero: i, producto_id: data[0].id, estado: 'disponible' }]);
+    try {
+      const res = await fetch('/api/crear-producto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productoData)
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        alert('Error: ' + result.error);
+      } else {
+        setShowForm(false);
+        setFormData({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479' });
+        fetchData();
       }
-      setShowForm(false);
-      setFormData({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479' });
-      fetchData();
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Error al crear producto');
     }
     setLoading(false);
   };
