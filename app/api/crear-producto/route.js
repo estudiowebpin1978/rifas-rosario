@@ -20,19 +20,19 @@ export async function POST(request) {
         telefono: telefono || '5493416971479'
       }])
       .select()
+      .limit(1)
       .single();
 
     if (errorProducto) {
-      return Response.json({ error: errorProducto.message }, { status: 400 });
+      return Response.json({ error: errorProducto.message, details: errorProducto }, { status: 400 });
     }
 
+    const boletosInsert = [];
     for (let i = 0; i < 100; i++) {
-      await supabase.from('boletos').insert([{
-        numero: i,
-        producto_id: producto.id,
-        estado: 'disponible'
-      }]);
+      boletosInsert.push({ numero: i, producto_id: producto.id, estado: 'disponible' });
     }
+    
+    await supabase.from('boletos').insert(boletosInsert);
 
     return Response.json({ success: true, producto });
   } catch (err) {

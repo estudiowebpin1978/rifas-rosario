@@ -51,21 +51,33 @@ export default function AdminPage() {
   };
 
   const fetchData = async () => {
-    if (!supabase) return;
     setLoading(true);
-    const [catRes, prodRes] = await Promise.all([
-      supabase.from('categorias').select('*').order('nombre'),
-      supabase.from('productos').select('*, categorias(nombre)').order('created_at', { ascending: false })
-    ]);
-    setCategorias(catRes.data || []);
-    setProductos(prodRes.data || []);
-    const bolRes = await supabase.from('boletos').select('*');
-    const grouped = {};
-    (bolRes.data || []).forEach(b => {
-      if (!grouped[b.producto_id]) grouped[b.producto_id] = [];
-      grouped[b.producto_id].push(b);
-    });
-    setBoletosData(grouped);
+    
+    try {
+      const res = await fetch('/api/productos');
+      const result = await res.json();
+      
+      if (result.productos) {
+        setProductos(result.productos);
+        
+        const productoIds = result.productos.map(p => p.id);
+        const bolRes = await supabase.from('boletos').select('*').in('producto_id', productoIds.length > 0 ? productoIds : [0]);
+        const grouped = {};
+        (bolRes.data || []).forEach(b => {
+          if (!grouped[b.producto_id]) grouped[b.producto_id] = [];
+          grouped[b.producto_id].push(b);
+        });
+        setBoletosData(grouped);
+      }
+    } catch (err) {
+      console.error('Error fetching productos:', err);
+    }
+    
+    if (supabase) {
+      const catRes = await supabase.from('categorias').select('*').order('nombre');
+      setCategorias(catRes.data || []);
+    }
+    
     setLoading(false);
   };
 
@@ -139,6 +151,8 @@ export default function AdminPage() {
       telefono: '5493416971479'
     };
     
+    console.log('Enviando:', productoData);
+    
     try {
       const res = await fetch('/api/crear-producto', {
         method: 'POST',
@@ -147,14 +161,18 @@ export default function AdminPage() {
       });
       
       const result = await res.json();
-      console.log('Resultado:', result);
+      console.log('Respuesta API:', result);
       
       if (!res.ok) {
         alert('Error: ' + result.error);
       } else {
+        console.log('Producto creado OK:', result.producto);
         setShowForm(false);
         setFormData({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479' });
-        setTimeout(() => fetchData(), 500);
+        setTimeout(() => {
+          fetchData();
+          alert('Producto creado exitosamente!');
+        }, 1000);
       }
     } catch (err) {
       console.error('Error:', err);
