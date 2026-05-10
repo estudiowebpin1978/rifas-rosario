@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { supabase, supabaseUrl, supabaseAnonKey } from '@/lib/supabaseClient';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
 
