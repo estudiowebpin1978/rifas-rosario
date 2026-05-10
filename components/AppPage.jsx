@@ -18,6 +18,16 @@ export default function AppPage() {
   const [showMenu, setShowMenu] = useState(false);
   const [showReserva, setShowReserva] = useState(false);
   const [reservaForm, setReservaForm] = useState({ nombre: '', whatsapp: '' });
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBtn(true);
+    });
+  }, []);
 
   const LOGO_URL = 'https://tmpfiles.org/dl/37442389/logo.png';
   const WHATSAPP = '5493416971479';
@@ -131,6 +141,13 @@ export default function AppPage() {
     else { await navigator.clipboard.writeText(url); alert('Link copiado!'); }
   };
 
+  const installApp = async () => {
+    if (!deferredPrompt) return;
+    setDeferredPrompt(null);
+    setShowInstallBtn(false);
+    await deferredPrompt.prompt();
+  };
+
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     localStorage.setItem('darkMode', !darkMode);
@@ -158,9 +175,10 @@ export default function AppPage() {
             </div>
             <div className="flex items-center gap-2">
               <button onClick={() => router.push('/')} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>🏠</button>
+              {showInstallBtn && <button onClick={installApp} className={`p-2 rounded-full bg-green-500/20`}>📲</button>}
+              <button onClick={shareApp} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>📤</button>
               <button onClick={toggleDarkMode} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{theme ? '🌝' : '🌚'}</button>
               <button onClick={() => setShowMenu(!showMenu)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{showMenu ? '✕' : '☰'}</button>
-              <button onClick={() => { fetchCategorias(); fetchProductos(); }} className={`p-2 rounded-full ${theme ? 'bg-pink-500/20' : 'bg-pink-100'}`}>🔄</button>
             </div>
           </div>
         </div>
