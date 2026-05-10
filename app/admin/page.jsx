@@ -66,7 +66,7 @@ export default function AdminPage() {
     setLoading(true);
     setError('');
     const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError || data.user.email !== 'georchina348@mail.com') {
+    if (authError || data.user.email !== 'georchina348@gmail.com') {
       setError('Credenciales invalidas');
       await supabase.auth.signOut();
     } else {
