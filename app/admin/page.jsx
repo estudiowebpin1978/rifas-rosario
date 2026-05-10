@@ -133,21 +133,30 @@ export default function AdminPage() {
       telefono: formData.telefono || '5493416971479'
     };
     
-    if (formData.categoria_id) {
+    if (formData.categoria_id && formData.categoria_id !== '') {
       productoData.categoria_id = parseInt(formData.categoria_id);
     }
     
-    const { data, error } = await supabase.from('productos').insert([productoData]).select().single();
-    if (!error && data) {
+    console.log('Creando producto:', productoData);
+    
+    const { data, error } = await supabase
+      .from('productos')
+      .insert([productoData])
+      .select();
+    
+    console.log('Respuesta:', data, error);
+    
+    if (error) {
+      console.error('Error al crear producto:', error);
+      alert('Error: ' + error.message);
+    } else if (data && data.length > 0) {
+      console.log('Producto creado:', data[0].id);
       for (let i = 0; i < 100; i++) {
-        await supabase.from('boletos').insert([{ numero: i, producto_id: data.id, estado: 'disponible' }]);
+        await supabase.from('boletos').insert([{ numero: i, producto_id: data[0].id, estado: 'disponible' }]);
       }
       setShowForm(false);
       setFormData({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479' });
       fetchData();
-    } else if (error) {
-      console.error('Error al crear producto:', error);
-      alert('Error al crear producto: ' + error.message);
     }
     setLoading(false);
   };
