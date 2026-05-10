@@ -8,8 +8,8 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode');
+    setDarkMode(saved === 'true');
     if (saved === 'true') {
-      setDarkMode(true);
       document.documentElement.classList.add('dark');
     }
   }, []);
