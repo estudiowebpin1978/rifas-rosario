@@ -45,8 +45,13 @@ export default function AppPage() {
   useEffect(() => { if (productoSeleccionado) fetchBoletos(productoSeleccionado.id); }, [productoSeleccionado]);
 
   const fetchCategorias = async () => {
-    if (!supabase) return;
-    const { data } = await supabase.from('categorias').select('*').order('nombre');
+    if (!supabase) {
+      console.error('Supabase no inicializado');
+      return;
+    }
+    console.log('URL:', supabase.supabaseUrl);
+    const { data, error } = await supabase.from('categorias').select('*').order('nombre');
+    console.log('Categorias:', data, error);
     setCategorias(data || []);
   };
 
