@@ -52,11 +52,19 @@ export default function AppPage() {
 
   const fetchProductos = async () => {
     if (!supabase) return;
-    let query = supabase.from('productos').select('*, categorias(nombre)');
-    if (categoriaActiva) query = query.eq('categoria_id', categoriaActiva);
-    query = query.eq('finalizado', false);
-    const { data } = await query;
-    setProductos(data || []);
+    try {
+      let query = supabase.from('productos').select('*, categorias(nombre)');
+      if (categoriaActiva) {
+        query = query.eq('categoria_id', categoriaActiva);
+      }
+      query = query.eq('finalizado', false);
+      const { data, error } = await query;
+      if (error) console.error('Error fetching productos:', error);
+      setProductos(data || []);
+    } catch (err) {
+      console.error('Error:', err);
+      setProductos([]);
+    }
   };
 
   const fetchBoletos = async (productoId) => {

@@ -52,6 +52,7 @@ export default function AdminPage() {
 
   const fetchData = async () => {
     if (!supabase) return;
+    setLoading(true);
     const [catRes, prodRes] = await Promise.all([
       supabase.from('categorias').select('*').order('nombre'),
       supabase.from('productos').select('*, categorias(nombre)').order('created_at', { ascending: false })
@@ -65,6 +66,7 @@ export default function AdminPage() {
       grouped[b.producto_id].push(b);
     });
     setBoletosData(grouped);
+    setLoading(false);
   };
 
   const handleLogin = async (e) => {
@@ -123,7 +125,19 @@ export default function AdminPage() {
     e.preventDefault();
     if (!supabase) return;
     setLoading(true);
-    const { data, error } = await supabase.from('productos').insert([{ ...formData }]).select().single();
+    
+    const productoData = {
+      nombre: formData.nombre,
+      precio: formData.precio,
+      imagen: formData.imagen || null,
+      telefono: formData.telefono || '5493416971479'
+    };
+    
+    if (formData.categoria_id) {
+      productoData.categoria_id = parseInt(formData.categoria_id);
+    }
+    
+    const { data, error } = await supabase.from('productos').insert([productoData]).select().single();
     if (!error && data) {
       for (let i = 0; i < 100; i++) {
         await supabase.from('boletos').insert([{ numero: i, producto_id: data.id, estado: 'disponible' }]);
@@ -131,6 +145,9 @@ export default function AdminPage() {
       setShowForm(false);
       setFormData({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479' });
       fetchData();
+    } else if (error) {
+      console.error('Error al crear producto:', error);
+      alert('Error al crear producto: ' + error.message);
     }
     setLoading(false);
   };
@@ -157,7 +174,11 @@ export default function AdminPage() {
 
   const confirmarGanador = async () => {
     if (!supabase || !ganadorModal) return;
-    await supabase.from('productos').update({ finalizado: true, ganador_num: winner.numero, ganador_nombre: winner.nombre }).eq('id', winner.producto.id);
+    await supabase.from('productos').update({ 
+      finalizado: true, 
+      ganador_num: ganadorModal.numero, 
+      ganador_nombre: ganadorModal.nombre 
+    }).eq('id', ganadorModal.producto.id);
     confetti();
     sendWhatsAppNotification(`🏆 GANADOR CONFIRMADO!\nProducto: ${ganadorModal.producto.nombre}\nNumero: #${String(ganadorModal.numero).padStart(2,'0')}\nGanador: ${ganadorModal.nombre}`);
     setGanadorModal(null);
@@ -166,7 +187,6 @@ export default function AdminPage() {
 
   const theme = darkMode;
   const totalVentas = Object.values(boletosData).flat().filter(b => b.estado === 'vendido').length;
-  const winner = ganadorModal;
 
   if (!isLoggedIn) {
     return (
