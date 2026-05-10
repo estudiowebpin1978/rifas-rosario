@@ -131,9 +131,9 @@ export default function RifaApp() {
             🚀 Entrar a Rifas Rosario
           </button>
           
-          <button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className="w-full bg-white/10 border-2 border-white/20 text-white font-black py-4 rounded-3xl text-lg hover:bg-white/20 transition-all">
-            ✨ Crear cuenta gratis
-          </button>
+<button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className={`w-full font-black py-4 rounded-3xl text-lg hover:opacity-90 transition-all ${theme ? 'bg-white/10 border-2 border-white/20 text-white' : 'bg-pink-500 text-white shadow-lg'}`}>
+                ✨ Crear cuenta gratis
+              </button>
         </div>
 
         <div className="mt-8 text-center">

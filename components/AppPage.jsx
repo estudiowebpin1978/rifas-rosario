@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase, supabaseUrl, supabaseAnonKey } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,11 @@ export default function AppPage() {
   const [reservaForm, setReservaForm] = useState({ nombre: '', whatsapp: '' });
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBtn, setShowInstallBtn] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [showSorteo, setShowSorteo] = useState(false);
+  const [sorteoCountdown, setSorteoCountdown] = useState(30);
+  const [ganadorAnimado, setGanadorAnimado] = useState(null);
+  const [showPremio, setShowPremio] = useState(false);
 
   useEffect(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -31,17 +36,14 @@ export default function AppPage() {
 
   const LOGO_URL = 'https://tmpfiles.org/dl/37442389/logo.png';
   const WHATSAPP = '5493416971479';
+  const URL_APP = 'https://rifas-rosario.vercel.app/app';
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode');
     if (saved === null) setDarkMode(true);
     else setDarkMode(saved === 'true');
     
-    if (!supabase) {
-      console.error('Supabase no inicializado - URL:', supabaseUrl, 'Key:', supabaseAnonKey);
-      return;
-    }
-    console.log('Supabase inicializado OK');
+    if (!supabase) return;
     fetchCategorias();
     fetchProductos();
     fetchGanadores();
@@ -58,14 +60,15 @@ export default function AppPage() {
   useEffect(() => { fetchProductos(); }, [categoriaActiva]);
   useEffect(() => { if (productoSeleccionado) fetchBoletos(productoSeleccionado.id); }, [productoSeleccionado]);
 
-  const fetchCategorias = async () => {
-    if (!supabase) {
-      console.error('Supabase no inicializado');
-      return;
+  useEffect(() => {
+    if (vendidosCount === 100 && !showSorteo && !productoSeleccionado?.finalizado) {
+      iniciarSorteo();
     }
-    console.log('URL:', supabase.supabaseUrl);
-    const { data, error } = await supabase.from('categorias').select('*').order('nombre');
-    console.log('Categorias:', data, error);
+  }, [productos]);
+
+  const fetchCategorias = async () => {
+    if (!supabase) return;
+    const { data } = await supabase.from('categorias').select('*').order('nombre');
     setCategorias(data || []);
   };
 
@@ -76,7 +79,6 @@ export default function AppPage() {
       if (categoriaActiva) {
         query = query.eq('categoria_id', categoriaActiva);
       }
-      query = query.eq('finalizado', false);
       const { data, error } = await query;
       if (error) console.error('Error fetching productos:', error);
       setProductos(data || []);
@@ -96,6 +98,67 @@ export default function AppPage() {
     if (!supabase) return;
     const { data } = await supabase.from('productos').select('*, categorias(nombre)').eq('finalizado', true).order('updated_at', { ascending: false }).limit(5);
     setGanadores(data || []);
+  };
+
+  const iniciarSorteo = async () => {
+    setShowSorteo(true);
+    setSorteoCountdown(30);
+    
+    const intervalo = setInterval(() => {
+      setSorteoCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(intervalo);
+          seleccionarGanador();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const seleccionarGanador = async () => {
+    const vendidos = boletos.filter(b => b.estado === 'vendido');
+    if (vendidos.length === 0) return;
+    
+    const winner = vendidos[Math.floor(Math.random() * vendidos.length)];
+    setGanadorAnimado(winner.numero);
+    
+    confetti({ particleCount: 200, spread: 360, origin: { y: 0.6 } });
+    
+    await supabase.from('productos').update({
+      finalizado: true,
+      ganador_num: winner.numero,
+      ganador_nombre: winner.nombre
+    }).eq('id', productoSeleccionado.id);
+
+    const msg = `🎉 *SORTEO TERMINADO - RIFAS ROSARIO*\n\n🏆 *GANADOR: #${String(winner.numero).padStart(2,'0')}*\n👤 ${winner.nombre}\n🎁 ${productoSeleccionado.nombre}\n\nTodos los participantes fueron notificados!`;
+    
+    for (const boleto of vendidos) {
+      if (boleto.whatsapp) {
+        const mensaje = boleto.numero === winner.numero 
+          ? `🎉🎉🎉 *FELICIDADES!* 🎉🎉🎉\n\nGanaste el SORTEO!\n\n🎁 Producto: ${productoSeleccionado.nombre}\n🏆 Tu numero: #${String(winner.numero).padStart(2,'0')}\n\nContacta al admin para reclamar tu premio!`
+          : `😢 *NO FUiste el ganador esta vez*\n\nTu numero: #${String(boleto.numero).padStart(2,'0')}\n🏆 Ganador: #${String(winner.numero).padStart(2,'0')}\n\nNo te pierdas las proximas rifas! https://rifas-rosario.vercel.app/app`;
+        
+        setTimeout(() => {
+          window.open(`https://wa.me/${boleto.whatsapp}?text=${encodeURIComponent(mensaje)}`, '_blank');
+        }, 1000);
+      }
+    }
+
+    setTimeout(() => setShowPremio(true), 2000);
+  };
+
+  const contactarGanador = () => {
+    const winner = boletos.find(b => b.numero === winner?.numero);
+    const msg = `🎊 *FELICIDADES!* Ganaste ${productoSeleccionado.nombre}!\n\nQuiero coordinar la entrega de mi premio. Mi direccion es...`;
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`);
+  };
+
+  const verOtrosProductos = () => {
+    setShowPremio(false);
+    setShowSorteo(false);
+    setProductoSeleccionado(null);
+    setGanadorAnimado(null);
   };
 
   const handleSeleccionarNumero = (numero) => {
@@ -135,12 +198,6 @@ export default function AppPage() {
     setLoading(false);
   };
 
-  const shareApp = async () => {
-    const url = window.location.href;
-    if (navigator.share) await navigator.share({ title: 'RIFAS ROSARIO 🎉', text: 'Mira estas rifas increibles!', url });
-    else { await navigator.clipboard.writeText(url); alert('Link copiado!'); }
-  };
-
   const installApp = async () => {
     if (!deferredPrompt) return;
     setDeferredPrompt(null);
@@ -153,12 +210,81 @@ export default function AppPage() {
     localStorage.setItem('darkMode', !darkMode);
   };
 
-  const vendidosCount = boletos.filter(b => b.estado === 'vendido').length;
+  const shareWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP)}`);
+  };
+
+  const shareX = () => {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP)}`);
+  };
+
+  const shareFacebook = () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(URL_APP)}`);
+  };
+
+  const shareInstagram = () => {
+    window.open(`https://instagram.com`);
+  };
+
+  const shareTikTok = () => {
+    window.open(`https://www.tiktok.com`);
+  };
+
+  const shareGmail = () => {
+    window.open(`mailto:?subject=${encodeURIComponent('Mira estas rifas increibles! 🎉')}&body=${encodeURIComponent('Echa un vistazo a esta app de rifas: ' + URL_APP)}`);
+  };
+
+  const vendidosCount = productoSeleccionado 
+    ? boletos.filter(b => b.estado === 'vendido').length 
+    : 0;
   const porcentaje = boletos.length > 0 ? Math.round((vendidosCount / boletos.length) * 100) : 0;
   const theme = darkMode;
 
   return (
     <div className={`min-h-screen pb-24 ${theme ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
+      {showSorteo && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl">
+          <div className="text-center">
+            {!showPremio ? (
+              <>
+                <p className="text-xl font-bold text-pink-500 mb-4">SORTEO EN PROGRESO</p>
+                <div className="text-9xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent animate-pulse">
+                  {sorteoCountdown}
+                </div>
+                <p className="mt-6 text-gray-400">Esperando al ganador...</p>
+                <div className="mt-8 flex justify-center gap-2 flex-wrap max-w-xs mx-auto">
+                  {boletos.filter(b => b.estado === 'vendido').slice(0, 20).map(b => (
+                    <span key={b.id} className={`px-2 py-1 rounded-lg text-sm font-bold ${ganadorAnimado === b.numero ? 'bg-yellow-500 text-black animate-bounce' : 'bg-white/10'}`}>
+                      #{String(b.numero).padStart(2,'0')}
+                    </span>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="animate-bounce mb-6">
+                  <span className="text-8xl">🎊</span>
+                </div>
+                <p className="text-2xl font-black text-yellow-500 mb-2">GANADOR!</p>
+                <p className="text-8xl font-black bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent animate-pulse">
+                  #{String(ganadorAnimado).padStart(2,'0')}
+                </p>
+                <p className="mt-4 text-xl font-bold">{boletos.find(b => b.numero === ganadorAnimado)?.nombre}</p>
+                <p className="mt-2 text-pink-500 font-bold">{productoSeleccionado?.nombre}</p>
+                <div className="mt-8 space-y-3">
+                  <button onClick={contactarGanador} className="w-full bg-green-500 text-white font-black py-4 rounded-2xl text-lg">
+                    📱 Contactar para reclamar premio
+                  </button>
+                  <button onClick={verOtrosProductos} className="w-full bg-pink-500 text-white font-black py-4 rounded-2xl text-lg">
+                    🎰 Ver otras rifas
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl"></div>
@@ -176,13 +302,50 @@ export default function AppPage() {
             <div className="flex items-center gap-2">
               <button onClick={() => router.push('/')} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>🏠</button>
               {showInstallBtn && <button onClick={installApp} className={`p-2 rounded-full bg-green-500/20`}>📲</button>}
-              <button onClick={shareApp} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>📤</button>
+              <button onClick={() => setShowShare(true)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>📤</button>
               <button onClick={toggleDarkMode} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{theme ? '🌝' : '🌚'}</button>
               <button onClick={() => setShowMenu(!showMenu)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{showMenu ? '✕' : '☰'}</button>
             </div>
           </div>
         </div>
       </header>
+
+      {showShare && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => setShowShare(false)}>
+          <div className={`absolute inset-0 ${theme ? 'bg-black/80' : 'bg-black/60'} backdrop-blur-sm`}></div>
+          <div className={`relative w-full max-w-md rounded-t-[2rem] p-6 ${theme ? 'bg-gray-900' : 'bg-white'} shadow-2xl`} onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h2 className="text-xl font-black text-center mb-6">Compartir en...</h2>
+            <div className="grid grid-cols-3 gap-4">
+              <button onClick={shareWhatsApp} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-green-500 text-white">
+                <span className="text-3xl">💬</span>
+                <span className="text-xs font-bold">WhatsApp</span>
+              </button>
+              <button onClick={shareX} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-black text-white">
+                <span className="text-3xl">✖</span>
+                <span className="text-xs font-bold">X</span>
+              </button>
+              <button onClick={shareFacebook} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-blue-600 text-white">
+                <span className="text-3xl">📘</span>
+                <span className="text-xs font-bold">Facebook</span>
+              </button>
+              <button onClick={shareInstagram} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white">
+                <span className="text-3xl">📷</span>
+                <span className="text-xs font-bold">Instagram</span>
+              </button>
+              <button onClick={shareTikTok} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-black text-white">
+                <span className="text-3xl">🎵</span>
+                <span className="text-xs font-bold">TikTok</span>
+              </button>
+              <button onClick={shareGmail} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-red-500 text-white">
+                <span className="text-3xl">📧</span>
+                <span className="text-xs font-bold">Gmail</span>
+              </button>
+            </div>
+            <button onClick={() => setShowShare(false)} className="w-full mt-6 py-3 font-bold text-gray-400">Cancelar</button>
+          </div>
+        </div>
+      )}
 
       {showMenu && (
         <div className={`fixed inset-0 z-40 ${theme ? 'bg-black/95' : 'bg-white/95'} backdrop-blur-xl p-6`}>
@@ -230,15 +393,16 @@ export default function AppPage() {
 
           <div className="grid grid-cols-2 gap-4">
             {productos.map(prod => (
-              <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
+              <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'} ${prod.finalizado ? 'opacity-50' : ''}`}>
                 <div className={`aspect-square ${theme ? 'bg-gradient-to-br from-pink-500/20 to-purple-500/20' : 'bg-gradient-to-br from-pink-100 to-purple-100'} flex items-center justify-center relative`}>
                   {prod.imagen ? <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" /> : <span className="text-6xl">🎁</span>}
                   <span className="absolute top-2 right-2 bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">{prod.categorias?.nombre}</span>
+                  {prod.finalizado && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-4xl">🏆</span></div>}
                 </div>
                 <div className="p-3">
                   <h3 className="font-bold text-sm truncate">{prod.nombre}</h3>
                   <p className="text-pink-500 font-black">{prod.precio}</p>
-                  <button className="w-full mt-2 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-bold py-2 rounded-xl text-sm">VER NUMEROS →</button>
+                  <button className="w-full mt-2 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-bold py-2 rounded-xl text-sm">{prod.finalizado ? 'FINALIZADO' : 'VER NUMEROS →'}</button>
                 </div>
               </div>
             ))}
@@ -259,8 +423,9 @@ export default function AppPage() {
           </button>
 
           <div className={`rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
-            <div className={`aspect-video ${theme ? 'bg-gradient-to-br from-pink-500/30 to-purple-500/30' : 'bg-gradient-to-br from-pink-100 to-purple-100'} flex items-center justify-center`}>
+            <div className={`aspect-video ${theme ? 'bg-gradient-to-br from-pink-500/30 to-purple-500/30' : 'bg-gradient-to-br from-pink-100 to-purple-100'} flex items-center justify-center relative`}>
               {productoSeleccionado.imagen ? <img src={productoSeleccionado.imagen} alt={productoSeleccionado.nombre} className="w-full h-full object-contain" /> : <span className="text-7xl">🎁</span>}
+              {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
             </div>
             <div className="p-4">
               <span className="bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">{productoSeleccionado.categorias?.nombre}</span>
@@ -273,28 +438,42 @@ export default function AppPage() {
               <div className={`h-3 rounded-full mt-2 ${theme ? 'bg-white/10' : 'bg-gray-200'}`}>
                 <div className="h-full bg-gradient-to-r from-pink-500 to-cyan-500 rounded-full" style={{ width: `${porcentaje}%` }}></div>
               </div>
+              {vendidosCount === 100 && <p className="mt-2 text-center font-black text-yellow-500 animate-pulse">🎉 TODOS LOS NUMEROS VENDIDOS!</p>}
             </div>
           </div>
 
-          <div className={`rounded-3xl p-4 ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
-            <p className="text-center font-black text-sm mb-3">🎰 ELEGÍ TU NUMERO</p>
-            <div className="grid grid-cols-10 gap-1.5">
-              {boletos.map(b => (
-                <button key={b.id} disabled={b.estado === 'vendido'} onClick={() => handleSeleccionarNumero(b.numero)} className={`h-10 rounded-lg font-black text-xs transition-all active:scale-90 ${b.estado === 'vendido' ? 'bg-gradient-to-b from-gray-800 to-black text-white shadow-inner cursor-not-allowed' : 'bg-gradient-to-b from-pink-400 to-pink-600 text-white shadow-lg shadow-pink-500/50 hover:scale-110'}`}>
-                  {String(b.numero).padStart(2, '0')}
-                </button>
-              ))}
-            </div>
-            <div className="flex justify-center gap-4 mt-3 text-xs font-bold">
-              <span><span className="w-3 h-3 inline-block bg-pink-400 rounded mr-1"></span>Libre</span>
-              <span><span className="w-3 h-3 inline-block bg-gray-800 rounded mr-1"></span>Ocupado</span>
-            </div>
-          </div>
+          {!productoSeleccionado.finalizado && (
+            <>
+              <div className={`rounded-3xl p-4 ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
+                <p className="text-center font-black text-sm mb-3">🎰 ELEGÍ TU NUMERO</p>
+                <div className="grid grid-cols-10 gap-1.5">
+                  {boletos.map(b => (
+                    <button key={b.id} disabled={b.estado === 'vendido'} onClick={() => handleSeleccionarNumero(b.numero)} className={`h-10 rounded-lg font-black text-xs transition-all active:scale-90 ${b.estado === 'vendido' ? 'bg-gradient-to-b from-gray-800 to-black text-white shadow-inner cursor-not-allowed' : 'bg-gradient-to-b from-pink-400 to-pink-600 text-white shadow-lg shadow-pink-500/50 hover:scale-110'}`}>
+                      {String(b.numero).padStart(2, '0')}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex justify-center gap-4 mt-3 text-xs font-bold">
+                  <span><span className="w-3 h-3 inline-block bg-pink-400 rounded mr-1"></span>Libre</span>
+                  <span><span className="w-3 h-3 inline-block bg-gray-800 rounded mr-1"></span>Ocupado</span>
+                </div>
+              </div>
 
-          <div className={`rounded-3xl p-4 text-center ${theme ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30' : 'bg-gradient-to-r from-pink-100 to-purple-100'}`}>
-            <p className="text-xs font-bold mb-1">💳 PAGÁ CON MERCADO PAGO</p>
-            <p className="text-2xl font-black text-pink-500">.: rifas.rosario</p>
-          </div>
+              <div className={`rounded-3xl p-4 text-center ${theme ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30' : 'bg-gradient-to-r from-pink-100 to-purple-100'}`}>
+                <p className="text-xs font-bold mb-1">💳 PAGÁ CON MERCADO PAGO</p>
+                <p className="text-2xl font-black text-pink-500">.: rifas.rosario</p>
+              </div>
+            </>
+          )}
+
+          {productoSeleccionado.finalizado && productoSeleccionado.ganador_num && (
+            <div className={`rounded-3xl p-6 text-center bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-2 border-yellow-500/50`}>
+              <span className="text-5xl">🏆</span>
+              <p className="text-2xl font-black mt-2 text-yellow-500">GANADOR</p>
+              <p className="text-5xl font-black text-white">#{String(productoSeleccionado.ganador_num).padStart(2,'0')}</p>
+              <p className="text-lg font-bold mt-2">{productoSeleccionado.ganador_nombre}</p>
+            </div>
+          )}
         </main>
       )}
 
