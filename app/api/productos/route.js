@@ -17,11 +17,19 @@ export async function GET(request) {
       .select('*')
       .order('nombre');
     
+    const { data: boletos } = await supabase
+      .from('boletos')
+      .select('*');
+    
     if (prodError) {
       return Response.json({ error: prodError.message }, { status: 400 });
     }
     
-    return Response.json({ productos: productos || [], categorias: categorias || [] });
+    return Response.json({ 
+      productos: productos || [], 
+      categorias: categorias || [],
+      boletos: boletos || []
+    });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });
   }

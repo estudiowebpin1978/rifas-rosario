@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 
@@ -56,14 +57,19 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/productos');
       const result = await res.json();
+      console.log('API result:', result);
       
       if (result.productos) {
         setProductos(result.productos);
-        
-        const productoIds = result.productos.map(p => p.id);
-        const bolRes = await supabase.from('boletos').select('*').in('producto_id', productoIds.length > 0 ? productoIds : [0]);
+      }
+      
+      if (result.categorias) {
+        setCategorias(result.categorias);
+      }
+      
+      if (result.boletos) {
         const grouped = {};
-        (bolRes.data || []).forEach(b => {
+        result.boletos.forEach(b => {
           if (!grouped[b.producto_id]) grouped[b.producto_id] = [];
           grouped[b.producto_id].push(b);
         });
@@ -71,11 +77,6 @@ export default function AdminPage() {
       }
     } catch (err) {
       console.error('Error fetching productos:', err);
-    }
-    
-    if (supabase) {
-      const catRes = await supabase.from('categorias').select('*').order('nombre');
-      setCategorias(catRes.data || []);
     }
     
     setLoading(false);
