@@ -38,23 +38,24 @@ export default function AppPage() {
   const WHATSAPP = '5493416971479';
   const URL_APP = 'https://rifas-rosario.vercel.app/app';
 
-  useEffect(() => {
+useEffect(() => {
     const saved = localStorage.getItem('darkMode');
     if (saved === null) setDarkMode(true);
     else setDarkMode(saved === 'true');
     
-    if (!supabase) return;
     fetchCategorias();
     fetchProductos();
     fetchGanadores();
     
-    const sub = supabase.channel('cambios').on('postgres_changes', { event: '*', schema: 'public', table: 'boletos' }, () => {
-      if (productoSeleccionado) fetchBoletos(productoSeleccionado.id);
-      fetchProductos();
-      fetchGanadores();
-    }).subscribe();
+    if (supabase) {
+      const sub = supabase.channel('cambios').on('postgres_changes', { event: '*', schema: 'public', table: 'boletos' }, () => {
+        if (productoSeleccionado) fetchBoletos(productoSeleccionado.id);
+        fetchProductos();
+        fetchGanadores();
+      }).subscribe();
 
-    return () => supabase.removeChannel(sub);
+      return () => supabase.removeChannel(sub);
+    }
   }, []);
 
   useEffect(() => { fetchProductos(); }, [categoriaActiva]);
@@ -67,23 +68,30 @@ export default function AppPage() {
   }, [productos]);
 
   const fetchCategorias = async () => {
-    if (!supabase) return;
-    const { data } = await supabase.from('categorias').select('*').order('nombre');
-    setCategorias(data || []);
+    try {
+      const res = await fetch('/api/productos');
+      if (res.ok) {
+        const result = await res.json();
+        setCategorias(result.categorias || []);
+      }
+    } catch (err) {
+      console.error('Error fetching categorias:', err);
+    }
   };
 
   const fetchProductos = async () => {
-    if (!supabase) return;
     try {
-      let query = supabase.from('productos').select('*, categorias(nombre)');
-      if (categoriaActiva) {
-        query = query.eq('categoria_id', categoriaActiva);
+      const res = await fetch('/api/productos');
+      const result = await res.json();
+      if (result.productos) {
+        if (categoriaActiva) {
+          setProductos(result.productos.filter(p => p.categoria_id === categoriaActiva));
+        } else {
+          setProductos(result.productos.filter(p => !p.finalizado));
+        }
       }
-      const { data, error } = await query;
-      if (error) console.error('Error fetching productos:', error);
-      setProductos(data || []);
     } catch (err) {
-      console.error('Error:', err);
+      console.error('Error fetching productos:', err);
       setProductos([]);
     }
   };
@@ -95,9 +103,15 @@ export default function AppPage() {
   };
 
   const fetchGanadores = async () => {
-    if (!supabase) return;
-    const { data } = await supabase.from('productos').select('*, categorias(nombre)').eq('finalizado', true).order('updated_at', { ascending: false }).limit(5);
-    setGanadores(data || []);
+    try {
+      const res = await fetch('/api/productos');
+      const result = await res.json();
+      if (result.productos) {
+        setGanadores(result.productos.filter(p => p.finalizado).slice(0, 5));
+      }
+    } catch (err) {
+      console.error('Error fetching ganadores:', err);
+    }
   };
 
   const iniciarSorteo = async () => {

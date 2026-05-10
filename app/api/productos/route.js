@@ -5,24 +5,23 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export async function GET(request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const categoria = searchParams.get('categoria');
-    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    let query = supabase.from('productos').select('*, categorias(nombre)').order('created_at', { ascending: false });
+    const { data: productos, error: prodError } = await supabase
+      .from('productos')
+      .select('*, categorias(nombre)')
+      .order('created_at', { ascending: false });
     
-    if (categoria) {
-      query = query.eq('categoria_id', parseInt(categoria));
+    const { data: categorias, error: catError } = await supabase
+      .from('categorias')
+      .select('*')
+      .order('nombre');
+    
+    if (prodError) {
+      return Response.json({ error: prodError.message }, { status: 400 });
     }
     
-    const { data: productos, error } = await query;
-    
-    if (error) {
-      return Response.json({ error: error.message }, { status: 400 });
-    }
-    
-    return Response.json({ productos });
+    return Response.json({ productos: productos || [], categorias: categorias || [] });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });
   }
