@@ -48,13 +48,16 @@ export default function AppPage() {
     fetchGanadores();
     
     if (supabase) {
-      const sub = supabase.channel('cambios').on('postgres_changes', { event: '*', schema: 'public', table: 'boletos' }, () => {
-        if (productoSeleccionado) fetchBoletos(productoSeleccionado.id);
-        fetchProductos();
-        fetchGanadores();
-      }).subscribe();
-
-      return () => supabase.removeChannel(sub);
+      try {
+        const sub = supabase.channel('cambios').on('postgres_changes', { event: '*', schema: 'public', table: 'boletos' }, () => {
+          if (productoSeleccionado) fetchBoletos(productoSeleccionado.id);
+          fetchProductos();
+          fetchGanadores();
+        }).subscribe();
+        return () => supabase.removeChannel(sub);
+      } catch (e) {
+        console.log('Realtime no disponible');
+      }
     }
   }, []);
 
@@ -98,9 +101,16 @@ export default function AppPage() {
   };
 
   const fetchBoletos = async (productoId) => {
-    if (!supabase) return;
-    const { data } = await supabase.from('boletos').select('*').eq('producto_id', productoId).order('numero');
-    setBoletos(data || []);
+    try {
+      const res = await fetch('/api/productos');
+      const result = await res.json();
+      if (result.boletos) {
+        const misBoletos = result.boletos.filter(b => b.producto_id === productoId);
+        setBoletos(misBoletos);
+      }
+    } catch (err) {
+      console.error('Error fetching boletos:', err);
+    }
   };
 
   const fetchGanadores = async () => {
