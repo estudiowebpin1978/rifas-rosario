@@ -23,11 +23,14 @@ export default function RifaApp() {
   useEffect(() => {
     if (!supabase) return;
     fetchCategorias();
-    fetchProductos();
-    fetchComentarios();
     const sub = supabase.channel('cambios').on('postgres_changes', { event: '*', schema: 'public', table: 'boletos' }, handleCambio).subscribe();
     return () => supabase.removeChannel(sub);
   }, []);
+
+  useEffect(() => {
+    fetchProductos();
+    fetchComentarios();
+  }, [categoriaActiva]);
 
   const fetchComentarios = async () => {
     if (!supabase) return;
@@ -72,13 +75,7 @@ export default function RifaApp() {
     setBoletos(data || []);
   };
 
-  useEffect(() => {
-    if (productoSeleccionado) fetchBoletos(productoSeleccionado.id);
-  }, [productoSeleccionado]);
-
-  useEffect(() => {
-    fetchProductos();
-  }, [categoriaActiva]);
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -177,12 +174,10 @@ export default function RifaApp() {
 
           <div className="grid grid-cols-2 gap-4">
             {productos.map(prod => {
-              const vendidos = prod.vendidos || 0;
-              const prog = prod.total_boletos ? Math.round((vendidos / prod.total_boletos) * 100) : 0;
               return (
                 <div
                   key={prod.id}
-                  onClick={() => { setProductoSeleccionado(prod); }}
+                  onClick={() => { setProductoSeleccionado(prod); fetchBoletos(prod.id); }}
                   className={`cursor-pointer rounded-2xl overflow-hidden shadow-lg transition-transform hover:scale-[1.02] ${
                     darkMode ? 'bg-gray-800' : 'bg-white'
                   }`}
@@ -192,18 +187,14 @@ export default function RifaApp() {
                       <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" />
                     </div>
                   )}
+                  {!prod.imagen && (
+                    <div className="aspect-square bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center">
+                      <span className="text-white text-4xl">🎁</span>
+                    </div>
+                  )}
                   <div className="p-4">
                     <h3 className="font-bold text-lg mb-1">{prod.nombre}</h3>
                     <p className="text-emerald-500 font-black text-xl">{prod.precio}</p>
-                    <div className="mt-2">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>{vendidos}/{prod.total_boletos} vendidos</span>
-                        <span className="font-bold">{prog}%</span>
-                      </div>
-                      <div className={`h-2 rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${prog}%` }}></div>
-                      </div>
-                    </div>
                     <button className="w-full mt-3 bg-emerald-500 text-white font-bold py-2 rounded-xl">VER NUMEROS</button>
                   </div>
                 </div>

@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRouter } from 'next/navigation';
+import confetti from 'canvas-confetti';
 
 export default function AdminPage() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -106,20 +107,21 @@ export default function AdminPage() {
 
   const sortearGanador = async (producto) => {
     if (!supabase) return;
-    const disponibles = producto.boletos?.filter(b => b.estado === 'vendido') || [];
-    if (disponibles.length < 100) {
-      alert('Necesitas vender los 100 numeros para sortear!');
+    const { data: prodBoletos } = await supabase.from('boletos').select('*').eq('producto_id', producto.id).eq('estado', 'vendido');
+    const vendidos = prodBoletos || [];
+    if (vendidos.length < 100) {
+      alert(`Necesitas vender los 100 numeros para sortear! (Vendidos: ${vendidos.length}/100)`);
       return;
     }
-    const randomIndex = Math.floor(Math.random() * disponibles.length);
-    const ganador = disponibles[randomIndex];
+    const randomIndex = Math.floor(Math.random() * vendidos.length);
+    const ganador = vendidos[randomIndex];
     setGanadorModal({ show: true, producto, numero: ganador.numero, nombre: ganador.nombre, whatsapp: ganador.whatsapp });
   };
 
   const confirmarGanador = async () => {
     if (!supabase || !ganadorModal.numero) return;
-    const { error } = await supabase.from('productos').update({ finalizado: true }).eq('id', ganadorModal.producto.id);
-    await supabase.from('productos').update({ ganador_num: ganadorModal.numero, ganador_nombre: ganadorModal.nombre }).eq('id', ganadorModal.producto.id);
+    await supabase.from('productos').update({ finalizado: true, ganador_num: ganadorModal.numero, ganador_nombre: ganadorModal.nombre }).eq('id', ganadorModal.producto.id);
+    confetti();
     setGanadorModal({ show: false });
     fetchData();
   };
@@ -132,12 +134,15 @@ export default function AdminPage() {
     });
   };
 
-  if (authLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-100">Cargando...</div>;
-  }
-
-  if (!user) {
-    return null;
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Verificando acceso...</p>
+        </div>
+      </div>
+    );
   }
 
   const stats = getProductosStats();
