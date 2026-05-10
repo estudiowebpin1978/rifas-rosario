@@ -14,6 +14,8 @@ export default function RifaApp() {
   const [categoriaActiva, setCategoriaActiva] = useState(null);
   const [ganadores, setGanadores] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstall, setShowInstall] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode');
@@ -28,8 +30,28 @@ export default function RifaApp() {
     const sub = supabase.channel('cambios').on('postgres_changes', { event: '*', schema: 'public', table: 'boletos' }, () => {
       if (productoSeleccionado) fetchBoletos(productoSeleccionado.id);
     }).subscribe();
-    return () => supabase.removeChannel(sub);
+
+    const handleInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstall(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleInstallPrompt);
+
+    return () => {
+      supabase.removeChannel(sub);
+      window.removeEventListener('beforeinstallprompt', handleInstallPrompt);
+    };
   }, []);
+
+  const installApp = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') setShowInstall(false);
+    setDeferredPrompt(null);
+  };
 
   useEffect(() => { fetchProductos(); }, [categoriaActiva]);
   useEffect(() => { if (productoSeleccionado) fetchBoletos(productoSeleccionado.id); }, [productoSeleccionado]);
@@ -142,6 +164,7 @@ export default function RifaApp() {
             <a href="/admin" className="block p-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black text-lg text-center shadow-lg">🔐 Panel Admin</a>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black text-lg text-center shadow-lg">📱 WhatsApp</a>
             <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full p-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black text-lg shadow-lg">📤 Compartir App</button>
+            {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-lg shadow-lg">📲 Instalar App</button>}
           </nav>
         </div>
       )}
@@ -217,7 +240,13 @@ export default function RifaApp() {
             </div>
           )}
 
-          <a href={`https://wa.me/${WHATSAPP}?text=Hola! Quiero saber mas sobre las rifas`} className="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white font-black py-4 rounded-3xl text-center shadow-xl shadow-green-500/40 animate-pulse">
+          {showInstall && (
+            <button onClick={installApp} className="fixed bottom-24 left-4 right-4 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-pink-500/40 animate-bounce z-50">
+              📲 INSTALAR APP EN TU CELULAR
+            </button>
+          )}
+
+          <a href={`https://wa.me/${WHATSAPP}?text=Hola! Quiero saber mas sobre las rifas`} className="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white font-black py-4 rounded-3xl text-center shadow-xl shadow-green-500/40">
             💬 ESCRIBINOS POR WHATSAPP
           </a>
         </main>

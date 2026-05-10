@@ -1,0 +1,21 @@
+{
+  "name": "Rifas Rosario",
+  "short_name": "Rifas Rosario",
+  "description": "Las mejores rifas en Rosario",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#ec4899",
+  "icons": [
+    {
+      "src": "https://tmpfiles.org/dl/37342838/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "https://tmpfiles.org/dl/37342838/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    }
+  ]
+}
