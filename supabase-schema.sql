@@ -1,57 +1,88 @@
--- Schema para RIFA SMART en Supabase
+-- Schema para RIFA SMART con productos y categorias
 
--- Tabla: rifa_config (configuracion de la rifa)
-CREATE TABLE rifa_config (
+-- Tabla: categorias
+CREATE TABLE IF NOT EXISTS categorias (
   id SERIAL PRIMARY KEY,
-  titulo TEXT DEFAULT 'RIFA ROSARIO',
-  valor_boleto TEXT DEFAULT '$5000',
-  alias_mp TEXT DEFAULT 'rifas.rosario',
-  telefono_whatsapp TEXT DEFAULT '5493410000000',
-  vendido_por TEXT DEFAULT 'RIFA SMART',
+  nombre TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabla: productos
+CREATE TABLE IF NOT EXISTS productos (
+  id SERIAL PRIMARY KEY,
+  nombre TEXT NOT NULL,
+  precio TEXT NOT NULL,
+  descripcion TEXT,
+  imagen TEXT,
+  categoria_id INTEGER REFERENCES categorias(id),
+  telefono TEXT DEFAULT '5493410000000',
   finalizado BOOLEAN DEFAULT FALSE,
   ganador_num INTEGER,
   ganador_nombre TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Tabla: boletos (numeros de rifa)
-CREATE TABLE boletos (
+-- Tabla: boletos (ahora con producto_id)
+CREATE TABLE IF NOT EXISTS boletos (
   id SERIAL PRIMARY KEY,
-  numero INTEGER UNIQUE NOT NULL,
-  estado TEXT DEFAULT 'disponible' CHECK (estado IN ('disponible', 'reservado', 'vendido')),
+  numero INTEGER NOT NULL,
+  producto_id INTEGER REFERENCES productos(id) ON DELETE CASCADE,
+  estado TEXT DEFAULT 'disponible' CHECK (estado IN ('disponible', 'vendido')),
   nombre TEXT,
   whatsapp TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(numero, producto_id)
 );
 
--- Tabla: comentarios (muro de actividad)
-CREATE TABLE comentarios (
+-- Tabla: comentarios
+CREATE TABLE IF NOT EXISTS comentarios (
   id SERIAL PRIMARY KEY,
   nombre TEXT NOT NULL,
   mensaje TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Tabla: rifa_config (opcional, para config global)
+CREATE TABLE IF NOT EXISTS rifa_config (
+  id SERIAL PRIMARY KEY,
+  titulo TEXT DEFAULT 'RIFA SMART ROSARIO',
+  alias_mp TEXT DEFAULT 'rifas.rosario',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Enable Row Level Security
-ALTER TABLE rifa_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE categorias ENABLE ROW LEVEL SECURITY;
+ALTER TABLE productos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE boletos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comentarios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rifa_config ENABLE ROW LEVEL SECURITY;
 
 -- Policies para lectura publica
-CREATE POLICY "Public read config" ON rifa_config FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read categorias" ON categorias;
+CREATE POLICY "Public read categorias" ON categorias FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read productos" ON productos;
+CREATE POLICY "Public read productos" ON productos FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read boletos" ON boletos;
 CREATE POLICY "Public read boletos" ON boletos FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read comentarios" ON comentarios;
 CREATE POLICY "Public read comentarios" ON comentarios FOR SELECT USING (true);
 
--- Policies para escritura
-CREATE POLICY "Public insert comentarios" ON comentarios FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public update boletos" ON boletos FOR UPDATE USING (true);
+-- Policies para escritura (solo autenticados)
+DROP POLICY IF EXISTS "Auth write productos" ON productos;
+CREATE POLICY "Auth write productos" ON productos FOR INSERT WITH CHECK (auth_role() = 'authenticated');
+DROP POLICY IF EXISTS "Auth write boletos" ON boletos;
+CREATE POLICY "Auth write boletos" ON boletos FOR UPDATE USING (auth_role() = 'authenticated');
+DROP POLICY IF EXISTS "Auth write categorias" ON categorias;
+CREATE POLICY "Auth write categorias" ON categorias FOR INSERT WITH CHECK (auth_role() = 'authenticated');
 
--- Insertar config inicial
-INSERT INTO rifa_config (titulo, valor_boleto, alias_mp) VALUES ('RIFA ROSARIO', '$5000', 'rifas.rosario');
+-- Insertar categorias de ejemplo
+INSERT INTO categorias (nombre) VALUES 
+  ('Electronica'),
+  ('Hogar'),
+  ('Deportes'),
+  ('Vehiculos')
+ON CONFLICT DO NOTHING;
 
--- Generar 100 boletos si no existen
-INSERT INTO boletos (numero, estado) 
-SELECT generate_series(0, 99), 'disponible'
-ON CONFLICT (numero) DO NOTHING;
+-- Insertar config
+INSERT INTO rifa_config (titulo) VALUES ('RIFA SMART ROSARIO') ON CONFLICT DO NOTHING;
