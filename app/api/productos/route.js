@@ -10,12 +10,12 @@ export async function GET(request) {
     const { data: productos, error: prodError } = await supabase
       .from('productos')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('id', { ascending: false });
     
     const { data: categorias, error: catError } = await supabase
       .from('categorias')
       .select('*')
-      .order('nombre');
+      .order('nombre', { ascending: true });
     
     const { data: boletos } = await supabase
       .from('boletos')
