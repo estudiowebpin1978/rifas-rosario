@@ -16,6 +16,12 @@ export default function RifaApp() {
   const [showMenu, setShowMenu] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
+  const [authForm, setAuthForm] = useState({ email: '', password: '', nombre: '' });
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [authSuccess, setAuthSuccess] = useState('');
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode');
@@ -83,6 +89,39 @@ export default function RifaApp() {
     setGanadores(data || []);
   };
 
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    if (!supabase) return;
+    setAuthLoading(true);
+    setAuthError('');
+    setAuthSuccess('');
+
+    if (authMode === 'signup') {
+      const { error } = await supabase.auth.signUp({
+        email: authForm.email,
+        password: authForm.password,
+        options: { data: { nombre: authForm.nombre } }
+      });
+      if (error) setAuthError(error.message);
+      else {
+        setAuthSuccess('Cuenta creada! Ya podes participar de las rifas.');
+        setTimeout(() => setShowAuth(false), 2000);
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: authForm.email,
+        password: authForm.password
+      });
+      if (error) setAuthError('Email o contrasena incorrectos');
+      else setShowAuth(false);
+    }
+    setAuthLoading(false);
+  };
+
+  const handleLogout = async () => {
+    if (supabase) await supabase.auth.signOut();
+  };
+
   const WHATSAPP = '5493416971479';
 
   const handleReserva = async (e) => {
@@ -146,6 +185,9 @@ export default function RifaApp() {
               <button onClick={() => { setDarkMode(!darkMode); localStorage.setItem('darkMode', !darkMode); }} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>
                 {theme ? '🌝' : '🌚'}
               </button>
+              <button onClick={() => setShowAuth(true)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>
+                {showAuth ? '✕' : '👤'}
+              </button>
               <button onClick={() => setShowMenu(!showMenu)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>
                 {showMenu ? '✕' : '☰'}
               </button>
@@ -161,6 +203,7 @@ export default function RifaApp() {
             <button onClick={() => setShowMenu(false)} className="text-3xl">✕</button>
           </div>
           <nav className="space-y-4">
+            <button onClick={() => { setShowAuth(true); setShowMenu(false); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black text-lg text-center shadow-lg">✨ Mi Cuenta</button>
             <a href="/admin" className="block p-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black text-lg text-center shadow-lg">🔐 Panel Admin</a>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black text-lg text-center shadow-lg">📱 WhatsApp</a>
             <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full p-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black text-lg shadow-lg">📤 Compartir App</button>
@@ -246,23 +289,15 @@ export default function RifaApp() {
             </button>
           )}
 
-          <a href={`https://wa.me/${WHATSAPP}?text=Hola! Quiero saber mas sobre las rifas`} className="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white font-black py-4 rounded-3xl text-center shadow-xl shadow-green-500/40">
+<a href={`https://wa.me/${WHATSAPP}?text=Hola! Quiero saber mas sobre las rifas`} className="block w-full bg-gradient-to-r from-green-400 to-emerald-500 text-white font-black py-4 rounded-3xl text-center shadow-xl shadow-green-500/40">
             💬 ESCRIBINOS POR WHATSAPP
           </a>
-        </main>
-      ) : (
-        <main className="max-w-lg mx-auto p-4 space-y-6 relative z-10">
-          <button onClick={() => { setProductoSeleccionado(null); setSeleccionado(null); }} className="flex items-center gap-2 font-bold">
-            <span className="text-xl">←</span> Volver
-          </button>
 
-          <div className={`rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-2xl'}`}>
-            <div className={`aspect-square relative ${theme ? 'bg-gradient-to-br from-pink-500/30 to-purple-500/30' : 'bg-gradient-to-br from-pink-100 to-purple-100'} flex items-center justify-center`}>
-              {productoSeleccionado.imagen ? (
-                <img src={productoSeleccionado.imagen} alt={productoSeleccionado.nombre} className="w-full h-full object-contain" />
-              ) : (
-                <span className="text-9xl">🎁</span>
-              )}
+          <button onClick={() => setShowAuth(true)} className="block w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black py-4 rounded-3xl text-center shadow-xl shadow-purple-500/40">
+            ✨ CREAR MI CUENTA
+          </button>
+        </main>
+      )}
             </div>
             <div className="p-5">
               <span className="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-black px-3 py-1.5 rounded-full">{productoSeleccionado.categorias?.nombre}</span>
@@ -346,6 +381,53 @@ export default function RifaApp() {
               </button>
             </form>
             <button onClick={() => setSeleccionado(null)} className="w-full mt-3 py-3 font-bold text-gray-400">Cancelar</button>
+          </div>
+        </div>
+      )}
+
+      {showAuth && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className={`absolute inset-0 ${theme ? 'bg-black/90' : 'bg-black/60'} backdrop-blur-sm`} onClick={() => setShowAuth(false)}></div>
+          <div className={`relative w-full max-w-sm rounded-3xl p-6 ${theme ? 'bg-gray-900 border border-white/10' : 'bg-white'} shadow-2xl`}>
+            <button onClick={() => setShowAuth(false)} className="absolute top-4 right-4 text-2xl">✕</button>
+            
+            <div className="text-center mb-6">
+              <span className="text-5xl mb-3 block">{authMode === 'login' ? '👤' : '✨'}</span>
+              <h2 className="text-2xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">
+                {authMode === 'login' ? 'INGRESAR' : 'CREAR CUENTA'}
+              </h2>
+              <p className={`text-sm ${theme ? 'text-gray-400' : 'text-gray-500'}`}>
+                {authMode === 'login' ? 'Inicia sesion para participar' : 'Registrate para participar de las rifas'}
+              </p>
+            </div>
+
+            {authError && (
+              <div className="bg-red-500/20 border border-red-500 text-red-400 p-3 rounded-xl text-sm mb-4 text-center">{authError}</div>
+            )}
+            {authSuccess && (
+              <div className="bg-emerald-500/20 border border-emerald-500 text-emerald-400 p-3 rounded-xl text-sm mb-4 text-center">{authSuccess}</div>
+            )}
+
+            <form onSubmit={handleAuth} className="space-y-3">
+              {authMode === 'signup' && (
+                <input type="text" placeholder="Tu nombre" required value={authForm.nombre} onChange={e => setAuthForm({...authForm, nombre: e.target.value})} className={`w-full rounded-xl p-3.5 font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`} />
+              )}
+              <input type="email" placeholder="Email" required value={authForm.email} onChange={e => setAuthForm({...authForm, email: e.target.value})} className={`w-full rounded-xl p-3.5 font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`} />
+              <input type="password" placeholder="Contrasena" required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} className={`w-full rounded-xl p-3.5 font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`} />
+              <button disabled={authLoading} className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-black py-4 rounded-xl shadow-lg">
+                {authLoading ? '⏳' : authMode === 'login' ? 'INGRESAR →' : 'CREAR CUENTA ✨'}
+              </button>
+            </form>
+
+            <div className="mt-4 text-center">
+              <button onClick={() => { setAuthMode(authMode === 'login' ? 'signup' : 'login'); setAuthError(''); setAuthSuccess(''); }} className="text-sm font-bold text-pink-500">
+                {authMode === 'login' ? 'No tienes cuenta? Crea una' : 'Ya tienes cuenta? Inicia sesion'}
+              </button>
+            </div>
+
+            <div className="mt-4 text-center">
+              <a href="/admin" className="text-xs font-bold text-gray-500 hover:text-pink-500">Panel Admin 🔐</a>
+            </div>
           </div>
         </div>
       )}

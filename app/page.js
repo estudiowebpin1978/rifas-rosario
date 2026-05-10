@@ -1,4 +1,4 @@
-import RifaApp from '@/components/RifaApp'
+import RifaApp from '@/components/LoginPage'
 
 export default function Home() {
   return <RifaApp />

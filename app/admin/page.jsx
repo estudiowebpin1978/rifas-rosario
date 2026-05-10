@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
@@ -22,6 +22,11 @@ export default function AdminPage() {
   const [ganadorModal, setGanadorModal] = useState(null);
   const [notif, setNotif] = useState('');
   const [darkMode, setDarkMode] = useState(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const LOGO_URL = 'https://tmpfiles.org/dl/37442389/logo.png';
+  const WHATSAPP = '5493416971479';
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode');
@@ -34,14 +39,16 @@ export default function AdminPage() {
       const sub = supabase.channel('ventas').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'boletos' }, (p) => {
         if (p.new.estado === 'vendido') {
           setNotif(`🔥 Nueva venta! #${String(p.new.numero).padStart(2,'0')} - ${p.new.nombre}`);
-          if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('NUEVA VENTA', { body: `#${p.new.numero} - ${p.new.nombre}` });
-          }
+          sendWhatsAppNotification(`NUEVA VENTA! Numero #${String(p.new.numero).padStart(2,'0')} - ${p.new.nombre}`);
         }
       }).subscribe();
       return () => supabase.removeChannel(sub);
     }
   }, [isLoggedIn]);
+
+  const sendWhatsAppNotification = (message) => {
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`, '_blank');
+  };
 
   const fetchData = async () => {
     if (!supabase) return;
@@ -71,7 +78,6 @@ export default function AdminPage() {
       await supabase.auth.signOut();
     } else {
       setIsLoggedIn(true);
-      Notification.requestPermission();
     }
     setLoading(false);
   };
@@ -81,6 +87,27 @@ export default function AdminPage() {
     setIsLoggedIn(false);
     setEmail('');
     setPassword('');
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    
+    const formDataUpload = new FormData();
+    formDataUpload.append('file', file);
+    
+    try {
+      const res = await fetch('https://tmpfiles.org/api/v1/upload', { method: 'POST', body: formDataUpload });
+      const data = await res.json();
+      if (data.status === 'success') {
+        const url = data.data.url.replace('tmpfiles.org', 'tmpfiles.org/dl');
+        setFormData({...formData, imagen: url});
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+    }
+    setUploadingImage(false);
   };
 
   const crearCategoria = async (e) => {
@@ -125,18 +152,21 @@ export default function AdminPage() {
     }
     const winner = vendidos[Math.floor(Math.random() * vendidos.length)];
     setGanadorModal({ producto, ...winner });
+    sendWhatsAppNotification(`🎉 SORTEANDO! Producto: ${producto.nombre}`);
   };
 
   const confirmarGanador = async () => {
     if (!supabase || !ganadorModal) return;
-    await supabase.from('productos').update({ finalizado: true, ganador_num: ganadorModal.numero, ganador_nombre: ganadorModal.nombre }).eq('id', ganadorModal.producto.id);
+    await supabase.from('productos').update({ finalizado: true, ganador_num: winner.numero, ganador_nombre: winner.nombre }).eq('id', winner.producto.id);
     confetti();
+    sendWhatsAppNotification(`🏆 GANADOR CONFIRMADO!\nProducto: ${ganadorModal.producto.nombre}\nNumero: #${String(ganadorModal.numero).padStart(2,'0')}\nGanador: ${ganadorModal.nombre}`);
     setGanadorModal(null);
     fetchData();
   };
 
   const theme = darkMode;
   const totalVentas = Object.values(boletosData).flat().filter(b => b.estado === 'vendido').length;
+  const winner = ganadorModal;
 
   if (!isLoggedIn) {
     return (
@@ -147,19 +177,18 @@ export default function AdminPage() {
         </div>
         <form onSubmit={handleLogin} className={`relative z-10 w-full max-w-sm rounded-3xl p-6 shadow-2xl ${theme ? 'bg-gray-900 border border-white/10' : 'bg-white'}`}>
           <div className="text-center mb-6">
-            <span className="text-6xl mb-4 block">🔐</span>
-            <h1 className="text-2xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">PANEL ADMIN</h1>
-            <p className={`text-sm mt-1 ${theme ? 'text-gray-500' : 'text-gray-400'}`}>RIFAS ROSARIO</p>
+            <img src={LOGO_URL} alt="logo" className="w-16 h-16 mx-auto mb-4 rounded-xl object-cover" />
+            <h1 className="text-2xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">PANEL ADMIN</h1>
           </div>
           {error && <div className="bg-red-500/20 border border-red-500 text-red-400 p-3 rounded-2xl text-sm mb-4">{error}</div>}
           <div className="space-y-3">
             <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className={`w-full rounded-2xl p-4 font-bold ${theme ? 'bg-white/10 border border-white/20' : 'bg-gray-100'}`} />
             <input type="password" placeholder="Contrasena" value={password} onChange={e => setPassword(e.target.value)} required className={`w-full rounded-2xl p-4 font-bold ${theme ? 'bg-white/10 border border-white/20' : 'bg-gray-100'}`} />
-            <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-4 rounded-2xl shadow-lg shadow-pink-500/30">
+            <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-4 rounded-2xl shadow-lg">
               {loading ? '⏳' : 'INGRESAR →'}
             </button>
           </div>
-          <button type="button" onClick={() => router.push('/')} className={`w-full mt-4 text-sm ${theme ? 'text-gray-500' : 'text-gray-400'}`}>← Volver a la app</button>
+          <button type="button" onClick={() => router.push('/')} className="w-full mt-4 text-sm text-gray-500">← Volver</button>
         </form>
       </div>
     );
@@ -176,16 +205,14 @@ export default function AdminPage() {
         <div className="max-w-2xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <button onClick={() => { setDarkMode(!darkMode); localStorage.setItem('darkMode', !darkMode); }} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>
-                {theme ? '🌝' : '🌚'}
-              </button>
+              <button onClick={() => { setDarkMode(!darkMode); localStorage.setItem('darkMode', !darkMode); }} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{theme ? '🌝' : '🌚'}</button>
               <div>
                 <h1 className="text-lg font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">PANEL ADMIN</h1>
-                <p className={`text-xs ${theme ? 'text-gray-500' : 'text-gray-400'}`}>{email}</p>
+                <p className="text-xs text-gray-500">{email}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => router.push('/')} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg">Ver App 🎰</button>
+              <button onClick={() => router.push('/')} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-full font-bold text-sm">Ver App 🎰</button>
               <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-full font-bold text-sm">Salir</button>
             </div>
           </div>
@@ -220,7 +247,7 @@ export default function AdminPage() {
         <div className={`rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
           <div className="flex border-b border-white/10">
             {['productos', 'categorias'].map(tab => (
-              <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-4 text-sm font-black capitalize transition-all ${activeTab === tab ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : theme ? 'text-gray-400' : 'text-gray-500'}`}>
+              <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-4 text-sm font-black capitalize ${activeTab === tab ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : theme ? 'text-gray-400' : 'text-gray-500'}`}>
                 {tab === 'productos' ? '🎁 ' : '📂 '}{tab.toUpperCase()}
               </button>
             ))}
@@ -230,8 +257,8 @@ export default function AdminPage() {
             {activeTab === 'productos' && (
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h2 className="font-black text-lg">Mis Productos</h2>
-                  <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-2xl font-bold text-sm shadow-lg">
+                  <h2 className="font-black">Mis Productos</h2>
+                  <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-2xl font-bold text-sm">
                     {showForm ? '✕ Cancelar' : '+ Nuevo'}
                   </button>
                 </div>
@@ -244,7 +271,21 @@ export default function AdminPage() {
                       <option value="">Selecciona categoria</option>
                       {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                     </select>
-                    <input placeholder="URL de imagen" value={formData.imagen} onChange={e => setFormData({...formData, imagen: e.target.value})} className={`w-full rounded-xl p-3 font-bold ${theme ? 'bg-white/10' : 'bg-white'}`} />
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold">Imagen del producto</label>
+                      <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
+                      <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 rounded-xl font-bold">
+                        {uploadingImage ? '⏳ Subiendo...' : '📷 Subir desde dispositivo'}
+                      </button>
+                      {formData.imagen && (
+                        <div className="relative">
+                          <img src={formData.imagen} alt="preview" className="w-full h-40 object-cover rounded-xl" />
+                          <button type="button" onClick={() => setFormData({...formData, imagen: ''})} className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">✕</button>
+                        </div>
+                      )}
+                    </div>
+
                     <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-cyan-500 text-white py-3 rounded-xl font-black shadow-lg">{loading ? '⏳ Creando...' : 'CREAR PRODUCTO 🎁'}</button>
                   </form>
                 )}
@@ -290,7 +331,7 @@ export default function AdminPage() {
                 </div>
                 {showCatForm && (
                   <form onSubmit={crearCategoria} className="flex gap-2">
-                    <input placeholder="Nombre" required value={catNombre} onChange={e => setCatNombre(e.target.value)} className={`flex-1 rounded-xl p-3 font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`} />
+                    <input placeholder="Nombre (Ej: Bazar)" required value={catNombre} onChange={e => setCatNombre(e.target.value)} className={`flex-1 rounded-xl p-3 font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`} />
                     <button className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 rounded-xl font-bold">OK</button>
                   </form>
                 )}
