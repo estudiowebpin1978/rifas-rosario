@@ -125,12 +125,18 @@ export default function AdminPage() {
     e.preventDefault();
     setLoading(true);
     
+    if (!formData.nombre || !formData.precio || !formData.categoria_id) {
+      alert('Completá todos los campos');
+      setLoading(false);
+      return;
+    }
+    
     const productoData = {
       nombre: formData.nombre,
       precio: formData.precio,
       imagen: formData.imagen || null,
-      categoria_id: formData.categoria_id || null,
-      telefono: formData.telefono || '5493416971479'
+      categoria_id: parseInt(formData.categoria_id),
+      telefono: '5493416971479'
     };
     
     try {
@@ -141,13 +147,14 @@ export default function AdminPage() {
       });
       
       const result = await res.json();
+      console.log('Resultado:', result);
       
       if (!res.ok) {
         alert('Error: ' + result.error);
       } else {
         setShowForm(false);
         setFormData({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479' });
-        fetchData();
+        setTimeout(() => fetchData(), 500);
       }
     } catch (err) {
       console.error('Error:', err);
@@ -314,17 +321,56 @@ export default function AdminPage() {
                   </form>
                 )}
 
+                {productos.length > 0 && (
+                  <div className={`p-4 rounded-2xl ${theme ? 'bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/30' : 'bg-emerald-50 border border-emerald-200'}`}>
+                    <h3 className="font-black text-sm mb-3 flex items-center gap-2">
+                      <span>🔥</span> ULTIMOS / MAS DISPONIBLES
+                    </h3>
+                    <div className="space-y-2">
+                      {[...productos]
+                        .sort((a, b) => {
+                          const aVend = (boletosData[a.id] || []).filter(bv => bv.estado === 'vendido').length;
+                          const bVend = (boletosData[b.id] || []).filter(bv => bv.estado === 'vendido').length;
+                          if (p.finalizado) return 1;
+                          return aVend - bVend;
+                        })
+                        .slice(0, 5)
+                        .map(p => {
+                          const vend = (boletosData[p.id] || []).filter(bv => bv.estado === 'vendido').length;
+                          return (
+                            <div key={p.id} className={`flex items-center gap-3 p-2 rounded-xl ${theme ? 'bg-white/5' : 'bg-white'}`}>
+                              <span className="text-2xl">{p.imagen ? '📦' : '🎁'}</span>
+                              <div className="flex-1">
+                                <p className="font-bold text-sm">{p.nombre}</p>
+                                <p className="text-xs text-gray-500">{p.precio}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className={`font-black text-lg ${vend === 0 ? 'text-emerald-500' : vend < 50 ? 'text-yellow-500' : 'text-pink-500'}`}>{100 - vend}</p>
+                                <p className="text-xs text-gray-500">libres</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   {productos.map(p => {
                     const vendidos = (boletosData[p.id] || []).filter(b => b.estado === 'vendido').length;
                     return (
-                      <div key={p.id} className={`p-4 rounded-2xl ${theme ? 'bg-white/5' : 'bg-gray-50'}`}>
+                      <div key={p.id} className={`p-4 rounded-2xl ${p.finalizado ? 'opacity-60' : ''} ${theme ? 'bg-white/5' : 'bg-gray-50'}`}>
                         <div className="flex gap-3">
                           {p.imagen && <img src={p.imagen} alt={p.nombre} className="w-16 h-16 rounded-xl object-cover" />}
                           <div className="flex-1">
                             <h3 className="font-bold">{p.nombre}</h3>
                             <p className="text-pink-500 font-black">{p.precio}</p>
-                            <p className={`text-xs ${theme ? 'text-gray-500' : 'text-gray-400'}`}>{vendidos}/100 vendidos</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <div className={`h-2 w-24 rounded-full ${theme ? 'bg-white/10' : 'bg-gray-200'}`}>
+                                <div className={`h-full rounded-full ${vendidos >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-pink-500 to-cyan-500'}`} style={{ width: `${vendidos}%` }}></div>
+                              </div>
+                              <span className="text-xs font-bold">{vendidos}/100 vendidos</span>
+                            </div>
                           </div>
                           <button onClick={() => eliminarProducto(p.id)} className="bg-red-500 text-white px-3 py-1 rounded-xl text-sm font-bold h-fit">🗑️</button>
                         </div>
