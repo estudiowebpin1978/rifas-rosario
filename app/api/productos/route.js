@@ -9,7 +9,7 @@ export async function GET(request) {
     
     const { data: productos, error: prodError } = await supabase
       .from('productos')
-      .select('*, categorias(nombre)')
+      .select('*')
       .order('created_at', { ascending: false });
     
     const { data: categorias, error: catError } = await supabase
@@ -25,8 +25,13 @@ export async function GET(request) {
       return Response.json({ error: prodError.message }, { status: 400 });
     }
     
+    const productosConCategoria = productos.map(p => ({
+      ...p,
+      categorias: categorias.find(c => c.id === p.categoria_id) || null
+    }));
+    
     return Response.json({ 
-      productos: productos || [], 
+      productos: productosConCategoria || [], 
       categorias: categorias || [],
       boletos: boletos || []
     });
