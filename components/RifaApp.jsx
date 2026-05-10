@@ -110,8 +110,13 @@ export default function RifaApp() {
       <header className={`sticky top-0 z-50 ${theme ? 'bg-black/90 backdrop-blur-xl border-b border-white/10' : 'bg-white/90 backdrop-blur-xl border-b border-gray-200'}`}>
         <div className="max-w-lg mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-3xl">🎰</span>
+<div className="flex items-center gap-2">
+              <img src="https://tmpfiles.org/dl/37342838/logo.jpg" alt="Rifas Rosario" className="h-10 w-10 object-contain rounded-lg" />
+              <div>
+                <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">RIFAS ROSARIO</h1>
+                <p className={`text-[10px] ${theme ? 'text-gray-500' : 'text-gray-400'}`}>La mejor rifa de Rosario</p>
+              </div>
+            </div>
               <div>
                 <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">RIFAS ROSARIO</h1>
                 <p className={`text-[10px] ${theme ? 'text-gray-500' : 'text-gray-400'}`}>La mejor rifa de Rosario</p>
