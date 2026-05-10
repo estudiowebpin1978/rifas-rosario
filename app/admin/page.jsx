@@ -16,7 +16,7 @@ export default function AdminPage() {
   const [boletosData, setBoletosData] = useState({});
   const [activeTab, setActiveTab] = useState('productos');
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493410000000' });
+  const [formData, setFormData] = useState({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479' });
   const [showCatForm, setShowCatForm] = useState(false);
   const [catNombre, setCatNombre] = useState('');
   const [ganadorModal, setGanadorModal] = useState(null);

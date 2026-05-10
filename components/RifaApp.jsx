@@ -61,20 +61,31 @@ export default function RifaApp() {
     setBoletos(data || []);
   };
 
+  const WHATSAPP = '5493416971479';
+
   const handleReserva = async (e) => {
     e.preventDefault();
     if (!supabase || !seleccionado) return;
     setLoading(true);
+    const nombre = e.target.nombre.value;
+    const whatsapp = e.target.whatsapp.value;
     const { error } = await supabase.from('boletos').update({
       estado: 'vendido',
-      nombre: e.target.nombre.value,
-      whatsapp: e.target.whatsapp.value
+      nombre: nombre,
+      whatsapp: whatsapp
     }).eq('numero', seleccionado).eq('producto_id', productoSeleccionado.id);
 
     if (!error) {
       confetti();
-      const msg = `Hola! Reserve el numero *#${String(seleccionado).padStart(2,'0')}*\n\nProducto: ${productoSeleccionado.nombre}\nNombre: ${e.target.nombre.value}\nWhatsApp: ${e.target.whatsapp.value}\n\n*Alias de pago: .: rifas.rosario*\nValor: ${productoSeleccionado.precio}`;
-      window.open(`https://wa.me/${productoSeleccionado.telefono || '5493410000000'}?text=${encodeURIComponent(msg)}`);
+      const msg = `🎟️ *RESERVA DE NUMERO*\n\n`;
+      const msg2 = `✅ Numero: *#${String(seleccionado).padStart(2,'0')}*\n`;
+      const msg3 = `🎁 Producto: ${productoSeleccionado.nombre}\n`;
+      const msg4 = `💰 Precio: ${productoSeleccionado.precio}\n\n`;
+      const msg5 = `👤 Nombre: ${nombre}\n`;
+      const msg6 = `📱 WhatsApp: ${whatsapp}\n\n`;
+      const msg7 = `💳 *Alias de pago: .: rifas.rosario*\n\n`;
+      const msg8 = `Enviame el comprobante de pago por este chat. Gracias! 🙏`;
+      window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg+msg2+msg3+msg4+msg5+msg6+msg7+msg8)}`);
       setTimeout(() => {
         setSeleccionado(null);
         fetchBoletos(productoSeleccionado.id);
@@ -230,7 +241,7 @@ export default function RifaApp() {
           </div>
 
           <a
-            href={`https://wa.me/${productoSeleccionado.telefono || '5493410000000'}?text=${encodeURIComponent(`Hola! Quiero participar de la rifa: ${productoSeleccionado.nombre}`)}`}
+            href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hola! Quiero participar de la rifa: ${productoSeleccionado.nombre}`)}`}
             className="block w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-black py-4 rounded-2xl text-center shadow-lg shadow-green-500/30"
           >
             📱 CONTACTAR POR WHATSAPP
