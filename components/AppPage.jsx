@@ -32,13 +32,11 @@ export default function AppPage() {
       setDeferredPrompt(e);
       setShowInstallBtn(true);
     });
-  }, []);
-
   const LOGO_URL = 'https://tmpfiles.org/dl/37442389/logo.png';
   const WHATSAPP = '5493416971479';
   const URL_APP = 'https://rifas-rosario.vercel.app/app';
 
-useEffect(() => {
+  useEffect(() => {
     const saved = localStorage.getItem('darkMode');
     if (saved === null) setDarkMode(true);
     else setDarkMode(saved === 'true');
@@ -70,10 +68,10 @@ useEffect(() => {
   const fetchCategorias = async () => {
     try {
       const res = await fetch('/api/productos');
-      if (res.ok) {
-        const result = await res.json();
-        setCategorias(result.categorias || []);
-      }
+      const result = await res.json();
+      console.log('API response:', result);
+      console.log('Categorias:', result.categorias);
+      setCategorias(result.categorias || []);
     } catch (err) {
       console.error('Error fetching categorias:', err);
     }
@@ -83,6 +81,7 @@ useEffect(() => {
     try {
       const res = await fetch('/api/productos');
       const result = await res.json();
+      console.log('Productos:', result.productos?.length);
       if (result.productos) {
         if (categoriaActiva) {
           setProductos(result.productos.filter(p => p.categoria_id === categoriaActiva));
