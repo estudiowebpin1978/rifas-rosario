@@ -146,7 +146,7 @@ export default function AdminPage() {
       <div className={`min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
         <form onSubmit={handleLogin} className={`w-full max-w-sm rounded-3xl p-6 shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-black text-emerald-500">PANEL ADMIN</h1>
+            <h1 className="text-2xl font-black text-emerald-500">PANEL RIFAS ROSARIO</h1>
             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Ingresa tus credenciales</p>
           </div>
           {error && <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm mb-4">{error}</div>}

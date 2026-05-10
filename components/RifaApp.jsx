@@ -119,7 +119,7 @@ export default function RifaApp() {
       <header className={`sticky top-0 z-40 px-4 py-3 ${theme ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-black text-emerald-500">RIFA SMART</h1>
+            <h1 className="text-xl font-black text-emerald-500">RIFAS ROSARIO</h1>
             <p className={`text-[10px] font-bold uppercase tracking-widest ${theme ? 'text-gray-400' : 'text-gray-400'}`}>
               {productoSeleccionado ? productoSeleccionado.nombre : 'Elegi tu premio'}
             </p>
