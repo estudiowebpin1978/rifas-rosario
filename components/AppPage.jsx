@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, supabaseUrl, supabaseAnonKey } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
 
@@ -27,7 +27,11 @@ export default function AppPage() {
     if (saved === null) setDarkMode(true);
     else setDarkMode(saved === 'true');
     
-    if (!supabase) return;
+    if (!supabase) {
+      console.error('Supabase no inicializado - URL:', supabaseUrl, 'Key:', supabaseAnonKey);
+      return;
+    }
+    console.log('Supabase inicializado OK');
     fetchCategorias();
     fetchProductos();
     fetchGanadores();
@@ -156,6 +160,7 @@ export default function AppPage() {
               <button onClick={() => router.push('/')} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>🏠</button>
               <button onClick={toggleDarkMode} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{theme ? '🌝' : '🌚'}</button>
               <button onClick={() => setShowMenu(!showMenu)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{showMenu ? '✕' : '☰'}</button>
+              <button onClick={() => { fetchCategorias(); fetchProductos(); }} className={`p-2 rounded-full ${theme ? 'bg-pink-500/20' : 'bg-pink-100'}`}>🔄</button>
             </div>
           </div>
         </div>
