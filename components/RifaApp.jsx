@@ -22,6 +22,12 @@ export default function RifaApp() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
+  const ALIAS = 'rifas.rosario';
+
+  const copyAlias = () => {
+    navigator.clipboard.writeText(ALIAS);
+    alert('Alias copiado!');
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode');
@@ -352,7 +358,10 @@ export default function RifaApp() {
 
           <div className={`rounded-3xl p-4 text-center ${theme ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30' : 'bg-gradient-to-r from-pink-100 to-purple-100'}`}>
             <p className="text-sm font-bold mb-1">💳 PAGÁ CON MERCADO PAGO</p>
-            <p className="text-2xl font-black text-pink-500">.: rifas.rosario</p>
+            <div className="flex items-center justify-center gap-2">
+              <p className="text-2xl font-black text-pink-500">.: rifas.rosario</p>
+              <button onClick={copyAlias} className="bg-pink-500 text-white px-2 py-1 rounded-lg text-xs font-bold">📋 Copiar</button>
+            </div>
           </div>
         </main>
       )}
