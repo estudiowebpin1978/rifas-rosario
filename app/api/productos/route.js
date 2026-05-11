@@ -39,3 +39,27 @@ export async function GET(request) {
     return Response.json({ error: err.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return Response.json({ error: 'ID requerido' }, { status: 400 });
+    }
+    
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    
+    await supabase.from('boletos').delete().eq('producto_id', parseInt(id));
+    const { error } = await supabase.from('productos').delete().eq('id', parseInt(id));
+    
+    if (error) {
+      return Response.json({ error: error.message }, { status: 400 });
+    }
+    
+    return Response.json({ success: true });
+  } catch (err) {
+    return Response.json({ error: err.message }, { status: 500 });
+  }
+}

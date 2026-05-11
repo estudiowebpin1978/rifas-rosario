@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 
@@ -36,14 +35,19 @@ export default function AdminPage() {
     
     if (isLoggedIn) {
       fetchData();
-      if (!supabase) return;
-      const sub = supabase.channel('ventas').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'boletos' }, (p) => {
-        if (p.new.estado === 'vendido') {
-          setNotif(`🔥 Nueva venta! #${String(p.new.numero).padStart(2,'0')} - ${p.new.nombre}`);
-          sendWhatsAppNotification(`NUEVA VENTA! Numero #${String(p.new.numero).padStart(2,'0')} - ${p.new.nombre}`);
+      if (supabase) {
+        try {
+          const sub = supabase.channel('ventas').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'boletos' }, (p) => {
+            if (p.new.estado === 'vendido') {
+              setNotif(`🔥 Nueva venta! #${String(p.new.numero).padStart(2,'0')} - ${p.new.nombre}`);
+              sendWhatsAppNotification(`NUEVA VENTA! Numero #${String(p.new.numero).padStart(2,'0')} - ${p.new.nombre}`);
+            }
+          }).subscribe();
+          return () => supabase.removeChannel(sub);
+        } catch (e) {
+          console.log('Realtime no disponible');
         }
-      }).subscribe();
-      return () => supabase.removeChannel(sub);
+      }
     }
   }, [isLoggedIn]);
 
@@ -84,15 +88,24 @@ export default function AdminPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!supabase) return;
     setLoading(true);
     setError('');
-    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError || data.user.email !== 'georchina348@gmail.com') {
-      setError('Credenciales invalidas');
-      await supabase.auth.signOut();
-    } else {
-      setIsLoggedIn(true);
+    try {
+      if (!supabase) {
+        setError('Servicio no disponible');
+        setLoading(false);
+        return;
+      }
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError || !data.user || data.user.email !== 'georchina348@gmail.com') {
+        setError('Credenciales invalidas');
+        if (data?.user) await supabase.auth.signOut();
+      } else {
+        setIsLoggedIn(true);
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Error al iniciar sesion');
     }
     setLoading(false);
   };
@@ -184,10 +197,12 @@ export default function AdminPage() {
 
   const eliminarProducto = async (id) => {
     if (!confirm('Eliminar este producto?')) return;
-    if (!supabase) return;
-    await supabase.from('boletos').delete().eq('producto_id', id);
-    await supabase.from('productos').delete().eq('id', id);
-    fetchData();
+    try {
+      const res = await fetch(`/api/productos?id=${id}`, { method: 'DELETE' });
+      if (res.ok) fetchData();
+    } catch (err) {
+      console.error('Error:', err);
+    }
   };
 
   const sortear = async (producto) => {
