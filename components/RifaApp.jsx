@@ -169,10 +169,10 @@ export default function RifaApp() {
   const porcentaje = boletos.length > 0 ? Math.round((vendidosCount / boletos.length) * 100) : 0;
 
   return (
-    <div className={`min-h-screen pb-32 ${theme ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
+    <div className="min-h-screen pb-32 bg-black text-white">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className={`absolute top-0 left-1/4 w-96 h-96 ${theme ? 'bg-pink-500/20' : 'bg-pink-200/30'} rounded-full blur-3xl`}></div>
-        <div className={`absolute bottom-1/4 right-1/4 w-80 h-80 ${theme ? 'bg-cyan-500/20' : 'bg-cyan-200/30'} rounded-full blur-3xl`}></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl"></div>
       </div>
 
       <header className={`sticky top-0 z-50 ${theme ? 'bg-black/90 backdrop-blur-xl border-b border-white/10' : 'bg-white/90 backdrop-blur-xl border-b border-gray-200'}`}>

@@ -125,17 +125,20 @@ export default function AdminPage() {
     if (!file) return;
     setUploadingImage(true);
     
-    const formDataUpload = new FormData();
-    formDataUpload.append('image', file);
+    const uploadFormData = new FormData();
+    uploadFormData.append('image', file);
     
     try {
-      const res = await fetch(`https://api.imgbb.com/1/upload?key=d36eb6591570ef9d5e9e4c77f16c9b79`, { method: 'POST', body: formDataUpload });
+      const res = await fetch('/api/upload-image', { method: 'POST', body: uploadFormData });
       const data = await res.json();
-      if (data.success) {
-        setFormData({...formData, imagen: data.data.url});
+      if (data.url) {
+        setFormData({...formData, imagen: data.url});
+      } else if (data.error) {
+        alert('Error al subir imagen: ' + data.error);
       }
     } catch (err) {
       console.error('Upload error:', err);
+      alert('Error al subir imagen');
     }
     setUploadingImage(false);
   };

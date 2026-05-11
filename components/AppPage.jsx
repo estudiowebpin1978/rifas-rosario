@@ -21,8 +21,6 @@ export default function AppPage() {
   const [showMenu, setShowMenu] = useState(false);
   const [showReserva, setShowReserva] = useState(false);
   const [reservaForm, setReservaForm] = useState({ nombre: '', whatsapp: '' });
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showSorteo, setShowSorteo] = useState(false);
   const [sorteoCountdown, setSorteoCountdown] = useState(30);
@@ -230,16 +228,7 @@ export default function AppPage() {
       }, 2000);
     }
     setLoading(false);
-  };
-
-  const installApp = async () => {
-    if (!deferredPrompt) return;
-    setDeferredPrompt(null);
-    setShowInstallBtn(false);
-    await deferredPrompt.prompt();
-  };
-
-  
+};
 
   const shareWhatsApp = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP)}`);
@@ -327,13 +316,12 @@ export default function AppPage() {
               <Image src={LogoImg} alt="Rifas Rosario" width={40} height={40} className="object-contain rounded-lg" />
               <div>
                 <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">RIFAS ROSARIO</h1>
+                <p className="text-[10px] text-pink-400 font-bold">Tu mejor inversion!</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              
-              {showInstallBtn && <button onClick={installApp} className={`p-2 rounded-full bg-green-500/20`}>📲</button>}
-              <button onClick={() => setShowShare(true)} className={`p-2 rounded-full bg-white/10`}>📤</button>
-              <button onClick={() => setShowMenu(!showMenu)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{showMenu ? '✕' : '☰'}</button>
+<div className="flex items-center gap-2">
+              <button onClick={() => setShowShare(true)} className="p-2 rounded-full bg-white/10">📤</button>
+              <button onClick={() => setShowMenu(!showMenu)} className="p-2 rounded-full bg-white/10">{showMenu ? '✕' : '☰'}</button>
             </div>
           </div>
         </div>
@@ -409,7 +397,18 @@ export default function AppPage() {
             </div>
           )}
 
-          <div className={`flex gap-2 overflow-x-auto pb-4 ${theme ? 'bg-white/5' : 'bg-black/5'} rounded-2xl p-2`}>
+          <div className={`rounded-3xl overflow-hidden ${theme ? 'bg-gradient-to-br from-pink-600 via-purple-600 to-cyan-600' : 'bg-gradient-to-br from-pink-500 to-purple-500'} p-6 text-center relative`}>
+              <div className="absolute top-0 left-0 right-0 h-1 bg-yellow-400"></div>
+              <p className="text-white text-sm font-bold mb-1">PARTICIPÁ AHORA</p>
+              <h2 className="text-white text-2xl font-black mb-1">Tu mejor inversion!</h2>
+              <p className="text-white/80 text-sm">Si hoy sale tu numero? Pensa en todo lo que podrias ganar!</p>
+              <div className="mt-3 flex justify-center gap-2 flex-wrap">
+                <span className="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-bold">$5000</span>
+                <span className="bg-yellow-400 text-black text-xs px-3 py-1 rounded-full font-bold animate-pulse">JUGÁ POR MENOS</span>
+              </div>
+            </div>
+
+          <div className={`flex gap-2 overflow-x-auto pb-4 bg-white/5 rounded-2xl p-2`}>
             <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-4 py-2 rounded-full font-bold text-sm ${!categoriaActiva ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : theme ? 'bg-white/10 text-white' : 'bg-black/10'}`}>
               Todos 🔥
             </button>
