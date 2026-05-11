@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import LogoImg from '../../public/logo.png';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
@@ -243,7 +245,7 @@ export default function AdminPage() {
         </div>
         <form onSubmit={handleLogin} className={`relative z-10 w-full max-w-sm rounded-3xl p-6 shadow-2xl ${theme ? 'bg-gray-900 border border-white/10' : 'bg-white'}`}>
           <div className="text-center mb-6">
-            <img src={LOGO_URL} alt="logo" className="w-16 h-16 mx-auto mb-4 rounded-xl object-cover" />
+            <Image src={LogoImg} alt="logo" width={64} height={64} className="object-cover mx-auto mb-4 rounded-xl" />
             <h1 className="text-2xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">PANEL ADMIN</h1>
           </div>
           {error && <div className="bg-red-500/20 border border-red-500 text-red-400 p-3 rounded-2xl text-sm mb-4">{error}</div>}
@@ -356,7 +358,7 @@ export default function AdminPage() {
                       </button>
                       {formData.imagen && (
                         <div className="relative">
-                          <img src={formData.imagen} alt="preview" className="w-full h-40 object-cover rounded-xl" />
+                          <Image src={formData.imagen} alt="preview" width={400} height={160} className="object-cover rounded-xl" />
                           <button type="button" onClick={() => setFormData({...formData, imagen: ''})} className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">✕</button>
                         </div>
                       )}
@@ -442,7 +444,7 @@ export default function AdminPage() {
                     return (
                       <div key={p.id} className={`p-4 rounded-2xl ${p.finalizado ? 'opacity-60' : ''} ${theme ? 'bg-white/5' : 'bg-gray-50'}`}>
                         <div className="flex gap-3">
-                          {p.imagen && <img src={p.imagen} alt={p.nombre} className="w-16 h-16 rounded-xl object-cover" />}
+                          {p.imagen && <Image src={p.imagen} alt={p.nombre} width={64} height={64} className="object-cover rounded-xl" />}
                           <div className="flex-1">
                             <h3 className="font-bold">{p.nombre}</h3>
                             <p className="text-pink-500 font-black">{p.precio}</p>

@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
+import LogoImg from '../public/logo.png';
 
 export default function AppPage() {
   const router = useRouter();
@@ -36,7 +38,6 @@ export default function AppPage() {
 
   const LOGO_URL = '/logo.png';
   const WHATSAPP = '5493416971479';
-  const URL_APP = 'https://rifas-rosario.vercel.app/app';
   const ALIAS = 'rifas.rosario.';
 
   const copyAlias = () => {
@@ -325,7 +326,7 @@ export default function AppPage() {
         <div className="max-w-lg mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src={LOGO_URL} alt="Rifas Rosario" className="h-10 w-10 object-contain rounded-lg" />
+              <Image src={LogoImg} alt="Rifas Rosario" width={40} height={40} className="object-contain rounded-lg" />
               <div>
                 <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">RIFAS ROSARIO</h1>
               </div>
@@ -426,7 +427,7 @@ export default function AppPage() {
             {productos.map(prod => (
               <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'} ${prod.finalizado ? 'opacity-50' : ''}`}>
                 <div className={`aspect-square ${theme ? 'bg-gradient-to-br from-pink-500/20 to-purple-500/20' : 'bg-gradient-to-br from-pink-100 to-purple-100'} flex items-center justify-center relative`}>
-                  {prod.imagen ? <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" /> : <span className="text-6xl">🎁</span>}
+                  {prod.imagen ? <Image src={prod.imagen} alt={prod.nombre} fill className="object-cover" /> : <span className="text-6xl">🎁</span>}
                   <span className="absolute top-2 right-2 bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">{prod.categorias?.nombre}</span>
                   {prod.finalizado && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-4xl">🏆</span></div>}
                 </div>
@@ -455,7 +456,7 @@ export default function AppPage() {
 
           <div className={`rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
             <div className={`aspect-video ${theme ? 'bg-gradient-to-br from-pink-500/30 to-purple-500/30' : 'bg-gradient-to-br from-pink-100 to-purple-100'} flex items-center justify-center relative`}>
-              {productoSeleccionado.imagen ? <img src={productoSeleccionado.imagen} alt={productoSeleccionado.nombre} className="w-full h-full object-contain" /> : <span className="text-7xl">🎁</span>}
+              {productoSeleccionado.imagen ? <Image src={productoSeleccionado.imagen} alt={productoSeleccionado.nombre} fill className="object-contain" /> : <span className="text-7xl">🎁</span>}
               {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
             </div>
             <div className="p-4">

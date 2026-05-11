@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import LogoImg from '../public/logo.png';
 import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
@@ -86,7 +88,7 @@ export default function RifaApp() {
       <header className={`sticky top-0 z-50 ${theme ? 'bg-black/90 backdrop-blur-xl border-b border-white/10' : 'bg-white/90 backdrop-blur-xl border-b'}`}>
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={LOGO_URL} alt="Rifas Rosario" className="h-12 w-12 object-contain rounded-xl" />
+            <Image src={LogoImg} alt="Rifas Rosario" width={48} height={48} className="object-contain rounded-xl" />
             <div>
               <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">RIFAS ROSARIO</h1>
               <p className="text-[10px] text-gray-500">Sin tarjeta · 100% gratis</p>
@@ -120,7 +122,7 @@ export default function RifaApp() {
       <main className="max-w-lg mx-auto p-6 relative z-10">
         <div className="text-center mb-8">
           <div className="w-32 h-32 mx-auto mb-4 rounded-3xl overflow-hidden shadow-2xl shadow-pink-500/30">
-            <img src={LOGO_URL} alt="Rifas Rosario" className="w-full h-full object-cover" />
+            <Image src={LogoImg} alt="Rifas Rosario" width={128} height={128} className="object-cover" />
           </div>
           <h2 className="text-3xl font-black mb-2">RIFAS ROSARIO</h2>
           <p className="text-xl font-bold text-pink-500">100% GRATIS · SIN TARJETA</p>
@@ -150,7 +152,7 @@ export default function RifaApp() {
             <button onClick={() => setShowAuth(false)} className="absolute top-4 right-4 text-2xl">✕</button>
             
             <div className="text-center mb-6">
-              <img src={LOGO_URL} alt="logo" className="w-16 h-16 mx-auto mb-3 rounded-xl object-cover" />
+              <Image src={LogoImg} alt="logo" width={64} height={64} className="object-cover mx-auto mb-3 rounded-xl" />
               <h2 className="text-2xl font-black">{authMode === 'login' ? 'ENTRAR' : 'CREAR CUENTA'}</h2>
             </div>
 

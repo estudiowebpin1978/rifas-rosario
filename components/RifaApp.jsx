@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import LogoImg from '../public/logo.png';
 import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 
@@ -178,7 +180,7 @@ export default function RifaApp() {
         <div className="max-w-lg mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
 <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Rifas Rosario" className="h-10 w-10 object-contain rounded-lg" />
+              <Image src={LogoImg} alt="Rifas Rosario" width={40} height={40} className="object-contain rounded-lg" />
               <div>
                 <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">RIFAS ROSARIO</h1>
                 <p className={`text-[10px] ${theme ? 'text-gray-500' : 'text-gray-400'}`}>La mejor rifa de Rosario</p>
@@ -257,7 +259,7 @@ export default function RifaApp() {
               >
                 <div className={`aspect-square relative ${theme ? 'bg-gradient-to-br from-pink-500/20 to-purple-500/20' : 'bg-gradient-to-br from-pink-100 to-purple-100'} flex items-center justify-center`}>
                   {prod.imagen ? (
-                    <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" />
+                    <Image src={prod.imagen} alt={prod.nombre} fill className="object-cover" />
                   ) : (
                     <span className="text-8xl">🎁</span>
                   )}
