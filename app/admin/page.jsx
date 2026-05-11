@@ -195,13 +195,15 @@ export default function AdminPage() {
     setLoading(false);
   };
 
-  const eliminarProducto = async (id) => {
-    if (!confirm('Eliminar este producto?')) return;
+  const eliminarProducto = async (id, nombre) => {
+    if (!confirm(`Eliminar "${nombre}"?\n\nEsto eliminará el producto y sus 100 números.`)) return;
     try {
       const res = await fetch(`/api/productos?id=${id}`, { method: 'DELETE' });
       if (res.ok) fetchData();
+      else alert('Error al eliminar');
     } catch (err) {
       console.error('Error:', err);
+      alert('Error al eliminar');
     }
   };
 
@@ -323,9 +325,19 @@ export default function AdminPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h2 className="font-black">Mis Productos</h2>
-                  <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-2xl font-bold text-sm">
-                    {showForm ? '✕ Cancelar' : '+ Nuevo'}
-                  </button>
+                  <div className="flex gap-2">
+                    {productos.filter(p => p.finalizado).length > 0 && (
+                      <button onClick={() => {
+                        if (!confirm(`Eliminar ${productos.filter(p => p.finalizado).length} productos finalizados?`)) return;
+                        productos.filter(p => p.finalizado).forEach(p => eliminarProducto(p.id, p.nombre));
+                      }} className="bg-orange-500 text-white px-3 py-2 rounded-2xl font-bold text-xs">
+                        🧹 Limpiar finalizados
+                      </button>
+                    )}
+                    <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-2xl font-bold text-sm">
+                      {showForm ? '✕ Cancelar' : '+ Nuevo'}
+                    </button>
+                  </div>
                 </div>
 
                 {showForm && (
@@ -356,16 +368,52 @@ export default function AdminPage() {
                 )}
 
                 {productos.length > 0 && (
+                  <div className={`p-4 rounded-2xl ${theme ? 'bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/30' : 'bg-orange-50 border border-orange-200'}`}>
+                    <h3 className="font-black text-sm mb-3 flex items-center gap-2">
+                      <span>🔄</span> DUPLICADOS / ERRORES
+                    </h3>
+                    {(() => {
+                      const counts = {};
+                      productos.forEach(p => {
+                        const key = p.nombre.toLowerCase();
+                        counts[key] = counts[key] || [];
+                        counts[key].push(p);
+                      });
+                      const duplicados = Object.values(counts).filter(arr => arr.length > 1);
+                      return duplicados.length > 0 ? (
+                        <div className="space-y-2">
+                          {duplicados.map(arr => (
+                            <div key={arr[0].id} className={`p-2 rounded-xl ${theme ? 'bg-white/5' : 'bg-white'}`}>
+                              <p className="font-bold text-sm">{arr[0].nombre}</p>
+                              <p className="text-xs text-gray-500 mb-2">{arr.length} productos duplicados</p>
+                              <div className="flex gap-2">
+                                {arr.map(p => (
+                                  <button key={p.id} onClick={() => eliminarProducto(p.id, p.nombre)} className="bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
+                                    🗑️ #{p.id}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500">No hay duplicados</p>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {productos.length > 0 && (
                   <div className={`p-4 rounded-2xl ${theme ? 'bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/30' : 'bg-emerald-50 border border-emerald-200'}`}>
                     <h3 className="font-black text-sm mb-3 flex items-center gap-2">
                       <span>🔥</span> ULTIMOS / MAS DISPONIBLES
                     </h3>
                     <div className="space-y-2">
                       {[...productos]
+                        .filter(p => !p.finalizado)
                         .sort((a, b) => {
                           const aVend = (boletosData[a.id] || []).filter(bv => bv.estado === 'vendido').length;
                           const bVend = (boletosData[b.id] || []).filter(bv => bv.estado === 'vendido').length;
-                          if (p.finalizado) return 1;
                           return aVend - bVend;
                         })
                         .slice(0, 5)
@@ -406,7 +454,7 @@ export default function AdminPage() {
                               <span className="text-xs font-bold">{vendidos}/100 vendidos</span>
                             </div>
                           </div>
-                          <button onClick={() => eliminarProducto(p.id)} className="bg-red-500 text-white px-3 py-1 rounded-xl text-sm font-bold h-fit">🗑️</button>
+                          <button onClick={() => eliminarProducto(p.id, p.nombre)} className="bg-red-500 text-white px-3 py-1 rounded-xl text-sm font-bold h-fit">🗑️</button>
                         </div>
                         {vendidos >= 100 && !p.finalizado && (
                           <button onClick={() => sortear(p)} className="w-full mt-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white py-2 rounded-xl font-black text-sm animate-bounce shadow-lg">
