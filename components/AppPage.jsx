@@ -197,6 +197,7 @@ export default function AppPage() {
     setSeleccionado(numero);
     setShowReserva(true);
     setReservaForm({ nombre: '', whatsapp: '' });
+    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
   };
 
   const handleReserva = async (e) => {
@@ -423,7 +424,13 @@ export default function AppPage() {
             {productos.map(prod => (
               <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'} ${prod.finalizado ? 'opacity-50' : ''}`}>
                 <div className="relative aspect-square">
-                  {prod.imagen ? <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" /> : <span className="text-6xl">🎁</span>}
+                  {prod.imagen ? (
+                    <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-6xl animate-pulse">🎁</span>
+                    </div>
+                  )}
                   <span className="absolute top-2 right-2 bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">{prod.categorias?.nombre}</span>
                   {prod.finalizado && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-4xl">🏆</span></div>}
                 </div>
@@ -537,6 +544,23 @@ export default function AppPage() {
           </div>
         </div>
       )}
+
+      <nav className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 z-50">
+        <div className="max-w-lg mx-auto flex justify-around">
+          <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400">
+            <span className="text-xl">🏆</span>
+            <span className="text-xs font-bold">Feed</span>
+          </button>
+          <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-pink-500">
+            <span className="text-xl">🎰</span>
+            <span className="text-xs font-bold">Rifas</span>
+          </button>
+          <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400">
+            <span className="text-xl">👤</span>
+            <span className="text-xs font-bold">Perfil</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

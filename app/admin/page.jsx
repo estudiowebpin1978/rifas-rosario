@@ -26,7 +26,11 @@ export default function AdminPage() {
   const [darkMode, setDarkMode] = useState(true);
   const theme = true;
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [reels, setReels] = useState([]);
+  const [showReelForm, setShowReelForm] = useState(false);
+  const [reelData, setReelData] = useState({ titulo: '', video_url: '', thumbnail_url: '' });
   const fileInputRef = useRef(null);
+  const reelInputRef = useRef(null);
 
   const LOGO_URL = '/logo.png';
   const WHATSAPP = '5493416971479';
@@ -150,6 +154,44 @@ export default function AdminPage() {
     setCatNombre('');
     setShowCatForm(false);
     fetchData();
+  };
+
+  const crearReel = async (e) => {
+    e.preventDefault();
+    if (!reelData.titulo) {
+      alert('Ingresá un título para el reel');
+      return;
+    }
+    try {
+      const res = await fetch('/api/reels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reelData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReels([data.reel, ...reels]);
+        setReelData({ titulo: '', video_url: '', thumbnail_url: '' });
+        setShowReelForm(false);
+        alert('Reel creado!');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
+  const handleReelThumbnailUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('image', file);
+    try {
+      const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.url) setReelData({ ...reelData, thumbnail_url: data.url });
+    } catch (err) {
+      console.error('Error:', err);
+    }
   };
 
   const crearProducto = async (e) => {
@@ -316,9 +358,9 @@ export default function AdminPage() {
 
         <div className={`rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
           <div className="flex border-b border-white/10">
-            {['productos', 'categorias'].map(tab => (
+            {['productos', 'categorias', 'reels'].map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-4 text-sm font-black capitalize ${activeTab === tab ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : theme ? 'text-gray-400' : 'text-gray-500'}`}>
-                {tab === 'productos' ? '🎁 ' : '📂 '}{tab.toUpperCase()}
+                {tab === 'productos' ? '🎁 ' : tab === 'categorias' ? '📂 ' : '🎬 '}{tab.toUpperCase()}
               </button>
             ))}
           </div>
@@ -493,6 +535,55 @@ export default function AdminPage() {
                 <div className="flex flex-wrap gap-2">
                   {categorias.map(c => (
                     <span key={c.id} className={`px-4 py-2 rounded-full font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`}>{c.nombre}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'reels' && (
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <h2 className="font-bold">Reels Promocionales</h2>
+                  <button onClick={() => setShowReelForm(!showReelForm)} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-2xl font-bold text-sm">
+                    {showReelForm ? '✕' : '+ Nuevo Reel'}
+                  </button>
+                </div>
+                {showReelForm && (
+                  <form onSubmit={crearReel} className="space-y-3 bg-white/5 rounded-2xl p-4">
+                    <input placeholder="Título del reel" required value={reelData.titulo} onChange={e => setReelData({...reelData, titulo: e.target.value})} className={`w-full rounded-xl p-3 font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`} />
+                    <input placeholder="URL del video (TikTok, YouTube, etc)" value={reelData.video_url} onChange={e => setReelData({...reelData, video_url: e.target.value})} className={`w-full rounded-xl p-3 font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`} />
+                    <div>
+                      <label className="text-sm font-bold block mb-2">Thumbnail (opcional)</label>
+                      <input type="file" accept="image/*" ref={reelInputRef} onChange={handleReelThumbnailUpload} className="hidden" />
+                      <button type="button" onClick={() => reelInputRef.current?.click()} className="w-full bg-gray-700 text-white p-3 rounded-xl font-bold text-sm">
+                        📷 Subir imagen
+                      </button>
+                      {reelData.thumbnail_url && (
+                        <img src={reelData.thumbnail_url} alt="preview" className="w-full h-32 object-cover rounded-xl mt-2" />
+                      )}
+                    </div>
+                    <button className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-3 rounded-xl">CREAR REEL 🎬</button>
+                  </form>
+                )}
+                <div className="space-y-3">
+                  {reels.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <span className="text-4xl mb-2 block">🎬</span>
+                      <p className="text-sm">No hay reels todavía</p>
+                    </div>
+                  )}
+                  {reels.map(r => (
+                    <div key={r.id} className="bg-white/5 rounded-xl p-3 flex gap-3">
+                      {r.thumbnail_url ? (
+                        <img src={r.thumbnail_url} alt={r.titulo} className="w-20 h-20 rounded-xl object-cover" />
+                      ) : (
+                        <div className="w-20 h-20 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 flex items-center justify-center text-2xl">🎬</div>
+                      )}
+                      <div className="flex-1">
+                        <p className="font-bold text-sm">{r.titulo}</p>
+                        {r.video_url && <a href={r.video_url} target="_blank" className="text-xs text-pink-400">Ver video →</a>}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
