@@ -437,10 +437,6 @@ const contactarGanador = () => {
                 </div>
               </div>
             </div>
-            <div className="mt-6 bg-gradient-to-r from-pink-500/20 to-cyan-500/20 rounded-2xl p-4 text-center border border-pink-500/30">
-              <p className="text-sm font-bold">💡 Tu mejor inversión!</p>
-              <p className="text-xs text-gray-400 mt-1">Si hoy sale tu número? Pensa en todo lo que podrias ganar!</p>
-            </div>
             <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 py-3 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-black rounded-xl">ENTENDÍ!</button>
           </div>
         </div>
@@ -484,20 +480,10 @@ const contactarGanador = () => {
               <div className="absolute top-0 left-0 right-0 h-1 bg-yellow-400"></div>
               <p className="text-white text-sm font-bold mb-1">PARTICIPÁ AHORA</p>
               <h2 className="text-white text-2xl font-black mb-1">Tu mejor inversion!</h2>
-              <p className="text-white/80 text-sm">Si hoy sale tu numero? Pensa en todo lo que podrias ganar!</p>
-              <div className="mt-3 flex justify-center gap-2 flex-wrap">
-                <span className="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-bold">$5000</span>
-                <span className="bg-yellow-400 text-black text-xs px-3 py-1 rounded-full font-bold animate-pulse">JUGÁ POR MENOS</span>
-              </div>
-              <button onClick={() => setShowComoFunciona(true)} className="mt-3 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-2 rounded-full transition-all">
-                ❓ Como funciona el sorteo?
+              <button onClick={() => setShowComoFunciona(true)} className="mt-2 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-2 rounded-full transition-all">
+                ❓ Como funciona?
               </button>
             </div>
-
-          <button onClick={() => setShowComoFunciona(true)} className="w-full bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-2xl p-4 text-center">
-            <p className="font-black text-sm">🎰 COMO FUNCIONAN LOS SORTEOS?</p>
-            <p className="text-xs text-gray-400 mt-1">Contador de 30s + selección aleatoria + piñata de confetti!</p>
-          </button>
 
           <div className={`flex gap-2 overflow-x-auto pb-4 bg-white/5 rounded-2xl p-2`}>
             <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-4 py-2 rounded-full font-bold text-sm ${!categoriaActiva ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : theme ? 'bg-white/10 text-white' : 'bg-black/10'}`}>
