@@ -15,6 +15,7 @@ export default function AppPage() {
   const [seleccionado, setSeleccionado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+  const theme = true;
   const [categoriaActiva, setCategoriaActiva] = useState(null);
   const [ganadores, setGanadores] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
@@ -39,6 +40,7 @@ export default function AppPage() {
   const LOGO_URL = '/logo.png';
   const WHATSAPP = '5493416971479';
   const ALIAS = 'rifas.rosario.';
+  const URL_APP = 'https://rifas-rosario.vercel.app/app';
 
   const copyAlias = () => {
     navigator.clipboard.writeText(ALIAS);
@@ -237,10 +239,7 @@ export default function AppPage() {
     await deferredPrompt.prompt();
   };
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    localStorage.setItem('darkMode', !darkMode);
-  };
+  
 
   const shareWhatsApp = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP)}`);
@@ -270,7 +269,6 @@ export default function AppPage() {
     ? boletos.filter(b => b.estado === 'vendido').length 
     : 0;
   const porcentaje = boletos.length > 0 ? Math.round((vendidosCount / boletos.length) * 100) : 0;
-  const theme = darkMode;
 
   return (
     <div className={`min-h-screen pb-24 ${theme ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
@@ -332,10 +330,9 @@ export default function AppPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => router.push('/')} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>🏠</button>
+              
               {showInstallBtn && <button onClick={installApp} className={`p-2 rounded-full bg-green-500/20`}>📲</button>}
-              <button onClick={() => setShowShare(true)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>📤</button>
-              <button onClick={toggleDarkMode} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{theme ? '🌝' : '🌚'}</button>
+              <button onClick={() => setShowShare(true)} className={`p-2 rounded-full bg-white/10`}>📤</button>
               <button onClick={() => setShowMenu(!showMenu)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{showMenu ? '✕' : '☰'}</button>
             </div>
           </div>

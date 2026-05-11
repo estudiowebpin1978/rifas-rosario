@@ -24,6 +24,7 @@ export default function AdminPage() {
   const [ganadorModal, setGanadorModal] = useState(null);
   const [notif, setNotif] = useState('');
   const [darkMode, setDarkMode] = useState(true);
+  const theme = true;
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -233,7 +234,6 @@ export default function AdminPage() {
     fetchData();
   };
 
-  const theme = darkMode;
   const totalVentas = Object.values(boletosData).flat().filter(b => b.estado === 'vendido').length;
 
   if (!isLoggedIn) {
@@ -273,7 +273,6 @@ export default function AdminPage() {
         <div className="max-w-2xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <button onClick={() => { setDarkMode(!darkMode); localStorage.setItem('darkMode', !darkMode); }} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>{theme ? '🌝' : '🌚'}</button>
               <div>
                 <h1 className="text-lg font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">PANEL ADMIN</h1>
                 <p className="text-xs text-gray-500">{email}</p>

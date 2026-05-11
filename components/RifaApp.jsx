@@ -13,6 +13,7 @@ export default function RifaApp() {
   const [seleccionado, setSeleccionado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+  const theme = true;
   const [categoriaActiva, setCategoriaActiva] = useState(null);
   const [ganadores, setGanadores] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
@@ -167,7 +168,6 @@ export default function RifaApp() {
 
   const vendidosCount = boletos.filter(b => b.estado === 'vendido').length;
   const porcentaje = boletos.length > 0 ? Math.round((vendidosCount / boletos.length) * 100) : 0;
-  const theme = darkMode;
 
   return (
     <div className={`min-h-screen pb-32 ${theme ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
@@ -190,9 +190,8 @@ export default function RifaApp() {
               <button onClick={shareApp} className="p-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg shadow-pink-500/30">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
               </button>
-              <button onClick={() => { setDarkMode(!darkMode); localStorage.setItem('darkMode', !darkMode); }} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>
-                {theme ? '🌝' : '🌚'}
-              </button>
+              
+
               <button onClick={() => setShowAuth(true)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>
                 {showAuth ? '✕' : '👤'}
               </button>

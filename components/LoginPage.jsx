@@ -10,6 +10,7 @@ export default function RifaApp() {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+  const theme = true;
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [authForm, setAuthForm] = useState({ email: '', password: '', nombre: '' });
@@ -68,15 +69,8 @@ export default function RifaApp() {
         router.push('/app');
       }
     }
-    setAuthLoading(false);
+setAuthLoading(false);
   };
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    localStorage.setItem('darkMode', !darkMode);
-  };
-
-  const theme = darkMode;
 
   return (
     <div className={`min-h-screen ${theme ? 'bg-black text-white' : 'bg-white'}`}>
@@ -95,9 +89,8 @@ export default function RifaApp() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={toggleDarkMode} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>
-              {theme ? '🌝' : '🌚'}
-            </button>
+            
+
             <button onClick={() => setShowMenu(!showMenu)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>
               {showMenu ? '✕' : '☰'}
             </button>
