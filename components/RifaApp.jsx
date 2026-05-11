@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import LogoImg from '../public/logo.png';
 import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
@@ -256,9 +255,9 @@ export default function RifaApp() {
                 onClick={() => setProductoSeleccionado(prod)}
                 className={`cursor-pointer rounded-3xl overflow-hidden transition-transform hover:scale-[1.02] active:scale-[0.98] ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}
               >
-                <div className={`aspect-square relative ${theme ? 'bg-gradient-to-br from-pink-500/20 to-purple-500/20' : 'bg-gradient-to-br from-pink-100 to-purple-100'} flex items-center justify-center`}>
+                <div className="relative aspect-square">
                   {prod.imagen ? (
-                    <Image src={prod.imagen} alt={prod.nombre} fill className="object-cover" />
+                    <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-8xl">🎁</span>
                   )}

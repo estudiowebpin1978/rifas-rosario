@@ -423,8 +423,8 @@ export default function AppPage() {
           <div className="grid grid-cols-2 gap-4">
             {productos.map(prod => (
               <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'} ${prod.finalizado ? 'opacity-50' : ''}`}>
-                <div className={`aspect-square ${theme ? 'bg-gradient-to-br from-pink-500/20 to-purple-500/20' : 'bg-gradient-to-br from-pink-100 to-purple-100'} flex items-center justify-center relative`}>
-                  {prod.imagen ? <Image src={prod.imagen} alt={prod.nombre} fill className="object-cover" /> : <span className="text-6xl">🎁</span>}
+                <div className="relative aspect-square">
+                  {prod.imagen ? <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" /> : <span className="text-6xl">🎁</span>}
                   <span className="absolute top-2 right-2 bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">{prod.categorias?.nombre}</span>
                   {prod.finalizado && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-4xl">🏆</span></div>}
                 </div>
@@ -452,8 +452,8 @@ export default function AppPage() {
           </button>
 
           <div className={`rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
-            <div className={`aspect-video ${theme ? 'bg-gradient-to-br from-pink-500/30 to-purple-500/30' : 'bg-gradient-to-br from-pink-100 to-purple-100'} flex items-center justify-center relative`}>
-              {productoSeleccionado.imagen ? <Image src={productoSeleccionado.imagen} alt={productoSeleccionado.nombre} fill className="object-contain" /> : <span className="text-7xl">🎁</span>}
+            <div className="relative aspect-video">
+              {productoSeleccionado.imagen ? <img src={productoSeleccionado.imagen} alt={productoSeleccionado.nombre} className="w-full h-full object-contain" /> : <span className="text-7xl">🎁</span>}
               {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
             </div>
             <div className="p-4">
