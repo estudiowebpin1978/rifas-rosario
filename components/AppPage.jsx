@@ -37,7 +37,7 @@ export default function AppPage() {
   const LOGO_URL = '/logo.png';
   const WHATSAPP = '5493416971479';
   const URL_APP = 'https://rifas-rosario.vercel.app/app';
-  const ALIAS = 'rifas.rosario';
+  const ALIAS = 'rifas.rosario.';
 
   const copyAlias = () => {
     navigator.clipboard.writeText(ALIAS);
@@ -493,7 +493,7 @@ export default function AppPage() {
               <div className={`rounded-3xl p-4 text-center ${theme ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30' : 'bg-gradient-to-r from-pink-100 to-purple-100'}`}>
                 <p className="text-xs font-bold mb-1">💳 PAGÁ CON MERCADO PAGO</p>
                 <div className="flex items-center justify-center gap-2">
-                  <p className="text-2xl font-black text-pink-500">.: rifas.rosario</p>
+                  <p className="text-2xl font-black text-pink-500">rifas.rosario.</p>
                   <button onClick={copyAlias} className="bg-pink-500 text-white px-2 py-1 rounded-lg text-xs font-bold">📋 Copiar</button>
                 </div>
               </div>
@@ -526,7 +526,7 @@ export default function AppPage() {
             </div>
             <div className={`text-center p-3 rounded-xl mb-4 ${theme ? 'bg-white/10' : 'bg-gray-100'}`}>
               <p className="text-xs font-bold text-gray-400">Alias de Pago</p>
-              <p className="text-lg font-black text-pink-500">.: rifas.rosario</p>
+              <p className="text-lg font-black text-pink-500">rifas.rosario.</p>
                 <button onClick={copyAlias} className="bg-pink-500 text-white px-2 py-1 rounded-lg text-xs font-bold">📋 Copiar</button>
             </div>
             <form onSubmit={handleReserva} className="space-y-3">

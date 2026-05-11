@@ -22,7 +22,7 @@ export default function RifaApp() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
-  const ALIAS = 'rifas.rosario';
+  const ALIAS = 'rifas.rosario.';
 
   const copyAlias = () => {
     navigator.clipboard.writeText(ALIAS);
@@ -149,7 +149,7 @@ export default function RifaApp() {
       const msg4 = `💰 Precio: ${productoSeleccionado.precio}\n\n`;
       const msg5 = `👤 Nombre: ${nombre}\n`;
       const msg6 = `📱 WhatsApp: ${whatsapp}\n\n`;
-      const msg7 = `💳 *Alias: .: rifas.rosario*\n\n`;
+      const msg7 = `💳 *Alias: rifas.rosario.*\n\n`;
       const msg8 = `Enviame el comprobante de pago! 🙏`;
       window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg+msg2+msg3+msg4+msg5+msg6+msg7+msg8)}`);
       setTimeout(() => { setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
@@ -359,7 +359,7 @@ export default function RifaApp() {
           <div className={`rounded-3xl p-4 text-center ${theme ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30' : 'bg-gradient-to-r from-pink-100 to-purple-100'}`}>
             <p className="text-sm font-bold mb-1">💳 PAGÁ CON MERCADO PAGO</p>
             <div className="flex items-center justify-center gap-2">
-              <p className="text-2xl font-black text-pink-500">.: rifas.rosario</p>
+              <p className="text-2xl font-black text-pink-500">rifas.rosario.</p>
               <button onClick={copyAlias} className="bg-pink-500 text-white px-2 py-1 rounded-lg text-xs font-bold">📋 Copiar</button>
             </div>
           </div>
