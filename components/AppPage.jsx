@@ -26,6 +26,7 @@ export default function AppPage() {
   const [sorteoCountdown, setSorteoCountdown] = useState(30);
   const [ganadorAnimado, setGanadorAnimado] = useState(null);
   const [showPremio, setShowPremio] = useState(false);
+  const [showComoFunciona, setShowComoFunciona] = useState(false);
 
   useEffect(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -134,12 +135,19 @@ export default function AppPage() {
 
   const iniciarSorteo = async () => {
     setShowSorteo(true);
+    setShowPremio(false);
+    setGanadorAnimado(null);
     setSorteoCountdown(30);
+    
+    let confettiInterval = setInterval(() => {
+      confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 }, colors: ['#ff0', '#f0f', '#0ff', '#f00', '#0f0'] });
+    }, 800);
     
     const intervalo = setInterval(() => {
       setSorteoCountdown(prev => {
         if (prev <= 1) {
           clearInterval(intervalo);
+          clearInterval(confettiInterval);
           seleccionarGanador();
           return 0;
         }
@@ -148,42 +156,63 @@ export default function AppPage() {
     }, 1000);
   };
 
-  const seleccionarGanador = async () => {
+const seleccionarGanador = async () => {
     const vendidos = boletos.filter(b => b.estado === 'vendido');
     if (vendidos.length === 0) return;
     
-    const winner = vendidos[Math.floor(Math.random() * vendidos.length)];
-    setGanadorAnimado(winner.numero);
+    let animIndex = 0;
+    const animInterval = setInterval(() => {
+      const randomVendido = vendidos[Math.floor(Math.random() * vendidos.length)];
+      setGanadorAnimado(randomVendido.numero);
+      animIndex++;
+      if (animIndex > 10) clearInterval(animInterval);
+    }, 150);
     
-    confetti({ particleCount: 200, spread: 360, origin: { y: 0.6 } });
-    
-    await supabase.from('productos').update({
-      finalizado: true,
-      ganador_num: winner.numero,
-      ganador_nombre: winner.nombre
-    }).eq('id', productoSeleccionado.id);
+    setTimeout(() => {
+      clearInterval(animInterval);
+      const winner = vendidos[Math.floor(Math.random() * vendidos.length)];
+      setGanadorAnimado(winner.numero);
+      
+      var confetti1 = () => confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700', '#FF1493', '#00BFFF'] });
+      var confetti2 = () => confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#FFD700', '#FF1493', '#00BFFF'] });
+      var confetti3 = () => confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FFD700', '#FF1493', '#00BFFF'] });
+      
+      confetti1();
+      setTimeout(confetti2, 200);
+      setTimeout(confetti3, 400);
+      setTimeout(confetti1, 600);
+      setTimeout(confetti2, 800);
+      setTimeout(confetti3, 1000);
+      setTimeout(() => { confetti({ particleCount: 300, spread: 360, origin: { y: 0.5 } }); }, 1200);
+      
+      supabase.from('productos').update({
+        finalizado: true,
+        winner_num: winner.numero,
+        winner_nombre: winner.nombre
+      }).eq('id', productoSeleccionado.id);
 
-    const msg = `🎉 *SORTEO TERMINADO - RIFAS ROSARIO*\n\n🏆 *GANADOR: #${String(winner.numero).padStart(2,'0')}*\n👤 ${winner.nombre}\n🎁 ${productoSeleccionado.nombre}\n\nTodos los participantes fueron notificados!`;
-    
-    for (const boleto of vendidos) {
-      if (boleto.whatsapp) {
-        const mensaje = boleto.numero === winner.numero 
-          ? `🎉🎉🎉 *FELICIDADES!* 🎉🎉🎉\n\nGanaste el SORTEO!\n\n🎁 Producto: ${productoSeleccionado.nombre}\n🏆 Tu numero: #${String(winner.numero).padStart(2,'0')}\n\nContacta al admin para reclamar tu premio!`
-          : `😢 *NO FUiste el ganador esta vez*\n\nTu numero: #${String(boleto.numero).padStart(2,'0')}\n🏆 Ganador: #${String(winner.numero).padStart(2,'0')}\n\nNo te pierdas las proximas rifas! https://rifas-rosario.vercel.app/app`;
-        
-        setTimeout(() => {
-          window.open(`https://wa.me/${boleto.whatsapp}?text=${encodeURIComponent(mensaje)}`, '_blank');
-        }, 1000);
+      const msg = '🎉 SORTEO TERMINADO - RIFAS ROSARIO\n\n🏆 GANADOR: #' + String(winner.numero).padStart(2,'0') + '\n👤 ' + winner.nombre + '\n🎁 ' + productoSeleccionado.nombre + '\n\nTodos los participantes fueron notificados!';
+      
+      for (const boleto of vendidos) {
+        if (boleto.whatsapp) {
+          const mensaje = boleto.numero === winner.numero 
+            ? '🎉🎉🎉 FELICIDADES! 🎉🎉🎉\n\nGanaste el SORTEO!\n\n🎁 Producto: ' + productoSeleccionado.nombre + '\n🏆 Tu numero: #' + String(winner.numero).padStart(2,'0') + '\n\nContacta al admin para reclamar tu premio!'
+            : '😢 NO Fuiste el ganador esta vez\n\nTu numero: #' + String(boleto.numero).padStart(2,'0') + '\n🏆 Ganador: #' + String(winner.numero).padStart(2,'0') + '\n\nNo te pierdas las proximas rifas! https://rifas-rosario.vercel.app/app';
+          
+          setTimeout(() => {
+            window.open('https://wa.me/' + boleto.whatsapp + '?text=' + encodeURIComponent(mensaje), '_blank');
+          }, 1000);
+        }
       }
-    }
 
-    setTimeout(() => setShowPremio(true), 2000);
+      setTimeout(() => setShowPremio(true), 2000);
+    });
   };
 
-  const contactarGanador = () => {
-    const winner = boletos.find(b => b.numero === winner?.numero);
-    const msg = `🎊 *FELICIDADES!* Ganaste ${productoSeleccionado.nombre}!\n\nQuiero coordinar la entrega de mi premio. Mi direccion es...`;
-    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`);
+const contactarGanador = () => {
+    const winnerNum = winnerAnimado;
+    const msg = '🎊 FELICIDADES! Ganaste ' + productoSeleccionado.nombre + '!\n\nQuiero coordinar la entrega de mi premio. Mi direccion es...';
+    window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
   };
 
   const verOtrosProductos = () => {
@@ -365,6 +394,58 @@ export default function AppPage() {
         </div>
       )}
 
+      {showComoFunciona && (
+        <div className="fixed inset-0 z-[70] flex items-end justify-center" onClick={() => setShowComoFunciona(false)}>
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-gray-900 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h2 className="text-xl font-black text-center mb-6 bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">COMO FUNCIONAN LAS RIFAS?</h2>
+            <div className="space-y-4">
+              <div className="flex gap-4 items-start">
+                <span className="text-3xl">1️⃣</span>
+                <div>
+                  <p className="font-black text-sm">ELEGÍ TU NÚMERO</p>
+                  <p className="text-gray-400 text-sm">Seleccioná el número que más te guste de la rifa activa. Cada número es único!</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <span className="text-3xl">2️⃣</span>
+                <div>
+                  <p className="font-black text-sm">RESERVÁ Y PAGÁ</p>
+                  <p className="text-gray-400 text-sm">Completá tus datos y pagá via Mercado Pago al alias rifas.rosario.</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <span className="text-3xl">3️⃣</span>
+                <div>
+                  <p className="font-black text-sm">ESPERÁ EL SORTEO</p>
+                  <p className="text-gray-400 text-sm">Cuando se vendan los 100 números, se sortea automáticamente con un contador de 30 segundos!</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <span className="text-3xl">🎉</span>
+                <div>
+                  <p className="font-black text-sm">SORTEO EN VIVO</p>
+                  <p className="text-gray-400 text-sm">El sistema elige un número al azar. Si es el tuyo, GANASTE! Te notificamos por WhatsApp.</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <span className="text-3xl">🏆</span>
+                <div>
+                  <p className="font-black text-sm">RECLAMÁ TU PREMIO</p>
+                  <p className="text-gray-400 text-sm">Contactá al admin por WhatsApp y coordiná la entrega de tu premio!</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 bg-gradient-to-r from-pink-500/20 to-cyan-500/20 rounded-2xl p-4 text-center border border-pink-500/30">
+              <p className="text-sm font-bold">💡 Tu mejor inversión!</p>
+              <p className="text-xs text-gray-400 mt-1">Si hoy sale tu número? Pensa en todo lo que podrias ganar!</p>
+            </div>
+            <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 py-3 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-black rounded-xl">ENTENDÍ!</button>
+          </div>
+        </div>
+      )}
+
       {showMenu && (
         <div className={`fixed inset-0 z-40 ${theme ? 'bg-black/95' : 'bg-white/95'} backdrop-blur-xl p-6`}>
           <div className="flex justify-between items-center mb-8">
@@ -372,6 +453,7 @@ export default function AppPage() {
             <button onClick={() => setShowMenu(false)} className="text-3xl">✕</button>
           </div>
           <nav className="space-y-4">
+            <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black text-lg text-center shadow-lg">❓ Como Funciona?</button>
             <button onClick={() => router.push('/')} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black text-lg text-center shadow-lg">🏠 Inicio</button>
             <a href="/admin" className="block p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-lg text-center shadow-lg">🔐 Panel Admin</a>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black text-lg text-center shadow-lg">📱 WhatsApp</a>
@@ -407,7 +489,15 @@ export default function AppPage() {
                 <span className="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-bold">$5000</span>
                 <span className="bg-yellow-400 text-black text-xs px-3 py-1 rounded-full font-bold animate-pulse">JUGÁ POR MENOS</span>
               </div>
+              <button onClick={() => setShowComoFunciona(true)} className="mt-3 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-2 rounded-full transition-all">
+                ❓ Como funciona el sorteo?
+              </button>
             </div>
+
+          <button onClick={() => setShowComoFunciona(true)} className="w-full bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-2xl p-4 text-center">
+            <p className="font-black text-sm">🎰 COMO FUNCIONAN LOS SORTEOS?</p>
+            <p className="text-xs text-gray-400 mt-1">Contador de 30s + selección aleatoria + piñata de confetti!</p>
+          </button>
 
           <div className={`flex gap-2 overflow-x-auto pb-4 bg-white/5 rounded-2xl p-2`}>
             <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-4 py-2 rounded-full font-bold text-sm ${!categoriaActiva ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : theme ? 'bg-white/10 text-white' : 'bg-black/10'}`}>
