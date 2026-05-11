@@ -16,7 +16,7 @@ export default function RifaApp() {
   const [authSuccess, setAuthSuccess] = useState('');
   const [user, setUser] = useState(null);
 
-  const LOGO_URL = 'https://tmpfiles.org/dl/37442389/logo.png';
+  const LOGO_URL = '/logo.png';
   const WHATSAPP = '5493416971479';
 
   useEffect(() => {

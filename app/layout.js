@@ -5,8 +5,8 @@ export const metadata = {
   description: 'Las mejores rifas en Rosario - Participa y gana!',
   manifest: '/manifest.json',
   icons: {
-    icon: 'https://tmpfiles.org/dl/37342838/logo.jpg',
-    apple: 'https://tmpfiles.org/dl/37342838/logo.jpg',
+    icon: '/logo.png',
+    apple: '/logo.png',
   },
   appleWebApp: {
     capable: true,

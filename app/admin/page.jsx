@@ -25,7 +25,7 @@ export default function AdminPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef(null);
 
-  const LOGO_URL = 'https://tmpfiles.org/dl/37442389/logo.png';
+  const LOGO_URL = '/logo.png';
   const WHATSAPP = '5493416971479';
 
   useEffect(() => {
@@ -123,14 +123,13 @@ export default function AdminPage() {
     setUploadingImage(true);
     
     const formDataUpload = new FormData();
-    formDataUpload.append('file', file);
+    formDataUpload.append('image', file);
     
     try {
-      const res = await fetch('https://tmpfiles.org/api/v1/upload', { method: 'POST', body: formDataUpload });
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=d36eb6591570ef9d5e9e4c77f16c9b79`, { method: 'POST', body: formDataUpload });
       const data = await res.json();
-      if (data.status === 'success') {
-        const url = data.data.url.replace('tmpfiles.org', 'tmpfiles.org/dl');
-        setFormData({...formData, imagen: url});
+      if (data.success) {
+        setFormData({...formData, imagen: data.data.url});
       }
     } catch (err) {
       console.error('Upload error:', err);

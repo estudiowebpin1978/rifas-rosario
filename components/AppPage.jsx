@@ -34,7 +34,7 @@ export default function AppPage() {
     });
   }, []);
 
-  const LOGO_URL = 'https://tmpfiles.org/dl/37442389/logo.png';
+  const LOGO_URL = '/logo.png';
   const WHATSAPP = '5493416971479';
   const URL_APP = 'https://rifas-rosario.vercel.app/app';
 
