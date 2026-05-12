@@ -21,10 +21,6 @@ export async function GET(request) {
       .from('boletos')
       .select('*');
     
-    if (prodError) {
-      return Response.json({ error: prodError.message }, { status: 400 });
-    }
-    
     const productosConCategoria = productos.map(p => ({
       ...p,
       categorias: categorias.find(c => c.id === p.categoria_id) || null
