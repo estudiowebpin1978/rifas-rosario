@@ -19,6 +19,14 @@ export default function AppPage() {
   const [categoriaActiva, setCategoriaActiva] = useState(null);
   const [ganadores, setGanadores] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
+  const [fakeWatching, setFakeWatching] = useState(15);
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setFakeWatching(Math.floor(Math.random() * 30) + 8);
+    }, 5000);
+    return () => clearInterval(iv);
+  }, []);
   const [showReserva, setShowReserva] = useState(false);
   const [reservaForm, setReservaForm] = useState({ nombre: '', whatsapp: '' });
   const [showShare, setShowShare] = useState(false);
@@ -476,16 +484,74 @@ const contactarGanador = () => {
             </div>
           )}
 
-          <div className={`rounded-3xl overflow-hidden ${theme ? 'bg-gradient-to-br from-pink-600 via-purple-600 to-cyan-600' : 'bg-gradient-to-br from-pink-500 to-purple-500'} p-6 text-center relative`}>
-              <div className="absolute top-0 left-0 right-0 h-1 bg-yellow-400"></div>
-              <p className="text-white text-sm font-bold mb-1">PARTICIPÁ AHORA</p>
-              <h2 className="text-white text-2xl font-black mb-1">Tu mejor inversion!</h2>
-              <button onClick={() => setShowComoFunciona(true)} className="mt-2 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-2 rounded-full transition-all">
-                ❓ Como funciona?
-              </button>
-            </div>
+          <div className="relative">
+            {(() => {
+              const heroProd = productos.find(p => !p.finalizado);
+              const heroBoletos = heroProd ? boletos.filter(b => b.producto_id === heroProd.id) : [];
+              const heroVendidos = heroBoletos.filter(b => b.estado === 'vendido').length;
+              const heroRestantes = 100 - heroVendidos;
+              return heroProd ? (
+                <div onClick={() => setProductoSeleccionado(heroProd)} className="cursor-pointer rounded-3xl overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/10 shadow-2xl shadow-pink-500/20 relative">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10"></div>
+                  <div className="relative aspect-[4/3]">
+                    {heroProd.imagen ? (
+                      <img src={heroProd.imagen} alt={heroProd.nombre} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center">
+                        <span className="text-8xl animate-pulse">🎁</span>
+                      </div>
+                    )}
+                    <div className="absolute top-3 left-3 z-20">
+                      <span className="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg animate-pulse">🔥 RIFA ACTIVA</span>
+                    </div>
+                    <div className="absolute top-3 right-3 z-20">
+                      <span className="bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-full">{heroRestantes} disponibles</span>
+                    </div>
+                  </div>
+                  <div className="relative z-20 p-5 -mt-4">
+                    <h2 className="text-white text-2xl font-black mb-2">{heroProd.nombre}</h2>
+                    <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-500 to-cyan-400">{heroProd.precio}</p>
+                    <div className="mt-3">
+                      <div className="flex justify-between text-xs text-gray-400 mb-1">
+                        <span>🎟 {heroVendidos}/100 vendidos</span>
+                        <span>👁 {fakeWatching} personas mirando</span>
+                      </div>
+                      <div className="h-3 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-full transition-all duration-500" style={{ width: heroVendidos + '%' }}></div>
+                      </div>
+                    </div>
+                    <button className="w-full mt-4 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-black py-4 rounded-2xl text-lg shadow-xl shadow-pink-500/30 active:scale-95 transition-transform">
+                      PARTICIPAR →
+                    </button>
+                  </div>
+                </div>
+              ) : null;
+            })()}
+          </div>
 
-          <div className={`flex gap-2 overflow-x-auto pb-4 bg-white/5 rounded-2xl p-2`}>
+          {ganadores.length > 0 && (
+            <div className="rounded-3xl p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
+              <h2 className="font-black text-sm mb-3 flex items-center gap-2">
+                <span className="animate-bounce inline-block">🏆</span> ULTIMO GANADOR
+              </h2>
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {ganadores.slice(0,1).map(g => (
+                  <div key={g.id} className="flex-shrink-0 p-3 rounded-2xl bg-black/50 border border-yellow-500/30">
+                    <p className="font-black text-yellow-400 text-2xl">#{String(g.ganador_num).padStart(2,'0')}</p>
+                    <p className="text-white text-sm font-bold">{g.ganador_nombre}</p>
+                    <p className="text-gray-400 text-xs">{g.nombre}</p>
+                    <p className="text-green-400 text-xs mt-1">✅ Premiado</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button onClick={() => setShowComoFunciona(true)} className="w-full bg-gray-900/80 border border-white/10 rounded-2xl p-4 text-center">
+            <p className="font-black text-sm">❓ COMO FUNCIONAN LAS RIFAS?</p>
+          </button>
+
+          <div className="flex gap-2 overflow-x-auto pb-4 bg-white/5 rounded-2xl p-2">
             <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-4 py-2 rounded-full font-bold text-sm ${!categoriaActiva ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : theme ? 'bg-white/10 text-white' : 'bg-black/10'}`}>
               Todos 🔥
             </button>
