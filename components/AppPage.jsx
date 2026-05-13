@@ -267,7 +267,7 @@ const handleReserva = async (e) => {
       const msg8 = 'Alias: rifas.rosario.\n';
       const msg9 = '💳 Alias: rifas.rosario.\n\n';
       const msg10 = '📋 Enviame el comprobante de pago y reservo tu numero! 🙏\n\n';
-      const msg11 = '⏳ IMPORTANTE: Tu numero queda RESERVADO por 24hs.\nSi no se confirma el pago, se libera automaticamente.';
+      const msg11 = '⏳ IMPORTANTE: Tu numero queda RESERVADO por 10 minutos.\nSi no se confirma el pago, se libera automaticamente.';
       const fullMsg = msg + msg2 + msg3 + msg4 + msg5 + msg6 + msg7 + msg8 + msg9 + msg10 + msg11;
       window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(fullMsg), '_blank');
       setTimeout(() => {
