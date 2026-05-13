@@ -12,6 +12,10 @@ export async function GET(request) {
       .select('*')
       .order('id', { ascending: false });
     
+    if (prodError) {
+      return Response.json({ error: prodError.message }, { status: 400 });
+    }
+    
     const { data: categorias, error: catError } = await supabase
       .from('categorias')
       .select('*')
