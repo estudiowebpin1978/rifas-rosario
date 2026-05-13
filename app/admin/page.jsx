@@ -12,6 +12,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
   const [categorias, setCategorias] = useState([]);
   const [productos, setProductos] = useState([]);
   const [boletosData, setBoletosData] = useState({});
@@ -328,9 +329,55 @@ export default function AdminPage() {
         </div>
       </main>
 
-      <div className="max-w-2xl mx-auto px-4">
-        <button onClick={manualRefresh} className="w-full bg-gray-800 text-white py-2 rounded-xl font-bold text-sm">🔄 Actualizar datos</button>
+      <div className="max-w-2xl mx-auto px-4 mb-4">
+        <div className="flex gap-2">
+          <button onClick={manualRefresh} className="flex-1 bg-gray-800 text-white py-2 rounded-xl font-bold text-sm">🔄 Actualizar datos</button>
+          <button onClick={() => setShowDebug(!showDebug)} className={`flex-1 py-2 rounded-xl font-bold text-sm ${showDebug ? 'bg-red-500' : 'bg-purple-500'} text-white`}>🐛 DEBUG {showDebug ? 'OCULTAR' : 'MOSTRAR'}</button>
+        </div>
       </div>
+
+      {showDebug && (
+        <div className="max-w-2xl mx-auto px-4 mb-4">
+          <div className="bg-black/80 border border-red-500 rounded-2xl p-4">
+            <h3 className="font-black text-red-500 mb-3">🔴 DEBUG - TODOS LOS BOLETOS</h3>
+            <div className="text-xs text-gray-400 mb-3">
+              <p>Total boletos: {todosBoletos.length}</p>
+              <p>Reservados: {pendientesPago.length}</p>
+              <p>Vendidos: {vendidosCount}</p>
+            </div>
+            <div className="max-h-96 overflow-y-auto space-y-1">
+              {productos.map(prod => {
+                const prodBoletos = boletosData[prod.id] || [];
+                const reservados = prodBoletos.filter(b => b.estado === 'reservado');
+                const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
+                return (
+                  <div key={prod.id} className="border border-gray-700 rounded-xl p-2">
+                    <p className="font-bold text-yellow-400">{prod.nombre} ({prodBoletos.length} boletos)</p>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {reservados.length > 0 && (
+                        <div className="w-full">
+                          <p className="text-orange-400 text-xs font-bold">RESERVADOS ({reservados.length}):</p>
+                          {reservados.map(b => (
+                            <span key={b.id} className="bg-orange-500/30 text-orange-400 px-1 rounded text-xs mr-1">#{String(b.numero).padStart(2,'0')} ({b.nombre})</span>
+                          ))}
+                        </div>
+                      )}
+                      {vendidos.length > 0 && (
+                        <div className="w-full">
+                          <p className="text-green-400 text-xs font-bold">VENDIDOS ({vendidos.length}):</p>
+                          {vendidos.map(b => (
+                            <span key={b.id} className="bg-green-500/30 text-green-400 px-1 rounded text-xs mr-1">#{String(b.numero).padStart(2,'0')}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
