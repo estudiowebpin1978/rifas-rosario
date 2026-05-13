@@ -209,25 +209,29 @@ export default function AppPage() {
 
   const handleBulkReserva = async (e) => {
     e.preventDefault();
-    if (!supabase) { alert('Supabase no disponible'); return; }
     if (selectedNumbers.length === 0) return;
     setLoading(true);
     
-    const updates = selectedNumbers.map(async (num) => {
-      const { data, error } = await supabase
-        .from('boletos')
-        .update({ estado: 'reservado', nombre: reservaForm.nombre, whatsapp: reservaForm.whatsapp })
-        .eq('numero', num)
-        .eq('producto_id', productoSeleccionado.id)
-        .select()
-        .single();
-      if (error) console.error('Error reservando #' + num + ':', error);
-      return { num, data, error };
-    });
-    
-    const results = await Promise.all(updates);
-    const successful = results.filter(r => !r.error).length;
-    console.log('Reservados:', successful, 'de', selectedNumbers.length, ' Intentados:', results);
+    let successful = 0;
+    for (const num of selectedNumbers) {
+      try {
+        const res = await fetch('/api/reservar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            numero: num,
+            producto_id: productoSeleccionado.id,
+            nombre: reservaForm.nombre,
+            whatsapp: reservaForm.whatsapp
+          })
+        });
+        const result = await res.json();
+        if (result.success) successful++;
+        else console.error('Error reserva #' + num + ':', result.error);
+      } catch (err) {
+        console.error('Error reservando #' + num + ':', err);
+      }
+    }
     
     if (successful > 0) {
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
@@ -237,35 +241,40 @@ export default function AppPage() {
       window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
       setTimeout(() => { setShowBulkReserva(false); setSelectedNumbers([]); fetchBoletos(productoSeleccionado.id); }, 2000);
     } else {
-      alert('Error al reservar. Revisa la consola.');
+      alert('Error al reservar. Probá de nuevo.');
     }
     setLoading(false);
   };
 
   const handleReserva = async (e) => {
     e.preventDefault();
-    if (!supabase) { alert('Supabase no disponible'); return; }
     if (!seleccionado) return;
     setLoading(true);
     
-    const { data, error } = await supabase
-      .from('boletos')
-      .update({ estado: 'reservado', nombre: reservaForm.nombre, whatsapp: reservaForm.whatsapp })
-      .eq('numero', seleccionado)
-      .eq('producto_id', productoSeleccionado.id)
-      .select()
-      .single();
-    
-    console.log('Reserva resultado:', { data, error });
-    
-    if (!error && data) {
-      confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
-      const msg = '🎟️ RIFA RESERVADA - RIFAS ROSARIO\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + productoSeleccionado.nombre + '\n💰 Precio: ' + formatPrice(productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
-      window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
-      setTimeout(() => { setShowReserva(false); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
-    } else {
-      console.error('Error en reserva:', error);
-      alert('Error al reservar: ' + (error?.message || 'desconocido'));
+    try {
+      const res = await fetch('/api/reservar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          numero: seleccionado,
+          producto_id: productoSeleccionado.id,
+          nombre: reservaForm.nombre,
+          whatsapp: reservaForm.whatsapp
+        })
+      });
+      const result = await res.json();
+      
+      if (result.success) {
+        confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
+        const msg = '🎟️ RIFA RESERVADA - RIFAS ROSARIO\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + productoSeleccionado.nombre + '\n💰 Precio: ' + formatPrice(productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
+        window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
+        setTimeout(() => { setShowReserva(false); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
+      } else {
+        alert('Error al reservar: ' + (result.error || 'desconocido'));
+      }
+    } catch (err) {
+      console.error('Error en reserva:', err);
+      alert('Error al reservar. Probá de nuevo.');
     }
     setLoading(false);
   };

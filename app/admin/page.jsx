@@ -139,22 +139,48 @@ export default function AdminPage() {
   };
 
   const confirmarVenta = async (boleto) => {
-    if (!supabase) return;
-    await supabase.from('boletos').update({ estado: 'vendido' }).eq('id', boleto.id);
-    confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 } });
-    setNotif(`✅ Venta confirmada! #${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}`);
-    setShowConfirmModal(null);
-    fetchData();
-    const msg = `✅ VENTA CONFIRMADA - RIFAS ROSARIO\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
-    if (boleto.whatsapp) window.open('https://wa.me/' + boleto.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+    try {
+      const res = await fetch('/api/confirmar-pago', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ boleto_id: boleto.id, action: 'confirmar' })
+      });
+      const result = await res.json();
+      
+      if (result.success) {
+        confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 } });
+        setNotif(`✅ Venta confirmada! #${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}`);
+        setShowConfirmModal(null);
+        fetchData();
+        const msg = `✅ VENTA CONFIRMADA - RIFAS ROSARIO\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
+        if (boleto.whatsapp) window.open('https://wa.me/' + boleto.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+      } else {
+        alert('Error: ' + (result.error || 'No se pudo confirmar'));
+      }
+    } catch (err) {
+      alert('Error al confirmar venta');
+    }
   };
 
   const cancelarReserva = async (boleto) => {
-    if (!supabase) return;
     if (!confirm(`Cancelar reserva #${boleto.numero}?\n\nEl número volverá a estar disponible.`)) return;
-    await supabase.from('boletos').update({ estado: 'disponible', nombre: null, whatsapp: null }).eq('id', boleto.id);
-    setNotif(`❌ Reserva cancelada #${boleto.numero}`);
-    fetchData();
+    try {
+      const res = await fetch('/api/confirmar-pago', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ boleto_id: boleto.id, action: 'cancelar' })
+      });
+      const result = await res.json();
+      
+      if (result.success) {
+        setNotif(`❌ Reserva cancelada #${boleto.numero}`);
+        fetchData();
+      } else {
+        alert('Error: ' + (result.error || 'No se pudo cancelar'));
+      }
+    } catch (err) {
+      alert('Error al cancelar reserva');
+    }
   };
 
   const todosBoletos = Object.values(boletosData).flat();
