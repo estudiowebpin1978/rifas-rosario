@@ -124,9 +124,7 @@ export default function ProfilePage() {
                 <label className="text-sm font-bold text-gray-400 mb-1 block">Tu Nombre</label>
                 <input type="text" placeholder="Tu nombre" value={nombre} onChange={e => setNombre(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-xl p-4 font-bold" />
               </div>
-              <button onClick={handleLogin} className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-black py-4 rounded-xl shadow-xl">
-                ENTRAR 🚀
-              </button>
+              <button onClick={handleLogin} className="w-full btn-3d-pink">ENTRAR 🚀</button>
             </div>
           </div>
           
@@ -204,9 +202,7 @@ export default function ProfilePage() {
               <span className="text-5xl mb-3 block">🎰</span>
               <p className="font-bold">Aún no ganaste ninguna rifa</p>
               <p className="text-sm text-gray-400 mt-1">Participá y podría ser tu turno!</p>
-              <button onClick={() => router.push('/app')} className="mt-4 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-black px-6 py-3 rounded-xl">
-                VER RIFAS →
-              </button>
+              <button onClick={() => router.push('/app')} className="mt-4 btn-3d-cyan">VER RIFAS 🎰</button>
             </div>
           ) : (
             <div className="space-y-3">

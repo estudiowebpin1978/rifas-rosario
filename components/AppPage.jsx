@@ -511,7 +511,7 @@ confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
                 </div>
               </div>
             </div>
-            <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 py-3 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-black rounded-xl">ENTENDÍ!</button>
+            <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 btn-3d-cyan">ENTENDÍ! 💪</button>
           </div>
         </div>
       )}
@@ -523,10 +523,10 @@ confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
             <button onClick={() => setShowMenu(false)} className="text-3xl">✕</button>
           </div>
           <nav className="space-y-4">
-            <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black text-lg text-center shadow-lg">❓ Como Funciona?</button>
-            <button onClick={() => router.push('/')} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black text-lg text-center shadow-lg">🏠 Inicio</button>
-            <a href="/admin" className="block p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-lg text-center shadow-lg">🔐 Panel Admin</a>
-            <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black text-lg text-center shadow-lg">📱 WhatsApp</a>
+            <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-2xl btn-3d-cyan text-lg">❓ Como Funciona?</button>
+            <button onClick={() => router.push('/')} className="w-full block p-4 rounded-2xl btn-3d-pink text-lg">🏠 Inicio</button>
+            <a href="/admin" className="block p-4 rounded-2xl btn-3d-yellow text-black text-lg text-center">🔐 Panel Admin</a>
+            <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-2xl btn-3d-green text-lg">📱 WhatsApp</a>
           </nav>
         </div>
       )}
@@ -586,8 +586,8 @@ confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
                         <div className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-full transition-all duration-500" style={{ width: heroVendidos + '%' }}></div>
                       </div>
                     </div>
-                    <button className="w-full mt-4 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-black py-4 rounded-2xl text-lg shadow-xl shadow-pink-500/30 active:scale-95 transition-transform">
-                      PARTICIPAR →
+                    <button className="w-full mt-4 btn-3d-pink">
+                      PARTICIPAR 🎰
                     </button>
                   </div>
                 </div>
@@ -646,7 +646,7 @@ confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
                 <div className="p-3">
                   <h3 className="font-bold text-sm truncate">{prod.nombre}</h3>
                   <p className="text-pink-500 font-black">{formatPrice(prod.precio)}</p>
-                  <button className="w-full mt-2 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-bold py-2 rounded-xl text-sm">{prod.finalizado ? 'FINALIZADO' : 'VER NUMEROS →'}</button>
+                  <button className="w-full mt-2 btn-3d-sm bg-gradient-to-r from-pink-500 to-cyan-500">{prod.finalizado ? 'FINALIZADO 🏆' : 'VER NUMEROS →'}</button>
                 </div>
               </div>
             ))}
@@ -665,7 +665,7 @@ confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
           <button onClick={() => { setProductoSeleccionado(null); setSeleccionado(null); }} className="flex items-center gap-2 font-bold">
             <span>←</span> Volver
           </button>
-          <button onClick={() => shareProduct(productoSeleccionado)} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black py-2 rounded-xl text-sm">📤 COMPARTIR ESTA RIFA</button>
+          <button onClick={() => shareProduct(productoSeleccionado)} className="w-full btn-3d-green text-sm">📤 COMPARTIR ESTA RIFA 🚀</button>
 
           <div className={`rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
             <div className="relative aspect-video">
@@ -715,9 +715,7 @@ confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
                 {selectedNumbers.length > 0 && (
                   <div className="mt-4 text-center">
                     <p className="font-black text-sm mb-2">{selectedNumbers.length} numero(s) seleccionado(s)</p>
-                    <button onClick={openBulkReserva} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black py-3 rounded-xl shadow-xl">
-                      RESERVAR {selectedNumbers.length} NUMERO(S) →
-                    </button>
+                    <button onClick={openBulkReserva} className="w-full btn-3d-green">RESERVAR {selectedNumbers.length} NUMERO(S) 🎟️</button>
                   </div>
                 )}
               </div>

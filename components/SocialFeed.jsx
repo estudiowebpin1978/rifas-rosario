@@ -135,27 +135,17 @@ export default function SocialFeed() {
         <div className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 rounded-2xl p-4 border border-pink-500/30 text-center">
           <h3 className="font-black text-lg mb-2">🔥 SUMATE AL PRÓXIMO SORTEO</h3>
           <p className="text-gray-400 text-sm mb-4">Miles de pesos en premios te esperan!</p>
-          <button onClick={() => router.push('/app')} className="w-full bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-black py-4 rounded-xl shadow-xl">
-            PARTICIPAR AHORA 🚀
-          </button>
+          <button onClick={() => router.push('/app')} className="w-full btn-3d-pink">PARTICIPAR AHORA 🚀</button>
         </div>
 
         <div className="bg-gray-900/80 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
           <h3 className="font-black mb-3">📱 COMPARTE Y GANA VISIBILIDAD</h3>
           <p className="text-gray-400 text-sm mb-3">Ayudanos a llegar a más personas!</p>
-          <div className="grid grid-cols-2 gap-2">
-            <button onClick={shareWA} className="bg-green-500 text-white font-bold py-3 rounded-xl text-sm">
-              WhatsApp
-            </button>
-            <button onClick={shareIG} className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white font-bold py-3 rounded-xl text-sm">
-              Instagram
-            </button>
-            <button onClick={shareTT} className="bg-black text-white font-bold py-3 rounded-xl text-sm border border-white/20">
-              TikTok
-            </button>
-            <button onClick={shareX} className="bg-black text-white font-bold py-3 rounded-xl text-sm">
-              X
-            </button>
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={shareWA} className="btn-3d-sm bg-gradient-to-r from-green-500 to-emerald-500">💬 WhatsApp</button>
+            <button onClick={shareIG} className="btn-3d-sm bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500">📷 Instagram</button>
+            <button onClick={shareTT} className="btn-3d-sm bg-black border border-white/20">🎵 TikTok</button>
+            <button onClick={shareX} className="btn-3d-sm bg-black">✖ X</button>
           </div>
         </div>
       </main>
