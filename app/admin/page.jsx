@@ -21,6 +21,7 @@ export default function AdminPage() {
   const [notif, setNotif] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const fileInputRef = useRef(null);
   const theme = true;
 
@@ -31,19 +32,23 @@ export default function AdminPage() {
         try {
           const sub = supabase.channel('admin_ventas').on('postgres_changes', { event: '*', schema: 'public', table: 'boletos' }, () => {
             fetchData();
+          }).on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => {
+            fetchData();
           }).subscribe();
           return () => supabase.removeChannel(sub);
         } catch (e) {
-          console.log('Realtime no disponible');
+          console.log('Realtime no disponible, usando polling');
+          const interval = setInterval(fetchData, 5000);
+          return () => clearInterval(interval);
         }
       }
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, refreshKey]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/productos');
+      const res = await fetch('/api/productos?_=' + Date.now());
       const result = await res.json();
       if (result.productos) setProductos(result.productos);
       if (result.categorias) setCategorias(result.categorias);
@@ -59,6 +64,11 @@ export default function AdminPage() {
       console.error('Error:', err);
     }
     setLoading(false);
+  };
+
+  const manualRefresh = () => {
+    setRefreshKey(k => k + 1);
+    fetchData();
   };
 
   const handleLogin = async (e) => {
@@ -213,6 +223,7 @@ export default function AdminPage() {
           <div className="flex items-center gap-2">
             <button onClick={() => router.push('/')} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-full font-bold text-sm">Ver App 🎰</button>
             <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-full font-bold text-sm">Salir</button>
+            <button onClick={manualRefresh} className="bg-cyan-500 text-white px-4 py-2 rounded-full font-bold text-sm">🔄 Actualizar</button>
           </div>
         </div>
       </header>
