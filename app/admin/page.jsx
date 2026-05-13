@@ -2,13 +2,12 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import LogoImg from '../../public/logo.png';
-import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function AdminPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -24,6 +23,7 @@ export default function AdminPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const fileInputRef = useRef(null);
   const theme = true;
+  const ADMIN_PASSWORD = 'kiarateamo';
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -60,40 +60,28 @@ export default function AdminPage() {
         });
         setBoletosData(grouped);
       }
-    } catch (err) {
-      console.error('Error:', err);
-    }
+    } catch (err) { console.error('Error:', err); }
     setLoading(false);
   };
 
-  const manualRefresh = () => {
-    setRefreshKey(k => k + 1);
-    fetchData();
-  };
+  const manualRefresh = () => { setRefreshKey(k => k + 1); fetchData(); };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    try {
-      if (!supabase) { setError('Servicio no disponible'); setLoading(false); return; }
-      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-      if (authError || !data.user || data.user.email !== 'georchina348@gmail.com') {
-        setError('Credenciales invalidas');
-        if (data?.user) await supabase.auth.signOut();
-      } else {
-        setIsLoggedIn(true);
-      }
-    } catch (err) {
-      setError('Error al iniciar sesion');
+    if (password === ADMIN_PASSWORD) {
+      setIsLoggedIn(true);
+      localStorage.setItem('admin_logged', 'true');
+    } else {
+      setError('Contrasena incorrecta');
     }
     setLoading(false);
   };
 
   const handleLogout = async () => {
-    if (supabase) await supabase.auth.signOut();
+    localStorage.removeItem('admin_logged');
     setIsLoggedIn(false);
-    setEmail('');
     setPassword('');
   };
 
@@ -111,14 +99,14 @@ export default function AdminPage() {
     setUploadingImage(false);
   };
 
+  useEffect(() => {
+    if (localStorage.getItem('admin_logged') === 'true') setIsLoggedIn(true);
+  }, []);
+
   const crearProducto = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (!formData.nombre || !formData.precio || !formData.categoria_id) {
-      alert('Completá todos los campos');
-      setLoading(false);
-      return;
-    }
+    if (!formData.nombre || !formData.precio || !formData.categoria_id) { alert('Completá todos los campos'); setLoading(false); return; }
     const productoData = {
       nombre: formData.nombre,
       precio: formData.precio,
@@ -128,16 +116,12 @@ export default function AdminPage() {
       telefono: '5493416971479'
     };
     try {
-      const res = await fetch('/api/crear-producto', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productoData)
-      });
+      const res = await fetch('/api/crear-producto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(productoData) });
       const result = await res.json();
       if (!res.ok) alert('Error: ' + result.error);
       else {
         setShowForm(false);
-        setFormData({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479' });
+        setFormData({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479', descripcion: '' });
         setTimeout(() => { fetchData(); alert('Producto creado!'); }, 500);
       }
     } catch (err) { alert('Error al crear'); }
@@ -161,9 +145,7 @@ export default function AdminPage() {
     setShowConfirmModal(null);
     fetchData();
     const msg = `✅ VENTA CONFIRMADA - RIFAS ROSARIO\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
-    if (boleto.whatsapp) {
-      window.open('https://wa.me/' + boleto.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
-    }
+    if (boleto.whatsapp) window.open('https://wa.me/' + boleto.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
   };
 
   const cancelarReserva = async (boleto) => {
@@ -192,11 +174,8 @@ export default function AdminPage() {
           </div>
           {error && <div className="bg-red-500/20 border border-red-500 text-red-400 p-3 rounded-2xl text-sm mb-4">{error}</div>}
           <div className="space-y-3">
-            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full rounded-2xl p-4 font-bold bg-white/10 border border-white/20" />
             <input type="password" placeholder="Contrasena" value={password} onChange={e => setPassword(e.target.value)} required className="w-full rounded-2xl p-4 font-bold bg-white/10 border border-white/20" />
-            <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-4 rounded-2xl shadow-lg">
-              {loading ? '⏳' : 'INGRESAR →'}
-            </button>
+            <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-4 rounded-2xl shadow-lg">{loading ? '⏳' : 'INGRESAR →'}</button>
           </div>
           <button type="button" onClick={() => router.push('/')} className="w-full mt-4 text-sm text-gray-500">← Volver</button>
         </form>
@@ -217,13 +196,12 @@ export default function AdminPage() {
             <Image src={LogoImg} alt="logo" width={40} height={40} className="object-contain rounded-lg" />
             <div>
               <h1 className="text-lg font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">ADMIN</h1>
-              <p className="text-xs text-gray-500">{email}</p>
+              <p className="text-xs text-gray-500">Panel de control</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => router.push('/')} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-full font-bold text-sm">Ver App 🎰</button>
             <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-full font-bold text-sm">Salir</button>
-            <button onClick={manualRefresh} className="bg-cyan-500 text-white px-4 py-2 rounded-full font-bold text-sm">🔄 Actualizar</button>
           </div>
         </div>
       </header>
@@ -275,17 +253,9 @@ export default function AdminPage() {
                     <p className="text-gray-400 text-sm">{b.whatsapp}</p>
                     <p className="text-pink-500 font-black mt-1">{producto?.nombre} - {producto?.precio}</p>
                     <div className="flex gap-2 mt-3">
-                      <button onClick={() => setShowConfirmModal(b)} className="flex-1 bg-green-500 text-white py-3 rounded-xl font-black text-sm shadow-lg">
-                        ✅ CONFIRMAR PAGO
-                      </button>
-                      <button onClick={() => cancelarReserva(b)} className="bg-red-500 text-white px-4 py-3 rounded-xl font-bold text-sm">
-                        ❌ Cancelar
-                      </button>
-                      {b.whatsapp && (
-                        <button onClick={() => window.open('https://wa.me/' + b.whatsapp, '_blank')} className="bg-green-600 text-white px-4 py-3 rounded-xl font-bold text-sm">
-                          📱
-                        </button>
-                      )}
+                      <button onClick={() => setShowConfirmModal(b)} className="flex-1 bg-green-500 text-white py-3 rounded-xl font-black text-sm shadow-lg">✅ CONFIRMAR PAGO</button>
+                      <button onClick={() => cancelarReserva(b)} className="bg-red-500 text-white px-4 py-3 rounded-xl font-bold text-sm">❌</button>
+                      {b.whatsapp && <button onClick={() => window.open('https://wa.me/' + b.whatsapp, '_blank')} className="bg-green-600 text-white px-4 py-3 rounded-xl font-bold text-sm">📱</button>}
                     </div>
                   </div>
                 );
@@ -297,9 +267,7 @@ export default function AdminPage() {
         <div className="rounded-3xl bg-white/5 border border-white/10 p-4">
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-black">🎁 MIS RIFAS</h2>
-            <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-2xl font-bold text-sm">
-              {showForm ? '✕ Cancelar' : '+ Nueva Rifa'}
-            </button>
+            <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-2xl font-bold text-sm">{showForm ? '✕ Cancelar' : '+ Nueva Rifa'}</button>
           </div>
 
           {showForm && (
@@ -311,24 +279,13 @@ export default function AdminPage() {
                 <option value="">Selecciona categoria</option>
                 {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
               </select>
-              
               <div>
                 <label className="text-sm font-bold block mb-2">Imagen del producto</label>
                 <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
-                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 rounded-xl font-bold">
-                  {uploadingImage ? '⏳ Subiendo...' : '📷 Subir imagen'}
-                </button>
-                {formData.imagen && (
-                  <div className="relative mt-2">
-                    <img src={formData.imagen} alt="preview" className="w-full h-40 object-cover rounded-xl" />
-                    <button type="button" onClick={() => setFormData({...formData, imagen: ''})} className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">✕</button>
-                  </div>
-                )}
+                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 rounded-xl font-bold">{uploadingImage ? '⏳ Subiendo...' : '📷 Subir imagen'}</button>
+                {formData.imagen && <div className="relative mt-2"><img src={formData.imagen} alt="preview" className="w-full h-40 object-cover rounded-xl" /><button type="button" onClick={() => setFormData({...formData, imagen: ''})} className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">✕</button></div>}
               </div>
-
-              <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-cyan-500 text-white py-3 rounded-xl font-black shadow-lg">
-                {loading ? '⏳ Creando...' : 'CREAR RIFA 🎁'}
-              </button>
+              <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-cyan-500 text-white py-3 rounded-xl font-black shadow-lg">{loading ? '⏳ Creando...' : 'CREAR RIFA 🎁'}</button>
             </form>
           )}
 
@@ -347,23 +304,13 @@ export default function AdminPage() {
                       <div className="flex items-center gap-3 mt-2 text-xs">
                         <span className="text-emerald-400 font-bold">✅ {vend}/100</span>
                         {res > 0 && <span className="text-orange-400 font-bold">⏳ {res} reservados</span>}
-                        <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${vend >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-pink-500 to-cyan-500'}`} style={{ width: porcent + '%' }}></div>
-                        </div>
+                        <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden"><div className={`h-full rounded-full ${vend >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-pink-500 to-cyan-500'}`} style={{ width: porcent + '%' }}></div></div>
                       </div>
                     </div>
                     <button onClick={() => eliminarProducto(p.id, p.nombre)} className="bg-red-500 text-white px-3 py-2 rounded-xl font-bold self-start">🗑️</button>
                   </div>
-                  {vend >= 100 && !p.finalizado && (
-                    <div className="mt-3 bg-gradient-to-r from-emerald-500 to-green-500 text-white text-center py-2 rounded-xl font-black text-sm shadow-lg animate-pulse">
-                      🎉 TODOS VENDIDOS - ESPERANDO SORTEO AUTOMATICO
-                    </div>
-                  )}
-                  {p.finalizado && (
-                    <div className="mt-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-center py-2 rounded-xl font-black text-sm shadow-lg">
-                      🏆 GANADOR: #{String(p.ganador_num).padStart(2,'0')} - {p.ganador_nombre}
-                    </div>
-                  )}
+                  {vend >= 100 && !p.finalizado && <div className="mt-3 bg-gradient-to-r from-emerald-500 to-green-500 text-white text-center py-2 rounded-xl font-black text-sm shadow-lg animate-pulse">🎉 TODOS VENDIDOS - ESPERANDO SORTEO AUTOMATICO</div>}
+                  {p.finalizado && <div className="mt-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-center py-2 rounded-xl font-black text-sm shadow-lg">🏆 GANADOR: #{String(p.ganador_num).padStart(2,'0')} - {p.ganador_nombre}</div>}
                 </div>
               );
             })}
@@ -373,37 +320,17 @@ export default function AdminPage() {
         <div className="rounded-3xl bg-gradient-to-b from-blue-500/20 to-purple-500/20 border border-blue-500/30 p-4">
           <h2 className="font-black text-lg mb-3">📋 COMO FUNCIONA</h2>
           <div className="space-y-3 text-sm">
-            <div className="flex gap-3 items-start">
-              <span className="text-2xl">1️⃣</span>
-              <div>
-                <p className="font-bold">Crear Rifas</p>
-                <p className="text-gray-400">Usa el botón "+ Nueva Rifa" para crear productos. Se crean 100 números automáticamente.</p>
-              </div>
-            </div>
-            <div className="flex gap-3 items-start">
-              <span className="text-2xl">2️⃣</span>
-              <div>
-                <p className="font-bold">Recibir Reservas</p>
-                <p className="text-gray-400">Cuando alguien elige números y paga, aparecen en la "Bandeja de Entrada" arriba.</p>
-              </div>
-            </div>
-            <div className="flex gap-3 items-start">
-              <span className="text-2xl">3️⃣</span>
-              <div>
-                <p className="font-bold">Confirmar Pagos</p>
-                <p className="text-gray-400">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Click en WhatsApp para contactarte.</p>
-              </div>
-            </div>
-            <div className="flex gap-3 items-start">
-              <span className="text-2xl">4️⃣</span>
-              <div>
-                <p className="font-bold">Sorteo Automatico</p>
-                <p className="text-gray-400">Cuando se venden los 100 números, el sistema sortea automáticamente y notifica a todos por WhatsApp.</p>
-              </div>
-            </div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">1️⃣</span><div><p className="font-bold">Crear Rifas</p><p className="text-gray-400">Usa el botón "+ Nueva Rifa" para crear productos. Se crean 100 números automáticamente.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">2️⃣</span><div><p className="font-bold">Recibir Reservas</p><p className="text-gray-400">Cuando alguien elige números y paga, aparecen en la "Bandeja de Entrada" arriba.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">3️⃣</span><div><p className="font-bold">Confirmar Pagos</p><p className="text-gray-400">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Click en WhatsApp para contactarte.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">4️⃣</span><div><p className="font-bold">Sorteo Automatico</p><p className="text-gray-400">Cuando se venden los 100 números, el sistema sortea automáticamente y notifica a todos por WhatsApp.</p></div></div>
           </div>
         </div>
       </main>
+
+      <div className="max-w-2xl mx-auto px-4">
+        <button onClick={manualRefresh} className="w-full bg-gray-800 text-white py-2 rounded-xl font-bold text-sm">🔄 Actualizar datos</button>
+      </div>
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
