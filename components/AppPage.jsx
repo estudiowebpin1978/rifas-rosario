@@ -20,6 +20,8 @@ export default function AppPage() {
   const [ganadores, setGanadores] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
   const [fakeWatching, setFakeWatching] = useState(15);
+  const [selectedNumbers, setSelectedNumbers] = useState([]);
+  const [showBulkReserva, setShowBulkReserva] = useState(false);
 
   const formatPrice = (precio) => {
     if (!precio) return '';
@@ -241,10 +243,57 @@ const contactarGanador = () => {
     setSeleccionado(numero);
     setShowReserva(true);
     setReservaForm({ nombre: '', whatsapp: '' });
-    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
   };
 
-const handleReserva = async (e) => {
+  const toggleNumberSelection = (numero) => {
+    if (boletos.find(b => b.numero === numero && b.estado !== 'disponible')) return;
+    setSelectedNumbers(prev => prev.includes(numero) ? prev.filter(n => n !== numero) : [...prev, numero]);
+  };
+
+  const openBulkReserva = () => {
+    if (selectedNumbers.length === 0) return;
+    setShowBulkReserva(true);
+    setReservaForm({ nombre: '', whatsapp: '' });
+  };
+
+  const handleBulkReserva = async (e) => {
+    e.preventDefault();
+    if (!supabase || selectedNumbers.length === 0) return;
+    setLoading(true);
+
+    for (const num of selectedNumbers) {
+      await supabase.from('boletos').update({
+        estado: 'reservado',
+        nombre: reservaForm.nombre,
+        whatsapp: reservaForm.whatsapp
+      }).eq('numero', num).eq('producto_id', productoSeleccionado.id);
+    }
+
+    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+    const numsStr = selectedNumbers.map(n => '#' + String(n).padStart(2,'0')).join(', ');
+    const msg = '🎟️ RIFA RESERVADA - RIFAS ROSARIO\n\n';
+    const msg2 = '✅ Numeros reservados: ' + numsStr + '\n';
+    const msg3 = '🎁 Producto: ' + productoSeleccionado.nombre + '\n';
+    const msg4 = '💰 Precio total: ' + formatPrice(productoSeleccionado.precio) + ' x ' + selectedNumbers.length + ' = ' + formatPrice((parseFloat(productoSeleccionado.precio.replace(/[^\d.,]/g,'').replace(',','.')) * selectedNumbers.length).toString()) + '\n\n';
+    const msg5 = '👤 Nombre: ' + reservaForm.nombre + '\n';
+    const msg6 = '📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n';
+    const msg7 = '💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n';
+    const msg8 = '📋 Enviame el comprobante de pago y reservo tus numeros! 🙏\n\n';
+    const msg9 = '⏳ IMPORTANTE: Tus numeros quedan RESERVADOS por 10 minutos.\nSi no se confirma el pago, se liberan automaticamente.';
+    window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg+msg2+msg3+msg4+msg5+msg6+msg7+msg8+msg9), '_blank');
+
+    setTimeout(() => {
+      setShowBulkReserva(false);
+      setShowReserva(false);
+      setSelectedNumbers([]);
+      fetchBoletos(productoSeleccionado.id);
+    }, 2000);
+
+    setLoading(false);
+  };
+
+  const handleReserva = async (e) => {
     e.preventDefault();
     if (!supabase || !seleccionado) return;
     setLoading(true);
@@ -644,18 +693,33 @@ const handleReserva = async (e) => {
           {!productoSeleccionado.finalizado && (
             <>
               <div className={`rounded-3xl p-4 ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
-                <p className="text-center font-black text-sm mb-3">🎰 ELEGÍ TU NUMERO</p>
+                <p className="text-center font-black text-sm mb-3">🎰 ELEGÍ TU(S) NUMERO(S)</p>
                 <div className="grid grid-cols-10 gap-1.5">
-                  {boletos.map(b => (
-                    <button key={b.id} disabled={b.estado === 'vendido'} onClick={() => handleSeleccionarNumero(b.numero)} className={`h-10 rounded-lg font-black text-xs transition-all active:scale-90 ${b.estado === 'vendido' ? 'bg-gradient-to-b from-gray-800 to-black text-white shadow-inner cursor-not-allowed' : 'bg-gradient-to-b from-pink-400 to-pink-600 text-white shadow-lg shadow-pink-500/50 hover:scale-110'}`}>
-                      {String(b.numero).padStart(2, '0')}
-                    </button>
-                  ))}
+                  {boletos.map(b => {
+                    const isSelected = selectedNumbers.includes(b.numero);
+                    const isReserved = b.estado === 'reservado';
+                    const isSold = b.estado === 'vendido';
+                    return (
+                      <button key={b.id} disabled={isSold} onClick={() => isSold ? null : toggleNumberSelection(b.numero)} className={`h-10 rounded-lg font-black text-xs transition-all active:scale-90 ${isSold ? 'bg-gradient-to-b from-gray-800 to-black text-white shadow-inner cursor-not-allowed' : isSelected ? 'bg-gradient-to-b from-green-400 to-green-600 text-white shadow-lg shadow-green-500/50 scale-110' : isReserved ? 'bg-gradient-to-b from-yellow-600 to-yellow-800 text-white shadow-inner cursor-not-allowed' : 'bg-gradient-to-b from-pink-400 to-pink-600 text-white shadow-lg shadow-pink-500/50 hover:scale-110'}`}>
+                        {String(b.numero).padStart(2, '0')}
+                      </button>
+                    );
+                  })}
                 </div>
                 <div className="flex justify-center gap-4 mt-3 text-xs font-bold">
                   <span><span className="w-3 h-3 inline-block bg-pink-400 rounded mr-1"></span>Libre</span>
+                  <span><span className="w-3 h-3 inline-block bg-green-400 rounded mr-1"></span>Seleccionado</span>
+                  <span><span className="w-3 h-3 inline-block bg-yellow-600 rounded mr-1"></span>Reservado</span>
                   <span><span className="w-3 h-3 inline-block bg-gray-800 rounded mr-1"></span>Ocupado</span>
                 </div>
+                {selectedNumbers.length > 0 && (
+                  <div className="mt-4 text-center">
+                    <p className="font-black text-sm mb-2">{selectedNumbers.length} numero(s) seleccionado(s)</p>
+                    <button onClick={openBulkReserva} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black py-3 rounded-xl shadow-xl">
+                      RESERVAR {selectedNumbers.length} NUMERO(S) →
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className={`rounded-3xl p-4 text-center ${theme ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30' : 'bg-gradient-to-r from-pink-100 to-purple-100'}`}>
@@ -705,6 +769,36 @@ const handleReserva = async (e) => {
               </button>
             </form>
             <button onClick={() => setShowReserva(false)} className="w-full mt-3 py-2 font-bold text-gray-400">Cancelar</button>
+          </div>
+        </div>
+      )}
+
+      {showBulkReserva && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }}>
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-gray-900 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <div className="text-center mb-4">
+              <p className="text-xs font-bold text-gray-400">NUMEROS ELEGIDOS</p>
+              <p className="text-3xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">{selectedNumbers.map(n => String(n).padStart(2,'0')).join(', ')}</p>
+            </div>
+            <div className={`p-4 rounded-2xl mb-4 bg-pink-500/20`}>
+              <p className="font-bold">{productoSeleccionado?.nombre}</p>
+              <p className="text-xl font-black text-pink-500">{selectedNumbers.length} numero(s) x {formatPrice(productoSeleccionado?.precio)} = {formatPrice((parseFloat(productoSeleccionado?.precio.replace(/[^\d.,]/g,'').replace(',','.')) * selectedNumbers.length).toString())}</p>
+            </div>
+            <div className={`text-center p-3 rounded-xl mb-4 bg-white/10`}>
+              <p className="text-xs font-bold text-gray-400">Alias de Pago</p>
+              <p className="text-lg font-black text-pink-500">rifas.rosario.</p>
+                <button onClick={copyAlias} className="bg-pink-500 text-white px-2 py-1 rounded-lg text-xs font-bold">📋 Copiar</button>
+            </div>
+            <form onSubmit={handleBulkReserva} className="space-y-3">
+              <input placeholder="Tu nombre completo" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10" />
+              <input placeholder="Tu WhatsApp" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10" />
+              <button disabled={loading} className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white font-black py-4 rounded-xl shadow-xl disabled:opacity-50">
+                {loading ? '⏳...' : '📤 RESERVAR Y ENVIAR POR WHATSAPP'}
+              </button>
+            </form>
+            <button onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }} className="w-full mt-3 py-2 font-bold text-gray-400">Cancelar</button>
           </div>
         </div>
       )}
