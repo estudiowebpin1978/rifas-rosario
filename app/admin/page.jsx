@@ -18,7 +18,7 @@ export default function AdminPage() {
   const [boletosData, setBoletosData] = useState({});
   const [activeTab, setActiveTab] = useState('productos');
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479' });
+  const [formData, setFormData] = useState({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479', descripcion: '' });
   const [showCatForm, setShowCatForm] = useState(false);
   const [catNombre, setCatNombre] = useState('');
   const [ganadorModal, setGanadorModal] = useState(null);
@@ -31,6 +31,32 @@ export default function AdminPage() {
   const [reelData, setReelData] = useState({ titulo: '', video_url: '', thumbnail_url: '' });
   const fileInputRef = useRef(null);
   const reelInputRef = useRef(null);
+
+  const sortearTodos = async (producto) => {
+    if (!supabase) return;
+    if (!confirm('Esto va a marcar TODOS los 100 numeros como vendidos y sortear. Continuar?')) return;
+    
+    const todosBoletos = boletosData[producto.id] || [];
+    for (const b of todosBoletos) {
+      await supabase.from('boletos').update({ estado: 'vendido', nombre: 'TEST-' + b.numero, whatsapp: '54999999999' }).eq('id', b.id);
+    }
+    
+    const res = await fetch('/api/productos');
+    const data = await res.json();
+    const updated = data.boletos.filter(b => b.producto_id === producto.id && b.estado === 'vendido');
+    if (updated.length < 100) return;
+    
+    const winner = updated[Math.floor(Math.random() * updated.length)];
+    await supabase.from('productos').update({
+      finalizado: true,
+      winner_num: winner.numero,
+      winner_nombre: winner.nombre
+    }).eq('id', producto.id);
+    
+    confetti({ particleCount: 300, spread: 360, origin: { y: 0.6 } });
+    alert('Sorteo SIMULADO! Ganador: #' + String(winner.numero).padStart(2,'0') + ' - ' + winner.nombre);
+    fetchData();
+  };
 
   const LOGO_URL = '/logo.png';
   const WHATSAPP = '5493416971479';
@@ -208,6 +234,7 @@ export default function AdminPage() {
       nombre: formData.nombre,
       precio: formData.precio,
       imagen: formData.imagen || null,
+      descripcion: formData.descripcion || null,
       categoria_id: parseInt(formData.categoria_id),
       telefono: '5493416971479'
     };
@@ -388,7 +415,8 @@ export default function AdminPage() {
                 {showForm && (
                   <form onSubmit={crearProducto} className={`p-4 rounded-2xl space-y-3 ${theme ? 'bg-white/5' : 'bg-gray-50'}`}>
                     <input placeholder="Nombre del producto" required value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value})} className={`w-full rounded-xl p-3 font-bold ${theme ? 'bg-white/10' : 'bg-white'}`} />
-                    <input placeholder="Precio (Ej: $5000)" required value={formData.precio} onChange={e => setFormData({...formData, precio: e.target.value})} className={`w-full rounded-xl p-3 font-bold ${theme ? 'bg-white/10' : 'bg-white'}`} />
+                    <input placeholder="Precio (Ej: $3500- pesos)" required value={formData.precio} onChange={e => setFormData({...formData, precio: e.target.value})} className={`w-full rounded-xl p-3 font-bold ${theme ? 'bg-white/10' : 'bg-white'}`} />
+                    <textarea placeholder="Descripcion del producto (opcional)" value={formData.descripcion || ''} onChange={e => setFormData({...formData, descripcion: e.target.value})} className={`w-full rounded-xl p-3 font-bold ${theme ? 'bg-white/10' : 'bg-white'}`} rows="2" />
                     <select required value={formData.categoria_id} onChange={e => setFormData({...formData, categoria_id: e.target.value})} className={`w-full rounded-xl p-3 font-bold ${theme ? 'bg-white/10' : 'bg-white'}`}>
                       <option value="">Selecciona categoria</option>
                       {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
@@ -499,7 +527,10 @@ export default function AdminPage() {
                               <span className="text-xs font-bold">{vendidos}/100 vendidos</span>
                             </div>
                           </div>
-                          <button onClick={() => eliminarProducto(p.id, p.nombre)} className="bg-red-500 text-white px-3 py-1 rounded-xl text-sm font-bold h-fit">🗑️</button>
+                          <div className="flex flex-col gap-1">
+                            <button onClick={() => eliminarProducto(p.id, p.nombre)} className="bg-red-500 text-white px-3 py-1 rounded-xl text-sm font-bold">🗑️</button>
+                            <button onClick={() => sortearTodos(p)} className="bg-yellow-500 text-black px-3 py-1 rounded-xl text-xs font-bold">🎲 SIMULAR</button>
+                          </div>
                         </div>
                         {vendidos >= 100 && !p.finalizado && (
                           <button onClick={() => sortear(p)} className="w-full mt-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white py-2 rounded-xl font-black text-sm animate-bounce shadow-lg">

@@ -6,7 +6,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { nombre, precio, imagen, categoria_id, telefono } = body;
+    const { nombre, precio, imagen, descripcion, categoria_id, telefono } = body;
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -16,6 +16,7 @@ export async function POST(request) {
         nombre,
         precio,
         imagen: imagen || null,
+        descripcion: descripcion || null,
         categoria_id: categoria_id ? parseInt(categoria_id) : null,
         telefono: telefono || '5493416971479'
       }])

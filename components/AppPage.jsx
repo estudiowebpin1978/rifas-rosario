@@ -21,6 +21,13 @@ export default function AppPage() {
   const [showMenu, setShowMenu] = useState(false);
   const [fakeWatching, setFakeWatching] = useState(15);
 
+  const formatPrice = (precio) => {
+    if (!precio) return '';
+    const num = parseFloat(precio.replace(/[^\d.,]/g, '').replace(',', '.'));
+    if (isNaN(num)) return precio;
+    return '$ ' + num.toLocaleString('es-AR') + '- pesos';
+  };
+
   useEffect(() => {
     const iv = setInterval(() => {
       setFakeWatching(Math.floor(Math.random() * 30) + 8);
@@ -237,28 +244,32 @@ const contactarGanador = () => {
     confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
   };
 
-  const handleReserva = async (e) => {
+const handleReserva = async (e) => {
     e.preventDefault();
     if (!supabase || !seleccionado) return;
     setLoading(true);
     
     const { error } = await supabase.from('boletos').update({
-      estado: 'vendido',
+      estado: 'reservado',
       nombre: reservaForm.nombre,
       whatsapp: reservaForm.whatsapp
     }).eq('numero', seleccionado).eq('producto_id', productoSeleccionado.id);
 
     if (!error) {
-      confetti();
-      const msg = `🎟️ *RESERVA - RIFAS ROSARIO*\n\n`;
-      const msg2 = `✅ Numero: *#${String(seleccionado).padStart(2,'0')}*\n`;
-      const msg3 = `🎁 Producto: ${productoSeleccionado.nombre}\n`;
-      const msg4 = `💰 Precio: ${productoSeleccionado.precio}\n\n`;
-      const msg5 = `👤 Nombre: ${reservaForm.nombre}\n`;
-      const msg6 = `📱 WhatsApp: ${reservaForm.whatsapp}\n\n`;
-      const msg7 = `💳 *Alias: .: ${ALIAS}*\n\n`;
-      const msg8 = `Enviame el comprobante de pago! 🙏`;
-      window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg+msg2+msg3+msg4+msg5+msg6+msg7+msg8)}`);
+      confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
+      const msg = '🎟️ RIFA RESERVADA - RIFAS ROSARIO\n\n';
+      const msg2 = '✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n';
+      const msg3 = '🎁 Producto: ' + productoSeleccionado.nombre + '\n';
+      const msg4 = '💰 Precio: ' + formatPrice(productoSeleccionado.precio) + '\n\n';
+      const msg5 = '👤 Nombre: ' + reservaForm.nombre + '\n';
+      const msg6 = '📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n';
+      const msg7 = '💳 PAGÁ AHORA:\n';
+      const msg8 = 'Alias: rifas.rosario.\n';
+      const msg9 = '💳 Alias: rifas.rosario.\n\n';
+      const msg10 = '📋 Enviame el comprobante de pago y reservo tu numero! 🙏\n\n';
+      const msg11 = '⏳ IMPORTANTE: Tu numero queda RESERVADO por 24hs.\nSi no se confirma el pago, se libera automaticamente.';
+      const fullMsg = msg + msg2 + msg3 + msg4 + msg5 + msg6 + msg7 + msg8 + msg9 + msg10 + msg11;
+      window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(fullMsg), '_blank');
       setTimeout(() => {
         setShowReserva(false);
         setSeleccionado(null);
@@ -266,7 +277,13 @@ const contactarGanador = () => {
       }, 2000);
     }
     setLoading(false);
-};
+  };
+
+  const shareProduct = (prod) => {
+    const url = 'https://rifas-rosario.vercel.app/app';
+    const text = '🔥 Mira esta rifa en RIFAS ROSARIO!\n\n🎁 ' + prod.nombre + '\n💰 ' + formatPrice(prod.precio) + '\n\nParticipá acá: ' + url;
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+  };
 
   const shareWhatsApp = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP)}`);
@@ -510,7 +527,7 @@ const contactarGanador = () => {
                   </div>
                   <div className="relative z-20 p-5 -mt-4">
                     <h2 className="text-white text-2xl font-black mb-2">{heroProd.nombre}</h2>
-                    <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-500 to-cyan-400">{heroProd.precio}</p>
+                    <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-500 to-cyan-400">{formatPrice(heroProd.precio)}</p>
                     <div className="mt-3">
                       <div className="flex justify-between text-xs text-gray-400 mb-1">
                         <span>🎟 {heroVendidos}/100 vendidos</span>
@@ -575,10 +592,11 @@ const contactarGanador = () => {
                   )}
                   <span className="absolute top-2 right-2 bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">{prod.categorias?.nombre}</span>
                   {prod.finalizado && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-4xl">🏆</span></div>}
+                  <button onClick={(e) => { e.stopPropagation(); shareProduct(prod); }} className="absolute bottom-2 left-2 bg-white/80 text-black p-1.5 rounded-full text-xs">📤</button>
                 </div>
                 <div className="p-3">
                   <h3 className="font-bold text-sm truncate">{prod.nombre}</h3>
-                  <p className="text-pink-500 font-black">{prod.precio}</p>
+                  <p className="text-pink-500 font-black">{formatPrice(prod.precio)}</p>
                   <button className="w-full mt-2 bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-bold py-2 rounded-xl text-sm">{prod.finalizado ? 'FINALIZADO' : 'VER NUMEROS →'}</button>
                 </div>
               </div>
@@ -598,6 +616,7 @@ const contactarGanador = () => {
           <button onClick={() => { setProductoSeleccionado(null); setSeleccionado(null); }} className="flex items-center gap-2 font-bold">
             <span>←</span> Volver
           </button>
+          <button onClick={() => shareProduct(productoSeleccionado)} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black py-2 rounded-xl text-sm">📤 COMPARTIR ESTA RIFA</button>
 
           <div className={`rounded-3xl overflow-hidden ${theme ? 'bg-white/5 border border-white/10' : 'bg-white shadow-xl'}`}>
             <div className="relative aspect-video">
@@ -607,7 +626,10 @@ const contactarGanador = () => {
             <div className="p-4">
               <span className="bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">{productoSeleccionado.categorias?.nombre}</span>
               <h2 className="font-black text-xl mt-2">{productoSeleccionado.nombre}</h2>
-              <p className="text-3xl font-black text-pink-500 mt-1">{productoSeleccionado.precio}</p>
+              <p className="text-3xl font-black text-pink-500 mt-1">{formatPrice(productoSeleccionado.precio)}</p>
+              {productoSeleccionado.descripcion && (
+                <p className="mt-3 text-gray-400 text-sm">{productoSeleccionado.descripcion}</p>
+              )}
               <div className="mt-3 flex justify-between text-sm">
                 <span className={theme ? 'text-gray-400' : 'text-gray-500'}>{vendidosCount}/100 vendidos</span>
                 <span className="font-bold">{porcentaje}%</span>
@@ -668,7 +690,7 @@ const contactarGanador = () => {
             </div>
             <div className={`p-4 rounded-2xl mb-4 ${theme ? 'bg-pink-500/20' : 'bg-pink-50'}`}>
               <p className="font-bold">{productoSeleccionado?.nombre}</p>
-              <p className="text-xl font-black text-pink-500">{productoSeleccionado?.precio}</p>
+              <p className="text-xl font-black text-pink-500">{formatPrice(productoSeleccionado?.precio)}</p>
             </div>
             <div className={`text-center p-3 rounded-xl mb-4 ${theme ? 'bg-white/10' : 'bg-gray-100'}`}>
               <p className="text-xs font-bold text-gray-400">Alias de Pago</p>
