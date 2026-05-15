@@ -149,6 +149,23 @@ export default function SocialFeed() {
           </div>
         </div>
       </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 z-50">
+        <div className="max-w-lg mx-auto flex justify-around">
+          <button className="flex flex-col items-center gap-1 text-pink-500">
+            <span className="text-xl">🏆</span>
+            <span className="text-xs font-bold">Feed</span>
+          </button>
+          <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-gray-400">
+            <span className="text-xl">🎰</span>
+            <span className="text-xs font-bold">Rifas</span>
+          </button>
+          <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400">
+            <span className="text-xl">👤</span>
+            <span className="text-xs font-bold">Perfil</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

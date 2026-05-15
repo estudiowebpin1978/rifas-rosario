@@ -119,13 +119,13 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/crear-producto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(productoData) });
       const result = await res.json();
-      if (!res.ok) alert('Error: ' + result.error);
+      if (!res.ok) alert('Error: ' + (result.error || 'Error desconocido'));
       else {
         setShowForm(false);
         setFormData({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479', descripcion: '' });
-        setTimeout(() => { fetchData(); alert('Producto creado!'); }, 500);
+        setTimeout(() => { fetchData(); alert('✅ Producto creado con 100 números!'); }, 500);
       }
-    } catch (err) { alert('Error al crear'); }
+    } catch (err) { alert('Error al crear: ' + err.message); }
     setLoading(false);
   };
 
@@ -304,7 +304,10 @@ export default function AdminPage() {
               <textarea placeholder="Descripcion (opcional)" value={formData.descripcion || ''} onChange={e => setFormData({...formData, descripcion: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white/10" rows="2" />
               <select required value={formData.categoria_id} onChange={e => setFormData({...formData, categoria_id: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white/10">
                 <option value="">Selecciona categoria</option>
-                {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                {categorias.map(c => {
+                  const emoji = c.nombre === 'Zapatillas' ? '👟' : c.nombre === 'Celulares' ? '📱' : c.nombre === 'Tecnologia' ? '💻' : c.nombre === 'Electrodomesticos' ? '⚡' : c.nombre === 'Hogar' ? '🏠' : '🎁';
+                  return <option key={c.id} value={c.id}>{emoji} {c.nombre}</option>;
+                })}
               </select>
               <div>
                 <label className="text-sm font-bold block mb-2">Imagen del producto</label>
@@ -344,13 +347,13 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl bg-gradient-to-b from-blue-500/20 to-purple-500/20 border border-blue-500/30 p-4">
+          <div className="rounded-3xl bg-gradient-to-b from-blue-500/20 to-purple-500/20 border border-blue-500/30 p-4">
           <h2 className="font-black text-lg mb-3">📋 COMO FUNCIONA</h2>
           <div className="space-y-3 text-sm">
-            <div className="flex gap-3 items-start"><span className="text-2xl">1️⃣</span><div><p className="font-bold">Crear Rifas</p><p className="text-gray-400">Usa el botón "+ Nueva Rifa" para crear productos. Se crean 100 números automáticamente.</p></div></div>
-            <div className="flex gap-3 items-start"><span className="text-2xl">2️⃣</span><div><p className="font-bold">Recibir Reservas</p><p className="text-gray-400">Cuando alguien elige números y paga, aparecen en la "Bandeja de Entrada" arriba.</p></div></div>
-            <div className="flex gap-3 items-start"><span className="text-2xl">3️⃣</span><div><p className="font-bold">Confirmar Pagos</p><p className="text-gray-400">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Click en WhatsApp para contactarte.</p></div></div>
-            <div className="flex gap-3 items-start"><span className="text-2xl">4️⃣</span><div><p className="font-bold">Sorteo Automatico</p><p className="text-gray-400">Cuando se venden los 100 números, el sistema sortea automáticamente y notifica a todos por WhatsApp.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">1️⃣</span><div><p className="font-bold">Crear Rifas</p><p className="text-gray-400">Usa el botón "+ Nueva Rifa" para crear productos. Se crean 100 números (del 1 al 100) automáticamente.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">2️⃣</span><div><p className="font-bold">Recibir Reservas</p><p className="text-gray-400">Cuando alguien elige números, aparecen en la "Bandeja de Entrada". Verificá el pago antes de confirmar.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">3️⃣</span><div><p className="font-bold">Confirmar Pagos</p><p className="text-gray-400">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Se le notifica al comprador por WhatsApp.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">4️⃣</span><div><p className="font-bold">Sorteo Automatico</p><p className="text-gray-400">Cuando se venden los 100 números, el sistema sortea automáticamente y notifica a todos por WhatsApp. Categorías activas: Zapatillas 👟 y Celulares 📱 agregadas!</p></div></div>
           </div>
         </div>
       </main>

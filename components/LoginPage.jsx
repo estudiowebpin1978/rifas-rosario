@@ -118,7 +118,7 @@ setAuthLoading(false);
             <Image src={LogoImg} alt="Rifas Rosario" width={128} height={128} className="object-cover" />
           </div>
           <h2 className="text-3xl font-black mb-2">RIFAS ROSARIO</h2>
-          <p className="text-xl font-bold text-pink-500">100% GRATIS · SIN TARJETA</p>
+          <p className="text-xl font-bold text-pink-500">👟 ZAPATILLAS · 📱 CELULARES · 💻 TECNOLOGÍA</p>
         </div>
 
         <div className="space-y-4">

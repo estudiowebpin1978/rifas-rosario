@@ -30,17 +30,50 @@ export default function AppPage() {
   const [showComoFunciona, setShowComoFunciona] = useState(false);
   const [allProductos, setAllProductos] = useState([]);
   const [allBoletos, setAllBoletos] = useState([]);
+  const [liveNotif, setLiveNotif] = useState(null);
+  const [showLiveNotif, setShowLiveNotif] = useState(false);
+  const [hotProducts, setHotProducts] = useState([]);
+
+  useEffect(() => {
+    const names = ['Carlos', 'Maria', 'Jose', 'Ana', 'Luis', 'Sofia', 'Diego', 'Valentina', 'Martin', 'Camila', 'Tomas', 'Lucia', 'Franco', 'Florencia', 'Mateo', 'Rocio'];
+    const nums = Array.from({length: 100}, (_, i) => i + 1);
+    const interval = setInterval(() => {
+      const fakeName = names[Math.floor(Math.random() * names.length)];
+      const fakeNum = nums[Math.floor(Math.random() * nums.length)];
+      const fakeProd = allProductos.filter(p => !p.finalizado);
+      if (fakeProd.length > 0) {
+        const prod = fakeProd[Math.floor(Math.random() * fakeProd.length)];
+        setLiveNotif({ nombre: fakeName, numero: fakeNum, producto: prod.nombre, imagen: prod.imagen });
+        setShowLiveNotif(true);
+        setTimeout(() => setShowLiveNotif(false), 4000);
+      }
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [allProductos]);
 
   const theme = true;
   const WHATSAPP = '5493416971479';
   const ALIAS = 'rifas.rosario.';
   const URL_APP = 'https://rifas-rosario.vercel.app/app';
 
-  const formatPrice = (precio) => {
+    const formatPrice = (precio) => {
     if (!precio) return '';
-    const num = parseFloat(precio.replace(/[^\d.,]/g, '').replace(',', '.'));
+    const num = parseFloat(String(precio).replace(/[^\d.,]/g, '').replace(',', '.'));
     if (isNaN(num)) return precio;
-    return '$ ' + num.toLocaleString('es-AR') + '- pesos';
+    return '$ ' + num.toLocaleString('es-AR') + '-';
+  };
+
+  const getCategoryEmoji = (catName) => {
+    const map = {
+      'Tecnologia': '💻', 'Celulares': '📱', 'Zapatillas': '👟',
+      'Hogar': '🏠', 'Electrodomesticos': '⚡', 'Herramientas': '🔧',
+      'Deportes': '⚽', 'Indumentaria': '👕', 'Juegos': '🎮',
+      'Belleza': '💄', 'Servicios': '🎯', 'Bazar': '🎪'
+    };
+    for (const [key, emoji] of Object.entries(map)) {
+      if (catName?.toLowerCase().includes(key.toLowerCase())) return emoji;
+    }
+    return '🎁';
   };
 
   const copyAlias = () => {
@@ -332,6 +365,41 @@ export default function AppPage() {
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl"></div>
       </div>
 
+      {showLiveNotif && liveNotif && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[90] animate-slideDown">
+          <div className="bg-gradient-to-r from-pink-600/90 to-purple-600/90 backdrop-blur-xl border border-pink-400/30 rounded-2xl px-5 py-3 shadow-2xl shadow-pink-500/30 flex items-center gap-3 min-w-[280px]">
+            <div className="w-10 h-10 rounded-full bg-pink-400 flex items-center justify-center text-white font-black text-sm animate-pulse">🔴</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-bold text-sm truncate">
+                <span className="text-yellow-400">{liveNotif.nombre}</span> reservó <span className="text-cyan-400">#{String(liveNotif.numero).padStart(2,'0')}</span>
+              </p>
+              <p className="text-white/70 text-xs truncate">{liveNotif.producto}</p>
+            </div>
+            <span className="text-2xl animate-bounce">🎟️</span>
+          </div>
+        </div>
+      )}
+
+      {allProductos.filter(p => !p.finalizado).length > 0 && (() => {
+        const totalVendidos = allProductos.filter(p => !p.finalizado).reduce((sum, p) => {
+          const prodBoletos = allBoletos.filter(b => b.producto_id === p.id);
+          return sum + prodBoletos.filter(b => b.estado === 'vendido').length;
+        }, 0);
+        const totalNumeros = allProductos.filter(p => !p.finalizado).length * 100;
+        const totalPorcent = Math.round((totalVendidos / totalNumeros) * 100);
+        return totalPorcent > 0 ? (
+          <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border-b border-cyan-500/20 px-4 py-2">
+            <div className="max-w-lg mx-auto flex items-center gap-3 text-xs">
+              <span className="text-cyan-400 font-black animate-pulse">📊 EN VIVO</span>
+              <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" style={{ width: totalPorcent + '%' }}></div>
+              </div>
+              <span className="text-cyan-300 font-bold">{totalVendidos}/{totalNumeros}</span>
+            </div>
+          </div>
+        ) : null;
+      })()}
+
       <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/10 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -421,27 +489,51 @@ export default function AppPage() {
             const heroBoletos = allBoletos.filter(b => b.producto_id === heroProd?.id);
             const heroVendidos = heroBoletos.filter(b => b.estado === 'vendido').length;
             const heroRestantes = 100 - heroVendidos;
+            const heroReservados = heroBoletos.filter(b => b.estado === 'reservado').length;
+            const heroPorcent = Math.round((heroVendidos / 100) * 100);
             return heroProd ? (
-              <div onClick={() => setProductoSeleccionado(heroProd)} className="cursor-pointer rounded-3xl overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/10 shadow-2xl shadow-pink-500/20 relative">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10"></div>
+              <div onClick={() => setProductoSeleccionado(heroProd)} className="cursor-pointer rounded-3xl overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/10 shadow-2xl shadow-pink-500/20 relative group">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-3xl opacity-20 group-hover:opacity-40 blur-xl transition-all duration-500"></div>
                 <div className="relative aspect-[4/3]">
-                  {heroProd.imagen ? <img src={heroProd.imagen} alt={heroProd.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center"><span className="text-8xl animate-pulse">🎁</span></div>}
-                  <div className="absolute top-3 left-3 z-20"><span className="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg animate-pulse">🔥 RIFA ACTIVA</span></div>
-                  <div className="absolute top-3 right-3 z-20"><span className="bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-full">{heroRestantes} disponibles</span></div>
+                  {heroProd.imagen ? <img src={heroProd.imagen} alt={heroProd.nombre} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" /> : <div className="w-full h-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center"><span className="text-8xl animate-pulse">🎁</span></div>}
+                  <div className="absolute top-3 left-3 z-20 flex gap-2">
+                    <span className="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg animate-pulse">🔥 RIFA ACTIVA</span>
+                    <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-black px-3 py-1.5 rounded-full shadow-lg">{getCategoryEmoji(heroProd.categorias?.nombre)} {heroProd.categorias?.nombre}</span>
+                  </div>
+                  {heroRestantes <= 20 && heroRestantes > 0 && (
+                    <div className="absolute top-3 right-3 z-20">
+                      <span className="bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-full animate-pulse">⚠️ SOLO {heroRestantes}!</span>
+                    </div>
+                  )}
+                  {heroRestantes > 20 && (
+                    <div className="absolute top-3 right-3 z-20">
+                      <span className="bg-black/70 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm">{heroRestantes} disponibles</span>
+                    </div>
+                  )}
                 </div>
                 <div className="relative z-20 p-5 -mt-4">
-                  <h2 className="text-white text-2xl font-black mb-2">{heroProd.nombre}</h2>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-white text-2xl font-black">{heroProd.nombre}</h2>
+                    {heroPorcent >= 50 && <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-black px-2 py-0.5 rounded-full animate-pulse">🔥 TRENDING</span>}
+                  </div>
                   <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-500 to-cyan-400">{formatPrice(heroProd.precio)}</p>
                   <div className="mt-3">
-                    <div className="flex justify-between text-xs text-gray-400 mb-1">
-                      <span>🎟 {heroVendidos}/100 vendidos</span>
-                      <span>👁 {fakeWatching} personas mirando</span>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-emerald-400 font-bold">🎟 {heroVendidos}/100</span>
+                      {heroReservados > 0 && <span className="text-yellow-400 font-bold">⏳ {heroReservados} reservados</span>}
+                      <span className="text-gray-400">👁 {fakeWatching} mirando</span>
                     </div>
-                    <div className="h-3 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-full transition-all duration-500" style={{ width: heroVendidos + '%' }}></div>
+                    <div className="h-4 bg-white/10 rounded-full overflow-hidden relative">
+                      <div className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-full transition-all duration-1000" style={{ width: heroPorcent + '%' }}></div>
+                      {heroPorcent > 0 && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer rounded-full" style={{ width: heroPorcent + '%' }}></div>}
                     </div>
                   </div>
-                  <button className="w-full mt-4 btn-3d-pink">PARTICIPAR 🎰</button>
+                  <button className="w-full mt-4 btn-3d-pink flex items-center justify-center gap-2">
+                    <span>🎰 PARTICIPAR</span>
+                    <span className="text-lg">→</span>
+                  </button>
+                  {heroProd.descripcion && <p className="text-gray-500 text-xs mt-2 line-clamp-1">{heroProd.descripcion}</p>}
                 </div>
               </div>
             ) : null;
@@ -451,29 +543,53 @@ export default function AppPage() {
             <p className="font-black text-sm">❓ COMO FUNCIONAN LAS RIFAS?</p>
           </button>
 
-          <div className="flex gap-2 overflow-x-auto pb-4 bg-white/5 rounded-2xl p-2">
-            <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-4 py-2 rounded-full font-bold text-sm ${!categoriaActiva ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : 'bg-white/10 text-white'}`}>Todos 🔥</button>
-            {categorias.map(cat => (
-              <button key={cat.id} onClick={() => setCategoriaActiva(cat.id)} className={`flex-shrink-0 px-4 py-2 rounded-full font-bold text-sm ${categoriaActiva === cat.id ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' : 'bg-white/10 text-white'}`}>{cat.nombre}</button>
-            ))}
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 ${!categoriaActiva ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg shadow-pink-500/30 scale-105' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+              🔥 Todas
+            </button>
+            {categorias.map(cat => {
+              const prodCount = allProductos.filter(p => p.categoria_id === cat.id && !p.finalizado).length;
+              return (
+                <button key={cat.id} onClick={() => setCategoriaActiva(cat.id)} className={`flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 ${categoriaActiva === cat.id ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30 scale-105' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+                  {getCategoryEmoji(cat.nombre)} {cat.nombre} {prodCount > 0 && <span className="text-xs opacity-60">({prodCount})</span>}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {productos.map(prod => (
-              <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-3xl overflow-hidden bg-white/5 border border-white/10 ${prod.finalizado ? 'opacity-50' : ''}`}>
-                <div className="relative aspect-square">
-                  {prod.imagen ? <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><span className="text-6xl animate-pulse">🎁</span></div>}
-                  <span className="absolute top-2 right-2 bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">{prod.categorias?.nombre}</span>
-                  {prod.finalizado && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-4xl">🏆</span></div>}
-                  <button onClick={(e) => { e.stopPropagation(); shareProduct(prod); }} className="absolute bottom-2 left-2 bg-white/80 text-black p-1.5 rounded-full text-xs">📤</button>
+          <div className="grid grid-cols-2 gap-3">
+            {productos.map(prod => {
+              const prodBoletos = allBoletos.filter(b => b.producto_id === prod.id);
+              const prodVend = prodBoletos.filter(b => b.estado === 'vendido').length;
+              const prodRes = prodBoletos.filter(b => b.estado === 'reservado').length;
+              const prodPorcent = 100 - prodVend;
+              const isHot = prodVend >= 50 && !prod.finalizado;
+              return (
+                <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-2xl overflow-hidden bg-white/5 border transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] ${prod.finalizado ? 'opacity-50 border-gray-800' : isHot ? 'border-yellow-500/40 shadow-lg shadow-yellow-500/10' : 'border-white/10'}`}>
+                  <div className="relative aspect-square">
+                    {prod.imagen ? <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-500/10 to-purple-500/10"><span className="text-5xl animate-pulse">{getCategoryEmoji(prod.categorias?.nombre)}</span></div>}
+                    <div className="absolute top-2 left-2 flex gap-1">
+                      <span className="bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm">{getCategoryEmoji(prod.categorias?.nombre)} {prod.categorias?.nombre}</span>
+                    </div>
+                    {isHot && <div className="absolute top-2 right-2"><span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">🔥 HOT</span></div>}
+                    {prodPorcent <= 10 && !prod.finalizado && <div className="absolute top-2 right-2"><span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">⚠️ ULTIMOS!</span></div>}
+                    {prod.finalizado && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><span className="text-5xl animate-bounce">🏆</span></div>}
+                    <button onClick={(e) => { e.stopPropagation(); shareProduct(prod); }} className="absolute bottom-2 left-2 bg-white/20 backdrop-blur-md text-white p-1.5 rounded-full text-xs hover:bg-white/40">📤</button>
+                    <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{100 - prodVend - prodRes} disp.</div>
+                  </div>
+                  <div className="p-3 space-y-1.5">
+                    <h3 className="font-bold text-sm truncate">{prod.nombre}</h3>
+                    <p className="text-pink-500 font-black text-sm">{formatPrice(prod.precio)}</p>
+                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${prodVend >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-pink-500 to-cyan-500'}`} style={{ width: prodVend + '%' }}></div>
+                    </div>
+                    <button className={`w-full py-2 rounded-xl font-black text-xs ${prod.finalizado ? 'bg-gray-700 text-gray-400' : 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white shadow-lg'}`}>
+                      {prod.finalizado ? '🏆 FINALIZADO' : prodVend >= 100 ? '🎉 SORTEANDO...' : `🎰 ${prodVend}/100`}
+                    </button>
+                  </div>
                 </div>
-                <div className="p-3">
-                  <h3 className="font-bold text-sm truncate">{prod.nombre}</h3>
-                  <p className="text-pink-500 font-black">{formatPrice(prod.precio)}</p>
-                  <button className="w-full mt-2 btn-3d-sm bg-gradient-to-r from-pink-500 to-cyan-500">{prod.finalizado ? 'FINALIZADO 🏆' : 'VER NUMEROS →'}</button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {productos.length === 0 && (
@@ -507,40 +623,54 @@ export default function AppPage() {
 
           {!productoSeleccionado.finalizado && (
             <>
-              <div className="rounded-3xl p-4 bg-white/5 border border-white/10">
-                <p className="text-center font-black text-sm mb-3">🎰 ELEGÍ TU(S) NUMERO(S)</p>
+              <div className="rounded-3xl p-4 bg-gradient-to-br from-pink-500/5 to-purple-500/5 border border-pink-500/20">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-black text-sm flex items-center gap-2">🎰 ELEGÍ TU(S) NUMERO(S)</p>
+                  <div className="flex gap-3 text-xs font-bold">
+                    <span><span className="w-3 h-3 inline-block bg-gradient-to-b from-pink-400 to-pink-600 rounded mr-1 shadow-md"></span>Libre</span>
+                    <span><span className="w-3 h-3 inline-block bg-gradient-to-b from-green-400 to-green-600 rounded mr-1 shadow-md"></span>Elegido</span>
+                    <span><span className="w-3 h-3 inline-block bg-gradient-to-b from-yellow-500 to-yellow-700 rounded mr-1 shadow-inner"></span>Reservado</span>
+                    <span><span className="w-3 h-3 inline-block bg-gradient-to-b from-gray-700 to-gray-900 rounded mr-1 shadow-inner"></span>Vendido</span>
+                  </div>
+                </div>
                 <div className="grid grid-cols-10 gap-1.5">
                   {boletos.map(b => {
                     const isSelected = selectedNumbers.includes(b.numero);
                     const isReserved = b.estado === 'reservado';
                     const isSold = b.estado === 'vendido';
                     return (
-                      <button key={b.id} disabled={isSold} onClick={() => isSold ? null : toggleNumberSelection(b.numero)} className={`h-10 rounded-lg font-black text-xs transition-all active:scale-90 ${isSold ? 'bg-gradient-to-b from-gray-800 to-black text-white shadow-inner cursor-not-allowed' : isSelected ? 'bg-gradient-to-b from-green-400 to-green-600 text-white shadow-lg shadow-green-500/50 scale-110' : isReserved ? 'bg-gradient-to-b from-yellow-600 to-yellow-800 text-white shadow-inner cursor-not-allowed' : 'bg-gradient-to-b from-pink-400 to-pink-600 text-white shadow-lg shadow-pink-500/50 hover:scale-110'}`}>
+                      <button key={b.id} disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)} className={`h-10 rounded-lg font-black text-xs transition-all duration-150 active:scale-90 ${isSold ? 'bg-gradient-to-b from-gray-800 to-black text-gray-600 shadow-inner cursor-not-allowed' : isReserved ? 'bg-gradient-to-b from-yellow-700 to-yellow-900 text-yellow-400 shadow-inner cursor-not-allowed' : isSelected ? 'bg-gradient-to-b from-green-400 to-green-600 text-white shadow-lg shadow-green-500/50 scale-110 ring-2 ring-green-300' : 'bg-gradient-to-b from-pink-400 to-pink-600 text-white shadow-lg shadow-pink-500/40 hover:shadow-pink-500/60 hover:scale-110'}`}
+                        title={isSold ? `#${String(b.numero).padStart(2,'0')} - Vendido` : isReserved ? `#${String(b.numero).padStart(2,'0')} - Reservado` : `#${String(b.numero).padStart(2,'0')} - Disponible`}>
                         {String(b.numero).padStart(2, '0')}
                       </button>
                     );
                   })}
                 </div>
-                <div className="flex justify-center gap-4 mt-3 text-xs font-bold">
-                  <span><span className="w-3 h-3 inline-block bg-pink-400 rounded mr-1"></span>Libre</span>
-                  <span><span className="w-3 h-3 inline-block bg-green-400 rounded mr-1"></span>Seleccionado</span>
-                  <span><span className="w-3 h-3 inline-block bg-yellow-600 rounded mr-1"></span>Reservado</span>
-                  <span><span className="w-3 h-3 inline-block bg-gray-800 rounded mr-1"></span>Ocupado</span>
-                </div>
                 {selectedNumbers.length > 0 && (
-                  <div className="mt-4 text-center">
-                    <p className="font-black text-sm mb-2">{selectedNumbers.length} numero(s) seleccionado(s)</p>
-                    <button onClick={openBulkReserva} className="w-full btn-3d-green">RESERVAR {selectedNumbers.length} NUMERO(S) 🎟️</button>
+                  <div className="mt-4 text-center animate-slideDown">
+                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-3 mb-3 border border-green-500/30">
+                      <p className="font-black text-lg text-green-400">{selectedNumbers.length} {selectedNumbers.length === 1 ? 'número seleccionado' : 'números seleccionados'}</p>
+                      <p className="text-xs text-gray-400">Seleccionados: {selectedNumbers.map(n => `#${String(n).padStart(2,'0')}`).join(', ')}</p>
+                    </div>
+                    <button onClick={openBulkReserva} className="w-full btn-3d-green text-lg">
+                      🎟️ RESERVAR {selectedNumbers.length} {selectedNumbers.length === 1 ? 'NÚMERO' : 'NÚMEROS'}
+                    </button>
                   </div>
                 )}
               </div>
 
-              <div className="rounded-3xl p-4 text-center bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30">
-                <p className="text-xs font-bold mb-1">💳 PAGÁ CON MERCADO PAGO</p>
-                <div className="flex items-center justify-center gap-2">
-                  <p className="text-2xl font-black text-pink-500">rifas.rosario.</p>
-                  <button onClick={copyAlias} className="bg-pink-500 text-white px-2 py-1 rounded-lg text-xs font-bold">📋 Copiar</button>
+              <div className="rounded-3xl p-5 text-center bg-gradient-to-r from-pink-600/20 via-purple-600/20 to-cyan-600/20 border border-pink-500/30 shadow-lg shadow-pink-500/10">
+                <div className="flex items-center justify-center gap-3 mb-2">
+                  <span className="text-3xl">💳</span>
+                  <p className="font-black text-sm">PAGÁ CON MERCADO PAGO</p>
                 </div>
+                <div className="flex items-center justify-center gap-3 bg-black/30 rounded-2xl p-3 backdrop-blur-sm">
+                  <p className="text-2xl font-black text-pink-400 tracking-wider">rifas.rosario.</p>
+                  <button onClick={copyAlias} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-xl text-xs font-black shadow-lg hover:scale-105 transition-transform active:scale-95">
+                    📋 COPIAR
+                  </button>
+                </div>
+                <p className="text-[10px] text-gray-500 mt-2">Transferí el monto exacto y envianos el comprobante</p>
               </div>
             </>
           )}
@@ -559,27 +689,41 @@ export default function AppPage() {
       {showReserva && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => setShowReserva(false)}>
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-gray-900 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+          <div className="relative w-full max-w-md rounded-t-[2.5rem] p-6 bg-gray-900 shadow-2xl border-t border-pink-500/30" onClick={e => e.stopPropagation()}>
+            <div className="w-16 h-1.5 bg-pink-500/50 rounded-full mx-auto mb-4"></div>
             <div className="text-center mb-4">
-              <p className="text-xs font-bold text-gray-400">NUMERO ELEGIDO</p>
-              <p className="text-6xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">#{String(seleccionado).padStart(2,'0')}</p>
+              <p className="text-xs font-bold text-gray-400">🌸 TU NÚMERO DE LA SUERTE</p>
+              <p className="text-7xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent animate-pulse">#{String(seleccionado).padStart(2,'0')}</p>
             </div>
-            <div className="p-4 rounded-2xl mb-4 bg-pink-500/20">
-              <p className="font-bold">{productoSeleccionado?.nombre}</p>
-              <p className="text-xl font-black text-pink-500">{formatPrice(productoSeleccionado?.precio)}</p>
+            <div className="p-4 rounded-2xl mb-4 bg-gradient-to-r from-pink-600/20 to-purple-600/20 border border-pink-500/20">
+              <div className="flex items-center gap-3">
+                {productoSeleccionado?.imagen && <img src={productoSeleccionado.imagen} className="w-16 h-16 rounded-xl object-cover" />}
+                <div>
+                  <p className="font-bold text-lg">{productoSeleccionado?.nombre}</p>
+                  <p className="text-2xl font-black bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">{formatPrice(productoSeleccionado?.precio)}</p>
+                </div>
+              </div>
             </div>
-            <div className="text-center p-3 rounded-xl mb-4 bg-white/10">
-              <p className="text-xs font-bold text-gray-400">Alias de Pago</p>
-              <p className="text-lg font-black text-pink-500">rifas.rosario.</p>
-              <button onClick={copyAlias} className="bg-pink-500 text-white px-2 py-1 rounded-lg text-xs font-bold mt-1">📋 Copiar</button>
+            <div className="text-center p-3 rounded-xl mb-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
+              <p className="text-xs font-bold text-gray-400">💳 ALIAS MERCADO PAGO</p>
+              <p className="text-xl font-black text-pink-400 tracking-wider">rifas.rosario.</p>
+              <button onClick={copyAlias} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-lg hover:scale-105 transition-transform">📋 COPIAR ALIAS</button>
             </div>
             <form onSubmit={handleReserva} className="space-y-3">
-              <input placeholder="Tu nombre completo" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10" />
-              <input placeholder="Tu WhatsApp" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10" />
-              <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-black py-4 rounded-xl shadow-xl disabled:opacity-50">{loading ? '⏳...' : '📤 ENVIAR POR WHATSAPP'}</button>
+              <div>
+                <label className="text-xs font-bold text-gray-400 mb-1 block">Tu nombre completo</label>
+                <input placeholder="Ej: Juan Perez" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10 border border-white/10 focus:border-pink-500 outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-400 mb-1 block">Tu WhatsApp</label>
+                <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10 border border-white/10 focus:border-pink-500 outline-none" />
+              </div>
+              <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-black py-4 rounded-xl shadow-xl shadow-pink-500/30 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98] transition-transform">
+                {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
+              </button>
+              <p className="text-[10px] text-center text-gray-500">Reservá tu número y te enviamos los datos de pago por WhatsApp</p>
             </form>
-            <button onClick={() => setShowReserva(false)} className="w-full mt-3 py-2 font-bold text-gray-400">Cancelar</button>
+            <button onClick={() => setShowReserva(false)} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-white transition-colors">Cancelar</button>
           </div>
         </div>
       )}
@@ -587,27 +731,50 @@ export default function AppPage() {
       {showBulkReserva && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }}>
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-gray-900 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+          <div className="relative w-full max-w-md rounded-t-[2.5rem] p-6 bg-gray-900 shadow-2xl border-t border-green-500/30" onClick={e => e.stopPropagation()}>
+            <div className="w-16 h-1.5 bg-green-500/50 rounded-full mx-auto mb-4"></div>
             <div className="text-center mb-4">
-              <p className="text-xs font-bold text-gray-400">NUMEROS ELEGIDOS</p>
-              <p className="text-3xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">{selectedNumbers.map(n => String(n).padStart(2,'0')).join(', ')}</p>
+              <p className="text-xs font-bold text-gray-400">TUS NÚMEROS DE LA SUERTE</p>
+              <div className="flex flex-wrap justify-center gap-2 mt-2">
+                {selectedNumbers.map(n => (
+                  <span key={n} className="text-2xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">#{String(n).padStart(2,'0')}</span>
+                ))}
+              </div>
             </div>
-            <div className="p-4 rounded-2xl mb-4 bg-pink-500/20">
-              <p className="font-bold">{productoSeleccionado?.nombre}</p>
-              <p className="text-xl font-black text-pink-500">{selectedNumbers.length} numero(s) x {formatPrice(productoSeleccionado?.precio)} = {formatPrice((parseFloat(productoSeleccionado.precio.replace(/[^\d.,]/g,'').replace(',','.')) * selectedNumbers.length).toString())}</p>
+            <div className="p-4 rounded-2xl mb-4 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/20">
+              <div className="flex items-center gap-3">
+                {productoSeleccionado?.imagen && <img src={productoSeleccionado.imagen} className="w-16 h-16 rounded-xl object-cover" />}
+                <div>
+                  <p className="font-bold">{productoSeleccionado?.nombre}</p>
+                  <p className="text-lg font-black text-green-400">{selectedNumbers.length} × {formatPrice(productoSeleccionado?.precio)}</p>
+                  <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400">
+                    {(() => {
+                      try { const num = parseFloat(String(productoSeleccionado?.precio).replace(/[^\d.,]/g,'').replace(',','.')) * selectedNumbers.length; return '$ ' + num.toLocaleString('es-AR') + '-'; } catch { return ''; }
+                    })()}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="text-center p-3 rounded-xl mb-4 bg-white/10">
-              <p className="text-xs font-bold text-gray-400">Alias de Pago</p>
-              <p className="text-lg font-black text-pink-500">rifas.rosario.</p>
-              <button onClick={copyAlias} className="bg-pink-500 text-white px-2 py-1 rounded-lg text-xs font-bold mt-1">📋 Copiar</button>
+            <div className="text-center p-3 rounded-xl mb-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
+              <p className="text-xs font-bold text-gray-400">💳 ALIAS MERCADO PAGO</p>
+              <p className="text-xl font-black text-pink-400 tracking-wider">rifas.rosario.</p>
+              <button onClick={copyAlias} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-lg hover:scale-105 transition-transform">📋 COPIAR ALIAS</button>
             </div>
             <form onSubmit={handleBulkReserva} className="space-y-3">
-              <input placeholder="Tu nombre completo" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10" />
-              <input placeholder="Tu WhatsApp" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10" />
-              <button disabled={loading} className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white font-black py-4 rounded-xl shadow-xl disabled:opacity-50">{loading ? '⏳...' : '📤 RESERVAR Y ENVIAR POR WHATSAPP'}</button>
+              <div>
+                <label className="text-xs font-bold text-gray-400 mb-1 block">Tu nombre completo</label>
+                <input placeholder="Ej: Juan Perez" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10 border border-white/10 focus:border-green-500 outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-400 mb-1 block">Tu WhatsApp</label>
+                <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10 border border-white/10 focus:border-green-500 outline-none" />
+              </div>
+              <button disabled={loading} className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white font-black py-4 rounded-xl shadow-xl shadow-green-500/30 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98] transition-transform">
+                {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
+              </button>
+              <p className="text-[10px] text-center text-gray-500">Tus números quedan reservados al enviar el comprobante</p>
             </form>
-            <button onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }} className="w-full mt-3 py-2 font-bold text-gray-400">Cancelar</button>
+            <button onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-white transition-colors">Cancelar</button>
           </div>
         </div>
       )}

@@ -249,6 +249,10 @@ export default function ProfilePage() {
 
       <nav className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 z-50">
         <div className="max-w-lg mx-auto flex justify-around">
+          <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400">
+            <span className="text-xl">🏆</span>
+            <span className="text-xs font-bold">Feed</span>
+          </button>
           <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-gray-400">
             <span className="text-xl">🎰</span>
             <span className="text-xs font-bold">Rifas</span>
@@ -256,10 +260,6 @@ export default function ProfilePage() {
           <button className="flex flex-col items-center gap-1 text-pink-500">
             <span className="text-xl">👤</span>
             <span className="text-xs font-bold">Perfil</span>
-          </button>
-          <button onClick={() => router.push('/')} className="flex flex-col items-center gap-1 text-gray-400">
-            <span className="text-xl">🏠</span>
-            <span className="text-xs font-bold">Inicio</span>
           </button>
         </div>
       </nav>
