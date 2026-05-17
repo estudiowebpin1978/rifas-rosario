@@ -389,18 +389,18 @@ export default function AppPage() {
   const porcentaje = boletos.length > 0 ? Math.round((vendidosCount / boletos.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen pb-24 bg-black text-white">
+    <div className="min-h-screen pb-24 bg-[#F5F5F5] text-[#333]">
       {showSorteo && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-xl">
           <div className="text-center">
             {!showPremio ? (
               <>
-                <p className="text-xl font-bold text-pink-500 mb-4">SORTEO EN PROGRESO</p>
+                <p className="text-xl font-bold text-[#3483FA] mb-4">SORTEO EN PROGRESO</p>
                 <div className="text-9xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent animate-pulse">{sorteoCountdown}</div>
-                <p className="mt-6 text-gray-400">Esperando al ganador...</p>
+                <p className="mt-6 text-gray-500">Esperando al ganador...</p>
                 <div className="mt-8 flex justify-center gap-2 flex-wrap max-w-xs mx-auto">
                   {boletos.filter(b => b.estado === 'vendido').slice(0, 20).map(b => (
-                    <span key={b.id} className={`px-2 py-1 rounded-lg text-sm font-bold ${ganadorAnimado === b.numero ? 'bg-yellow-500 text-black animate-bounce' : 'bg-white/10'}`}>#{String(b.numero).padStart(2,'0')}</span>
+                    <span key={b.id} className={`px-2 py-1 rounded-lg text-sm font-bold ${ganadorAnimado === b.numero ? 'bg-yellow-500 text-black animate-bounce' : 'bg-gray-100 text-gray-600'}`}>#{String(b.numero).padStart(2,'0')}</span>
                   ))}
                 </div>
               </>
@@ -422,8 +422,8 @@ export default function AppPage() {
       )}
 
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#FFE600]/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[#3483FA]/20 rounded-full blur-3xl"></div>
       </div>
 
       {showLiveNotif && liveNotif && (
@@ -449,84 +449,84 @@ export default function AppPage() {
         const totalNumeros = allProductos.filter(p => !p.finalizado).length * 100;
         const totalPorcent = Math.round((totalVendidos / totalNumeros) * 100);
         return totalPorcent > 0 ? (
-          <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border-b border-cyan-500/20 px-4 py-2">
+          <div className="bg-[#FFE600]/10 border-b border-[#FFE600]/30 px-4 py-2">
             <div className="max-w-lg mx-auto flex items-center gap-3 text-xs">
-              <span className="text-cyan-400 font-black animate-pulse">📊 EN VIVO</span>
+              <span className="text-[#3483FA] font-black animate-pulse">📊 EN VIVO</span>
               <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" style={{ width: totalPorcent + '%' }}></div>
+                <div className="h-full bg-[#3483FA] rounded-full" style={{ width: totalPorcent + '%' }}></div>
               </div>
-              <span className="text-cyan-300 font-bold">{totalVendidos}/{totalNumeros}</span>
+              <span className="text-[#3483FA] font-bold">{totalVendidos}/{totalNumeros}</span>
             </div>
           </div>
         ) : null;
       })()}
 
-      <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/10 px-4 py-3">
+      <header className="sticky top-0 z-50 bg-[#FFE600] border-b border-yellow-300 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src={LogoImg} alt="Mercado Rifas" width={40} height={40} className="object-contain rounded-lg" />
+            <div className="w-10 h-10 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-sm">MR</div>
             <div>
-              <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">MERCADO RIFAS</h1>
-              <p className="text-[10px] text-pink-400 font-bold">Productos que amas, rifas que pagas</p>
+              <h1 className="text-xl font-black text-[#1A3C6D]">MERCADO RIFAS</h1>
+              <p className="text-[10px] text-[#666] font-medium">Los productos que amas, en rifas que pagas</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowShare(true)} className="p-2 rounded-full bg-white/10">📤</button>
-            <button onClick={() => setShowMenu(!showMenu)} className="p-2 rounded-full bg-white/10">{showMenu ? '✕' : '☰'}</button>
+            <button onClick={() => setShowShare(true)} className="p-2 rounded-lg bg-white/80 text-[#333] shadow-sm hover:bg-white transition-colors">📤</button>
+            <button onClick={() => setShowMenu(!showMenu)} className="p-2 rounded-lg bg-white/80 text-[#333] shadow-sm hover:bg-white transition-colors">{showMenu ? '✕' : '☰'}</button>
           </div>
         </div>
       </header>
 
       {showShare && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => setShowShare(false)}>
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-gray-900 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
-            <h2 className="text-xl font-black text-center mb-6">Compartir en...</h2>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FFE600]" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
+            <h2 className="text-xl font-black text-center mb-6 text-[#333]">Compartir en...</h2>
             <div className="grid grid-cols-3 gap-4">
-              <button onClick={shareWhatsApp} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-green-500 text-white"><span className="text-3xl">💬</span><span className="text-xs font-bold">WhatsApp</span></button>
-              <button onClick={shareX} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-black text-white"><span className="text-3xl">✖</span><span className="text-xs font-bold">X</span></button>
-              <button onClick={shareFacebook} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-blue-600 text-white"><span className="text-3xl">📘</span><span className="text-xs font-bold">Facebook</span></button>
-              <button onClick={shareInstagram} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white"><span className="text-3xl">📷</span><span className="text-xs font-bold">Instagram</span></button>
-              <button onClick={shareTikTok} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-black text-white"><span className="text-3xl">🎵</span><span className="text-xs font-bold">TikTok</span></button>
-              <button onClick={shareGmail} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-red-500 text-white"><span className="text-3xl">📧</span><span className="text-xs font-bold">Gmail</span></button>
+              <button onClick={shareWhatsApp} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#39B54A] text-white shadow-sm"><span className="text-3xl">💬</span><span className="text-xs font-bold">WhatsApp</span></button>
+              <button onClick={shareX} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black text-white shadow-sm"><span className="text-3xl">✖</span><span className="text-xs font-bold">X</span></button>
+              <button onClick={shareFacebook} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#3483FA] text-white shadow-sm"><span className="text-3xl">📘</span><span className="text-xs font-bold">Facebook</span></button>
+              <button onClick={shareInstagram} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gradient-to-br from-[#405DE6] via-[#E1306C] to-[#FFDC80] text-white shadow-sm"><span className="text-3xl">📷</span><span className="text-xs font-bold">Instagram</span></button>
+              <button onClick={shareTikTok} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black text-white shadow-sm"><span className="text-3xl">🎵</span><span className="text-xs font-bold">TikTok</span></button>
+              <button onClick={shareGmail} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-red-500 text-white shadow-sm"><span className="text-3xl">📧</span><span className="text-xs font-bold">Gmail</span></button>
             </div>
-            <button onClick={() => setShowShare(false)} className="w-full mt-6 py-3 font-bold text-gray-400">Cancelar</button>
+            <button onClick={() => setShowShare(false)} className="w-full mt-6 py-3 font-bold text-gray-500">Cancelar</button>
           </div>
         </div>
       )}
 
       {showComoFunciona && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center" onClick={() => setShowComoFunciona(false)}>
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-gray-900 shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FFE600]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
-            <h2 className="text-xl font-black text-center mb-6 bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">COMO FUNCIONAN LAS RIFAS?</h2>
+            <h2 className="text-xl font-black text-center mb-6 text-[#1A3C6D]">¿CÓMO FUNCIONAN LAS RIFAS?</h2>
             <div className="space-y-4">
-              <div className="flex gap-4 items-start"><span className="text-3xl">🛒</span><div><p className="font-black text-sm">ELEGÍ TU PRODUCTO</p><p className="text-gray-400 text-sm">Navegá los productos populares de Mercado Libre y elegí el que más te guste. Solo 100 números por rifa.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">2️⃣</span><div><p className="font-black text-sm">ELEGÍ TUS NÚMEROS</p><p className="text-gray-400 text-sm">Seleccioná del 1 al 100. Comprando más números aumentás tus chances de ganar.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm">RESERVÁ Y PAGÁ</p><p className="text-gray-400 text-sm">Completá tus datos y pagá con Mercado Pago al alias rifas.rosario.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">🀄</span><div><p className="font-black text-sm">SORTEO POR QUINIENA NACIONAL NOCTURNA</p><p className="text-gray-400 text-sm">Cuando se vendan los 100 números, el ganador se define con las últimas 2 cifras de la cabeza del sorteo Nocturna (21hs) de la Quiniela Nacional de Buenos Aires. 100% transparente y verificable.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-400 text-sm">Entre más participen, más chances tienen de ganar en grupo. Compartí la rifa con todos!</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm">RECLAMÁ TU PREMIO</p><p className="text-gray-400 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega de tu premio. Subí tu foto ganadora al chat!</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">🛒</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TU PRODUCTO</p><p className="text-gray-500 text-sm">Navegá los productos populares de Mercado Libre y elegí el que más te guste. Solo 100 números por rifa.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">2️⃣</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TUS NÚMEROS</p><p className="text-gray-500 text-sm">Seleccioná del 1 al 100. Comprando más números aumentás tus chances de ganar.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá con Mercado Pago al alias rifas.rosario.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">🀄</span><div><p className="font-black text-sm text-[#333]">SORTEO POR QUINIENA NACIONAL NOCTURNA</p><p className="text-gray-500 text-sm">Cuando se vendan los 100 números, el ganador se define con las últimas 2 cifras del sorteo Nocturna (21hs) de la Quiniela Nacional. 100% transparente.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm text-[#333]">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-500 text-sm">Entre más participen, más chances tienen de ganar. Compartí la rifa con todos!</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm text-[#333]">RECLAMÁ TU PREMIO</p><p className="text-gray-500 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega. Subí tu foto ganadora al chat!</p></div></div>
             </div>
-            <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 btn-3d-cyan">ENTENDÍ! 💪</button>
+            <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm hover:bg-[#2d6fd4] transition-colors">ENTENDÍ! 💪</button>
           </div>
         </div>
       )}
 
       {showMenu && (
-        <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl p-6">
+        <div className="fixed inset-0 z-40 bg-white/95 backdrop-blur-xl p-6">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-black">Menu</h2>
+            <h2 className="text-2xl font-black text-[#1A3C6D]">Menu</h2>
             <button onClick={() => setShowMenu(false)} className="text-3xl">✕</button>
           </div>
           <nav className="space-y-4">
-            <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-2xl btn-3d-cyan text-lg">❓ Como Funciona?</button>
-            <a href="/admin" className="block p-4 rounded-2xl btn-3d-yellow text-black text-lg text-center">🔐 Panel Admin</a>
-            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black text-lg text-center shadow-lg">📤 Compartir App</button>
-            <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-2xl btn-3d-green text-lg">📱 WhatsApp</a>
-            {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-lg text-center shadow-lg">📲 Instalar App</button>}
+            <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-lg bg-[#FFE600] text-[#333] font-bold text-lg text-center shadow-sm hover:bg-[#f0d800] transition-colors">❓ Cómo Funciona?</button>
+            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#3483FA] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d6fd4] transition-colors">📤 Compartir App</button>
+            <a href="/admin" className="block p-4 rounded-lg bg-[#1A3C6D] text-white font-bold text-lg text-center shadow-sm hover:bg-[#152f55] transition-colors">🔐 Panel Admin</a>
+            <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
+            {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#FFE600] text-[#333] font-bold text-lg text-center shadow-sm hover:bg-[#f0d800] transition-colors">📲 Instalar App</button>}
           </nav>
         </div>
       )}
@@ -534,14 +534,14 @@ export default function AppPage() {
       {!productoSeleccionado ? (
         <main className="max-w-lg mx-auto p-4 space-y-6 relative z-10">
           {ganadores.length > 0 && (
-            <div className="rounded-3xl p-4 bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30">
-              <h2 className="font-black text-lg mb-3 flex items-center gap-2"><span className="animate-bounce inline-block">🏆</span> GANADORES</h2>
+            <div className="rounded-lg p-4 bg-white border border-[#EBEBEB] shadow-sm">
+              <h2 className="font-black text-lg mb-3 flex items-center gap-2 text-[#333]"><span className="animate-bounce inline-block">🏆</span> GANADORES</h2>
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {ganadores.map(g => (
-                  <div key={g.id} className="flex-shrink-0 p-3 rounded-2xl bg-black/50">
-                    <p className="font-black text-pink-500">#{String(g.ganador_num).padStart(2,'0')}</p>
-                    <p className="text-xs text-gray-400">{g.ganador_nombre}</p>
-                    <p className="text-[10px] text-gray-500">{g.nombre}</p>
+                  <div key={g.id} className="flex-shrink-0 p-3 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
+                    <p className="font-black text-[#39B54A]">#{String(g.ganador_num).padStart(2,'0')}</p>
+                    <p className="text-xs text-gray-600">{g.ganador_nombre}</p>
+                    <p className="text-[10px] text-gray-400">{g.nombre}</p>
                   </div>
                 ))}
               </div>
@@ -556,65 +556,62 @@ export default function AppPage() {
             const heroReservados = heroBoletos.filter(b => b.estado === 'reservado').length;
             const heroPorcent = Math.round((heroVendidos / 100) * 100);
             return heroProd ? (
-              <div onClick={() => setProductoSeleccionado(heroProd)} className="cursor-pointer rounded-3xl overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/10 shadow-2xl shadow-pink-500/20 relative group">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10"></div>
-                <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-3xl opacity-20 group-hover:opacity-40 blur-xl transition-all duration-500"></div>
+              <div onClick={() => setProductoSeleccionado(heroProd)} className="cursor-pointer rounded-lg overflow-hidden bg-white border border-[#EBEBEB] shadow-sm relative group">
                 <div className="relative aspect-[4/3]">
-                  {heroProd.imagen ? <img src={heroProd.imagen} alt={heroProd.nombre} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" /> : <div className="w-full h-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center"><span className="text-8xl animate-pulse">🎁</span></div>}
-                  <div className="absolute top-3 left-3 z-20 flex gap-2">
-                    <span className="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg animate-pulse">🔥 ACTIVA</span>
-                    <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-black px-3 py-1.5 rounded-full shadow-lg">{getCategoryEmoji(heroProd.categorias?.nombre)} {heroProd.categorias?.nombre}</span>
+                  {heroProd.imagen ? <img src={heroProd.imagen} alt={heroProd.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center"><span className="text-8xl">🎁</span></div>}
+                  <div className="absolute top-3 left-3 z-10 flex gap-2">
+                    <span className="bg-[#3483FA] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">🔥 ACTIVA</span>
+                    <span className="bg-[#FFE600] text-[#333] text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">{getCategoryEmoji(heroProd.categorias?.nombre)} {heroProd.categorias?.nombre}</span>
                   </div>
                   {heroRestantes <= 20 && heroRestantes > 0 && (
-                    <div className="absolute top-3 right-3 z-20">
-                      <span className="bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-full animate-pulse">⚠️ SOLO {heroRestantes}!</span>
+                    <div className="absolute top-3 right-3 z-10">
+                      <span className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg animate-pulse">⚠️ SOLO {heroRestantes}!</span>
                     </div>
                   )}
                   {heroRestantes > 20 && (
-                    <div className="absolute top-3 right-3 z-20">
-                      <span className="bg-black/70 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm">{heroRestantes} disponibles</span>
+                    <div className="absolute top-3 right-3 z-10">
+                      <span className="bg-white/90 text-[#666] text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">{heroRestantes} disponibles</span>
                     </div>
                   )}
                 </div>
-                <div className="relative z-20 p-5 -mt-4">
+                <div className="p-5">
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-white text-2xl font-black">{heroProd.nombre}</h2>
-                    {heroPorcent >= 50 && <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-black px-2 py-0.5 rounded-full animate-pulse">🔥 TRENDING</span>}
+                    <h2 className="text-[#333] text-2xl font-black">{heroProd.nombre}</h2>
+                    {heroPorcent >= 50 && <span className="bg-[#FFE600] text-[#333] text-xs font-bold px-2 py-0.5 rounded-lg">🔥 TRENDING</span>}
                   </div>
-                  <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-500 to-cyan-400">{formatPrice(heroProd.precio)}</p>
+                  <p className="text-3xl font-black text-[#39B54A]">{formatPrice(heroProd.precio)}</p>
                   <div className="mt-3">
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-emerald-400 font-bold">🎟 {heroVendidos}/100</span>
-                      {heroReservados > 0 && <span className="text-yellow-400 font-bold">⏳ {heroReservados} reservados</span>}
+                      <span className="text-[#3483FA] font-bold">🎟 {heroVendidos}/100</span>
+                      {heroReservados > 0 && <span className="text-[#FFE600] font-bold">⏳ {heroReservados} reservados</span>}
                       <span className="text-gray-400">👁 {fakeWatching} mirando</span>
                     </div>
-                    <div className="h-4 bg-white/10 rounded-full overflow-hidden relative">
-                      <div className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-full transition-all duration-1000" style={{ width: heroPorcent + '%' }}></div>
-                      {heroPorcent > 0 && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer rounded-full" style={{ width: heroPorcent + '%' }}></div>}
+                    <div className="h-4 bg-[#EBEBEB] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#3483FA] rounded-full transition-all duration-1000" style={{ width: heroPorcent + '%' }}></div>
                     </div>
                   </div>
-                  <button className="w-full mt-4 btn-3d-pink flex items-center justify-center gap-2">
+                  <button className="w-full mt-4 bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm hover:bg-[#2d6fd4] active:scale-95 transition-all flex items-center justify-center gap-2">
                     <span>🎰 PARTICIPAR</span>
                     <span className="text-lg">→</span>
                   </button>
-                  {heroProd.descripcion && <p className="text-gray-500 text-xs mt-2 line-clamp-1">{heroProd.descripcion}</p>}
+                  {heroProd.descripcion && <p className="text-gray-400 text-xs mt-2 line-clamp-1">{heroProd.descripcion}</p>}
                 </div>
               </div>
             ) : null;
           })()}
 
-          <button onClick={() => setShowComoFunciona(true)} className="w-full bg-gray-900/80 border border-white/10 rounded-2xl p-4 text-center">
-            <p className="font-black text-sm">❓ COMO FUNCIONAN LAS RIFAS?</p>
+          <button onClick={() => setShowComoFunciona(true)} className="w-full bg-white border border-[#EBEBEB] shadow-sm rounded-lg p-4 text-center">
+            <p className="font-bold text-sm text-[#3483FA]">❓ CÓMO FUNCIONAN LAS RIFAS?</p>
           </button>
 
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 ${!categoriaActiva ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg shadow-pink-500/30 scale-105' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+            <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-5 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 ${!categoriaActiva ? 'bg-[#3483FA] text-white shadow-md scale-105' : 'bg-white/70 text-[#666] hover:bg-white/90 border border-[#EBEBEB]'}`}>
               🔥 Todas
             </button>
             {categorias.map(cat => {
               const prodCount = allProductos.filter(p => p.categoria_id === cat.id && !p.finalizado).length;
               return (
-                <button key={cat.id} onClick={() => setCategoriaActiva(cat.id)} className={`flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-200 ${categoriaActiva === cat.id ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30 scale-105' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+                <button key={cat.id} onClick={() => setCategoriaActiva(cat.id)} className={`flex-shrink-0 px-5 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 ${categoriaActiva === cat.id ? 'bg-[#3483FA] text-white shadow-md scale-105' : 'bg-white/70 text-[#666] hover:bg-white/90 border border-[#EBEBEB]'}`}>
                   {getCategoryEmoji(cat.nombre)} {cat.nombre} {prodCount > 0 && <span className="text-xs opacity-60">({prodCount})</span>}
                 </button>
               );
@@ -629,25 +626,25 @@ export default function AppPage() {
               const prodPorcent = 100 - prodVend;
               const isHot = prodVend >= 50 && !prod.finalizado;
               return (
-                <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-2xl overflow-hidden bg-white/5 border transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] ${prod.finalizado ? 'opacity-50 border-gray-800' : isHot ? 'border-yellow-500/40 shadow-lg shadow-yellow-500/10' : 'border-white/10'}`}>
+                <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-lg overflow-hidden bg-white border transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-sm ${prod.finalizado ? 'opacity-50 border-gray-200' : isHot ? 'border-[#FFE600]' : 'border-[#EBEBEB]'}`}>
                   <div className="relative aspect-square">
-                    {prod.imagen ? <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-500/10 to-purple-500/10"><span className="text-5xl animate-pulse">{getCategoryEmoji(prod.categorias?.nombre)}</span></div>}
+                    {prod.imagen ? <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><span className="text-5xl">{getCategoryEmoji(prod.categorias?.nombre)}</span></div>}
                     <div className="absolute top-2 left-2 flex gap-1">
-                      <span className="bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm">{getCategoryEmoji(prod.categorias?.nombre)} {prod.categorias?.nombre}</span>
+                      <span className="bg-white/90 text-[#666] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">{getCategoryEmoji(prod.categorias?.nombre)} {prod.categorias?.nombre}</span>
                     </div>
-                    {isHot && <div className="absolute top-2 right-2"><span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">🔥 HOT</span></div>}
-                    {prodPorcent <= 10 && !prod.finalizado && <div className="absolute top-2 right-2"><span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">⚠️ ULTIMOS!</span></div>}
-                    {prod.finalizado && <div className="absolute inset-0 bg-black/60 flex items-center justify-center"><span className="text-5xl animate-bounce">🏆</span></div>}
-                    <button onClick={(e) => { e.stopPropagation(); shareProduct(prod); }} className="absolute bottom-2 left-2 bg-white/20 backdrop-blur-md text-white p-1.5 rounded-full text-xs hover:bg-white/40">📤</button>
-                    <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{100 - prodVend - prodRes} disp.</div>
+                    {isHot && <div className="absolute top-2 right-2"><span className="bg-[#FFE600] text-[#333] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">🔥 HOT</span></div>}
+                    {prodPorcent <= 10 && !prod.finalizado && <div className="absolute top-2 right-2"><span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded animate-pulse">⚠️ ULTIMOS!</span></div>}
+                    {prod.finalizado && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><span className="text-5xl animate-bounce">🏆</span></div>}
+                    <button onClick={(e) => { e.stopPropagation(); shareProduct(prod); }} className="absolute bottom-2 left-2 bg-white/80 text-[#333] p-1.5 rounded text-xs shadow-sm hover:bg-white">📤</button>
+                    <div className="absolute bottom-2 right-2 bg-white/90 text-[#666] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">{100 - prodVend - prodRes} disp.</div>
                   </div>
                   <div className="p-3 space-y-1.5">
-                    <h3 className="font-bold text-sm truncate">{prod.nombre}</h3>
-                    <p className="text-pink-500 font-black text-sm">{formatPrice(prod.precio)}</p>
-                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${prodVend >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-pink-500 to-cyan-500'}`} style={{ width: prodVend + '%' }}></div>
+                    <h3 className="font-bold text-sm truncate text-[#333]">{prod.nombre}</h3>
+                    <p className="text-[#39B54A] font-black text-sm">{formatPrice(prod.precio)}</p>
+                    <div className="h-1.5 bg-[#EBEBEB] rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${prodVend >= 100 ? 'bg-[#39B54A]' : 'bg-[#3483FA]'}`} style={{ width: prodVend + '%' }}></div>
                     </div>
-                    <button className={`w-full py-2 rounded-xl font-black text-xs ${prod.finalizado ? 'bg-gray-700 text-gray-400' : 'bg-gradient-to-r from-pink-500 to-cyan-500 text-white shadow-lg'}`}>
+                    <button className={`w-full py-2 rounded-lg font-bold text-xs ${prod.finalizado ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-[#3483FA] text-white shadow-sm'}`}>
                       {prod.finalizado ? '🏆 FINALIZADO' : prodVend >= 100 ? '🎉 SORTEANDO...' : `🎰 ${prodVend}/100`}
                     </button>
                   </div>
@@ -657,59 +654,59 @@ export default function AppPage() {
           </div>
 
           {productos.length === 0 && (
-            <div className="text-center py-16 rounded-3xl bg-white/5">
+            <div className="text-center py-16 rounded-lg bg-white border border-[#EBEBEB] shadow-sm">
               <span className="text-6xl mb-4 block">🎰</span>
-              <p className="text-xl font-black">Proximamente</p>
+              <p className="text-xl font-black text-[#333]">Proximamente</p>
               <p className="mt-2 text-gray-500">Nuevas rifas muy pronto!</p>
             </div>
           )}
 
           {showInstall && (
-            <button onClick={installApp} className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-amber-500/40 animate-bounce text-lg">
+            <button onClick={installApp} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm animate-bounce text-lg">
               📲 INSTALAR APP EN TU CELULAR
             </button>
           )}
         </main>
       ) : (
         <main className="max-w-lg mx-auto p-4 space-y-4 relative z-10">
-          <button onClick={() => { setProductoSeleccionado(null); setSeleccionado(null); }} className="flex items-center gap-2 font-bold">← Volver</button>
-          <button onClick={() => shareProduct(productoSeleccionado)} className="w-full btn-3d-green text-sm">📤 COMPARTIR ESTA RIFA 🚀</button>
+          <button onClick={() => { setProductoSeleccionado(null); setSeleccionado(null); }} className="flex items-center gap-2 font-bold text-[#3483FA]">← Volver</button>
+          <button onClick={() => shareProduct(productoSeleccionado)} className="w-full bg-[#39B54A] text-white font-bold py-3 rounded-lg shadow-sm text-sm hover:bg-[#2d9e3d] transition-colors">📤 COMPARTIR ESTA RIFA 🚀</button>
 
-          <div className="rounded-3xl overflow-hidden bg-white/5 border border-white/10">
-            <div className="relative aspect-video">
+          <div className="rounded-lg overflow-hidden bg-white border border-[#EBEBEB] shadow-sm">
+            <div className="relative aspect-video bg-gray-50">
               {productoSeleccionado.imagen ? <img src={productoSeleccionado.imagen} alt={productoSeleccionado.nombre} className="w-full h-full object-contain" /> : <span className="text-7xl">🎁</span>}
-              {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
+              {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
             </div>
             <div className="p-4">
-              <span className="bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">{productoSeleccionado.categorias?.nombre}</span>
-              <h2 className="font-black text-xl mt-2">{productoSeleccionado.nombre}</h2>
-              <p className="text-3xl font-black text-pink-500 mt-1">{formatPrice(productoSeleccionado.precio)}</p>
-              {productoSeleccionado.descripcion && <p className="mt-3 text-gray-400 text-sm">{productoSeleccionado.descripcion}</p>}
-              <div className="mt-3 flex justify-between text-sm"><span className="text-gray-400">{vendidosCount}/100 vendidos</span><span className="font-bold">{porcentaje}%</span></div>
-              <div className="h-3 rounded-full mt-2 bg-white/10"><div className="h-full bg-gradient-to-r from-pink-500 to-cyan-500 rounded-full" style={{ width: porcentaje + '%' }}></div></div>
-              {vendidosCount === 100 && <p className="mt-2 text-center font-black text-yellow-500 animate-pulse">🎉 TODOS LOS NUMEROS VENDIDOS!</p>}
+              <span className="bg-[#3483FA]/10 text-[#3483FA] text-xs font-bold px-2 py-1 rounded">{productoSeleccionado.categorias?.nombre}</span>
+              <h2 className="font-black text-xl mt-2 text-[#333]">{productoSeleccionado.nombre}</h2>
+              <p className="text-3xl font-black text-[#39B54A] mt-1">{formatPrice(productoSeleccionado.precio)}</p>
+              {productoSeleccionado.descripcion && <p className="mt-3 text-gray-500 text-sm">{productoSeleccionado.descripcion}</p>}
+              <div className="mt-3 flex justify-between text-sm"><span className="text-gray-500">{vendidosCount}/100 vendidos</span><span className="font-bold text-[#333]">{porcentaje}%</span></div>
+              <div className="h-3 rounded-full mt-2 bg-[#EBEBEB]"><div className="h-full bg-[#3483FA] rounded-full" style={{ width: porcentaje + '%' }}></div></div>
+              {vendidosCount === 100 && <p className="mt-2 text-center font-black text-[#39B54A] animate-pulse">🎉 TODOS LOS NUMEROS VENDIDOS!</p>}
             </div>
           </div>
 
           {!productoSeleccionado.finalizado && (
             <>
-              <div className="rounded-3xl p-4 bg-gradient-to-br from-pink-500/5 to-purple-500/5 border border-pink-500/20">
+              <div className="rounded-lg p-4 bg-white border border-[#EBEBEB] shadow-sm">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-black text-sm flex items-center gap-2">🎰 ELEGÍ TU(S) NUMERO(S)</p>
-                  <div className="flex gap-3 text-xs font-bold">
-                    <span><span className="w-3 h-3 inline-block bg-gradient-to-b from-pink-400 to-pink-600 rounded mr-1 shadow-md"></span>Libre</span>
-                    <span><span className="w-3 h-3 inline-block bg-gradient-to-b from-green-400 to-green-600 rounded mr-1 shadow-md"></span>Elegido</span>
-                    <span><span className="w-3 h-3 inline-block bg-gradient-to-b from-yellow-500 to-yellow-700 rounded mr-1 shadow-inner"></span>Reservado</span>
-                    <span><span className="w-3 h-3 inline-block bg-gradient-to-b from-gray-700 to-gray-900 rounded mr-1 shadow-inner"></span>Vendido</span>
+                  <p className="font-bold text-sm flex items-center gap-2 text-[#333]">🎰 ELEGÍ TU(S) NUMERO(S)</p>
+                  <div className="flex gap-2 text-[10px] font-medium">
+                    <span><span className="w-3 h-3 inline-block bg-white border border-gray-300 rounded mr-1"></span>Libre</span>
+                    <span><span className="w-3 h-3 inline-block bg-[#3483FA] rounded mr-1"></span>Elegido</span>
+                    <span><span className="w-3 h-3 inline-block bg-[#FFE600] border border-yellow-400 rounded mr-1"></span>Reservado</span>
+                    <span><span className="w-3 h-3 inline-block bg-gray-200 rounded mr-1"></span>Vendido</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-10 gap-1.5">
+                <div className="grid grid-cols-10 gap-1">
                   {boletos.map(b => {
                     const isSelected = selectedNumbers.includes(b.numero);
                     const isReserved = b.estado === 'reservado';
                     const isSold = b.estado === 'vendido';
                     return (
-                      <button key={b.id} disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)} className={`h-10 rounded-lg font-black text-xs transition-all duration-150 active:scale-90 ${isSold ? 'bg-gradient-to-b from-gray-800 to-black text-gray-600 shadow-inner cursor-not-allowed' : isReserved ? 'bg-gradient-to-b from-yellow-700 to-yellow-900 text-yellow-400 shadow-inner cursor-not-allowed' : isSelected ? 'bg-gradient-to-b from-green-400 to-green-600 text-white shadow-lg shadow-green-500/50 scale-110 ring-2 ring-green-300' : 'bg-gradient-to-b from-pink-400 to-pink-600 text-white shadow-lg shadow-pink-500/40 hover:shadow-pink-500/60 hover:scale-110'}`}
+                      <button key={b.id} disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)} className={`h-9 rounded text-xs font-bold transition-all duration-150 active:scale-90 ${isSold ? 'bg-gray-100 text-gray-300 cursor-not-allowed border border-gray-200' : isReserved ? 'bg-[#FFE600] text-[#999] border border-yellow-300 cursor-not-allowed' : isSelected ? 'bg-[#3483FA] text-white scale-110 ring-2 ring-blue-200 border border-[#3483FA]' : 'bg-white text-[#333] border border-[#EBEBEB] hover:border-[#3483FA] hover:text-[#3483FA]'}`}
                         title={isSold ? `#${String(b.numero).padStart(2,'0')} - Vendido` : isReserved ? `#${String(b.numero).padStart(2,'0')} - Reservado` : `#${String(b.numero).padStart(2,'0')} - Disponible`}>
                         {String(b.numero).padStart(2, '0')}
                       </button>
@@ -717,26 +714,26 @@ export default function AppPage() {
                   })}
                 </div>
                 {selectedNumbers.length > 0 && (
-                  <div className="mt-4 text-center animate-slideDown">
-                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-3 mb-3 border border-green-500/30">
-                      <p className="font-black text-lg text-green-400">{selectedNumbers.length} {selectedNumbers.length === 1 ? 'número seleccionado' : 'números seleccionados'}</p>
-                      <p className="text-xs text-gray-400">Seleccionados: {selectedNumbers.map(n => `#${String(n).padStart(2,'0')}`).join(', ')}</p>
+                  <div className="mt-4 text-center">
+                    <div className="bg-[#F5F5F5] rounded-lg p-3 mb-3 border border-[#EBEBEB]">
+                      <p className="font-bold text-lg text-[#333]">{selectedNumbers.length} {selectedNumbers.length === 1 ? 'número seleccionado' : 'números seleccionados'}</p>
+                      <p className="text-xs text-gray-500">Seleccionados: {selectedNumbers.map(n => `#${String(n).padStart(2,'0')}`).join(', ')}</p>
                     </div>
-                    <button onClick={openBulkReserva} className="w-full btn-3d-green text-lg">
+                    <button onClick={openBulkReserva} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm hover:bg-[#2d6fd4] transition-colors text-lg">
                       🎟️ RESERVAR {selectedNumbers.length} {selectedNumbers.length === 1 ? 'NÚMERO' : 'NÚMEROS'}
                     </button>
                   </div>
                 )}
               </div>
 
-              <div className="rounded-3xl p-5 text-center bg-gradient-to-r from-pink-600/20 via-purple-600/20 to-cyan-600/20 border border-pink-500/30 shadow-lg shadow-pink-500/10">
+              <div className="rounded-lg p-5 text-center bg-white border border-[#EBEBEB] shadow-sm">
                 <div className="flex items-center justify-center gap-3 mb-2">
                   <span className="text-3xl">💳</span>
-                  <p className="font-black text-sm">PAGÁ CON MERCADO PAGO</p>
+                  <p className="font-bold text-sm text-[#333]">PAGÁ CON MERCADO PAGO</p>
                 </div>
-                <div className="flex items-center justify-center gap-3 bg-black/30 rounded-2xl p-3 backdrop-blur-sm">
-                  <p className="text-2xl font-black text-pink-400 tracking-wider">rifas.rosario.</p>
-                  <button onClick={copyAlias} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-xl text-xs font-black shadow-lg hover:scale-105 transition-transform active:scale-95">
+                <div className="flex items-center justify-center gap-3 bg-[#F5F5F5] rounded-lg p-3">
+                  <p className="text-2xl font-black text-[#333] tracking-wider">rifas.rosario.</p>
+                  <button onClick={copyAlias} className="bg-[#3483FA] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-[#2d6fd4] transition-colors">
                     📋 COPIAR
                   </button>
                 </div>
@@ -746,11 +743,11 @@ export default function AppPage() {
           )}
 
           {productoSeleccionado.finalizado && productoSeleccionado.ganador_num && (
-            <div className="rounded-3xl p-6 text-center bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-2 border-yellow-500/50">
+            <div className="rounded-lg p-6 text-center bg-white border-2 border-[#FFE600] shadow-sm">
               <span className="text-5xl">🏆</span>
-              <p className="text-2xl font-black mt-2 text-yellow-500">GANADOR</p>
-              <p className="text-5xl font-black text-white">#{String(productoSeleccionado.ganador_num).padStart(2,'0')}</p>
-              <p className="text-lg font-bold mt-2">{productoSeleccionado.ganador_nombre}</p>
+              <p className="text-2xl font-black mt-2 text-[#FFE600]">GANADOR</p>
+              <p className="text-5xl font-black text-[#333]">#{String(productoSeleccionado.ganador_num).padStart(2,'0')}</p>
+              <p className="text-lg font-bold mt-2 text-[#333]">{productoSeleccionado.ganador_nombre}</p>
             </div>
           )}
         </main>
@@ -758,66 +755,66 @@ export default function AppPage() {
 
       {showReserva && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => setShowReserva(false)}>
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2.5rem] p-6 bg-gray-900 shadow-2xl border-t border-pink-500/30" onClick={e => e.stopPropagation()}>
-            <div className="w-16 h-1.5 bg-pink-500/50 rounded-full mx-auto mb-4"></div>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FFE600]" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
             <div className="text-center mb-4">
-              <p className="text-xs font-bold text-gray-400">🌸 TU NÚMERO DE LA SUERTE</p>
-              <p className="text-7xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent animate-pulse">#{String(seleccionado).padStart(2,'0')}</p>
+              <p className="text-xs font-bold text-gray-500">🎲 TU NÚMERO DE LA SUERTE</p>
+              <p className="text-7xl font-black text-[#3483FA] animate-pulse">#{String(seleccionado).padStart(2,'0')}</p>
             </div>
-            <div className="p-4 rounded-2xl mb-4 bg-gradient-to-r from-pink-600/20 to-purple-600/20 border border-pink-500/20">
+            <div className="p-4 rounded-lg mb-4 bg-[#F5F5F5] border border-[#EBEBEB]">
               <div className="flex items-center gap-3">
-                {productoSeleccionado?.imagen && <img src={productoSeleccionado.imagen} className="w-16 h-16 rounded-xl object-cover" />}
+                {productoSeleccionado?.imagen && <img src={productoSeleccionado.imagen} className="w-16 h-16 rounded-lg object-cover" />}
                 <div>
-                  <p className="font-bold text-lg">{productoSeleccionado?.nombre}</p>
-                  <p className="text-2xl font-black bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">{formatPrice(productoSeleccionado?.precio)}</p>
+                  <p className="font-bold text-lg text-[#333]">{productoSeleccionado?.nombre}</p>
+                  <p className="text-2xl font-black text-[#39B54A]">{formatPrice(productoSeleccionado?.precio)}</p>
                 </div>
               </div>
             </div>
-            <div className="text-center p-3 rounded-xl mb-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
-              <p className="text-xs font-bold text-gray-400">💳 ALIAS MERCADO PAGO</p>
-              <p className="text-xl font-black text-pink-400 tracking-wider">rifas.rosario.</p>
-              <button onClick={copyAlias} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-lg hover:scale-105 transition-transform">📋 COPIAR ALIAS</button>
+            <div className="text-center p-3 rounded-lg mb-4 bg-[#FFE600]/10 border border-[#FFE600]/30">
+              <p className="text-xs font-bold text-gray-500">💳 ALIAS MERCADO PAGO</p>
+              <p className="text-xl font-black text-[#333] tracking-wider">rifas.rosario.</p>
+              <button onClick={copyAlias} className="bg-[#3483FA] text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#2d6fd4] transition-colors">📋 COPIAR ALIAS</button>
             </div>
             <form onSubmit={handleReserva} className="space-y-3">
               <div>
-                <label className="text-xs font-bold text-gray-400 mb-1 block">Tu nombre completo</label>
-                <input placeholder="Ej: Juan Perez" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10 border border-white/10 focus:border-pink-500 outline-none" />
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Tu nombre completo</label>
+                <input placeholder="Ej: Juan Perez" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-400 mb-1 block">Tu WhatsApp</label>
-                <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10 border border-white/10 focus:border-pink-500 outline-none" />
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
+                <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               </div>
-              <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-black py-4 rounded-xl shadow-xl shadow-pink-500/30 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98] transition-transform">
+              <button disabled={loading} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm disabled:opacity-50 hover:bg-[#2d6fd4] active:scale-[0.98] transition-all">
                 {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
               </button>
               <p className="text-[10px] text-center text-gray-500">Reservá tu número y te enviamos los datos de pago por WhatsApp</p>
             </form>
-            <button onClick={() => setShowReserva(false)} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-white transition-colors">Cancelar</button>
+            <button onClick={() => setShowReserva(false)} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-black transition-colors">Cancelar</button>
           </div>
         </div>
       )}
 
       {showBulkReserva && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }}>
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2.5rem] p-6 bg-gray-900 shadow-2xl border-t border-green-500/30" onClick={e => e.stopPropagation()}>
-            <div className="w-16 h-1.5 bg-green-500/50 rounded-full mx-auto mb-4"></div>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FFE600]" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
             <div className="text-center mb-4">
-              <p className="text-xs font-bold text-gray-400">TUS NÚMEROS DE LA SUERTE</p>
+              <p className="text-xs font-bold text-gray-500">TUS NÚMEROS DE LA SUERTE</p>
               <div className="flex flex-wrap justify-center gap-2 mt-2">
                 {selectedNumbers.map(n => (
-                  <span key={n} className="text-2xl font-black bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">#{String(n).padStart(2,'0')}</span>
+                  <span key={n} className="text-2xl font-black text-[#3483FA]">#{String(n).padStart(2,'0')}</span>
                 ))}
               </div>
             </div>
-            <div className="p-4 rounded-2xl mb-4 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/20">
+            <div className="p-4 rounded-lg mb-4 bg-[#F5F5F5] border border-[#EBEBEB]">
               <div className="flex items-center gap-3">
-                {productoSeleccionado?.imagen && <img src={productoSeleccionado.imagen} className="w-16 h-16 rounded-xl object-cover" />}
+                {productoSeleccionado?.imagen && <img src={productoSeleccionado.imagen} className="w-16 h-16 rounded-lg object-cover" />}
                 <div>
-                  <p className="font-bold">{productoSeleccionado?.nombre}</p>
-                  <p className="text-lg font-black text-green-400">{selectedNumbers.length} × {formatPrice(productoSeleccionado?.precio)}</p>
-                  <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400">
+                  <p className="font-bold text-[#333]">{productoSeleccionado?.nombre}</p>
+                  <p className="text-lg font-black text-[#39B54A]">{selectedNumbers.length} × {formatPrice(productoSeleccionado?.precio)}</p>
+                  <p className="text-2xl font-black text-[#333]">
                     {(() => {
                       try { const num = parseFloat(String(productoSeleccionado?.precio).replace(/[^\d.,]/g,'').replace(',','.')) * selectedNumbers.length; return '$ ' + num.toLocaleString('es-AR') + '-'; } catch { return ''; }
                     })()}
@@ -825,26 +822,26 @@ export default function AppPage() {
                 </div>
               </div>
             </div>
-            <div className="text-center p-3 rounded-xl mb-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
-              <p className="text-xs font-bold text-gray-400">💳 ALIAS MERCADO PAGO</p>
-              <p className="text-xl font-black text-pink-400 tracking-wider">rifas.rosario.</p>
-              <button onClick={copyAlias} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-lg hover:scale-105 transition-transform">📋 COPIAR ALIAS</button>
+            <div className="text-center p-3 rounded-lg mb-4 bg-[#FFE600]/10 border border-[#FFE600]/30">
+              <p className="text-xs font-bold text-gray-500">💳 ALIAS MERCADO PAGO</p>
+              <p className="text-xl font-black text-[#333] tracking-wider">rifas.rosario.</p>
+              <button onClick={copyAlias} className="bg-[#3483FA] text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#2d6fd4] transition-colors">📋 COPIAR ALIAS</button>
             </div>
             <form onSubmit={handleBulkReserva} className="space-y-3">
               <div>
-                <label className="text-xs font-bold text-gray-400 mb-1 block">Tu nombre completo</label>
-                <input placeholder="Ej: Juan Perez" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10 border border-white/10 focus:border-green-500 outline-none" />
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Tu nombre completo</label>
+                <input placeholder="Ej: Juan Perez" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-400 mb-1 block">Tu WhatsApp</label>
-                <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-xl p-3.5 font-bold bg-white/10 border border-white/10 focus:border-green-500 outline-none" />
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
+                <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               </div>
-              <button disabled={loading} className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white font-black py-4 rounded-xl shadow-xl shadow-green-500/30 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98] transition-transform">
+              <button disabled={loading} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm disabled:opacity-50 hover:bg-[#2d6fd4] active:scale-[0.98] transition-all">
                 {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
               </button>
               <p className="text-[10px] text-center text-gray-500">Tus números quedan reservados al enviar el comprobante</p>
             </form>
-            <button onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-white transition-colors">Cancelar</button>
+            <button onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-black transition-colors">Cancelar</button>
           </div>
         </div>
       )}
@@ -857,19 +854,19 @@ export default function AppPage() {
         />
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-50 shadow-[0_-1px_6px_rgba(0,0,0,0.05)]">
         <div className="max-w-lg mx-auto flex justify-around">
-          <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
-          <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-pink-500"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
-          <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-1 text-gray-400 relative">
+          <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
+          <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-[#3483FA]"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
+          <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors relative">
             <span className="text-xl relative">
               💬
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#39B54A] rounded-full animate-pulse"></span>
             </span>
             <span className="text-xs font-bold">Chat</span>
           </button>
-          <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
-          {showInstall && <button onClick={installApp} className="flex flex-col items-center gap-1 text-amber-400"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>}
+          <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
+          {showInstall && <button onClick={installApp} className="flex flex-col items-center gap-1 text-[#FFE600]"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>}
         </div>
       </nav>
     </div>

@@ -193,20 +193,16 @@ export default function AdminPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-black">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl"></div>
-        </div>
-        <form onSubmit={handleLogin} className="relative z-10 w-full max-w-sm rounded-3xl p-6 shadow-2xl bg-gray-900 border border-white/10">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[#F5F5F5]">
+        <form onSubmit={handleLogin} className="relative z-10 w-full max-w-sm rounded-lg p-6 shadow-sm bg-white border border-[#EBEBEB]">
           <div className="text-center mb-6">
-            <Image src={LogoImg} alt="logo" width={64} height={64} className="object-cover mx-auto mb-4 rounded-xl" />
-            <h1 className="text-2xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">PANEL ADMIN</h1>
+            <div className="w-16 h-16 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-xl mx-auto mb-4">MR</div>
+            <h1 className="text-2xl font-black text-[#1A3C6D]">PANEL ADMIN</h1>
           </div>
-          {error && <div className="bg-red-500/20 border border-red-500 text-red-400 p-3 rounded-2xl text-sm mb-4">{error}</div>}
+          {error && <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm mb-4">{error}</div>}
           <div className="space-y-3">
-            <input type="password" placeholder="Contrasena" value={password} onChange={e => setPassword(e.target.value)} required className="w-full rounded-2xl p-4 font-bold bg-white/10 border border-white/20" />
-            <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-4 rounded-2xl shadow-lg">{loading ? '⏳' : 'INGRESAR →'}</button>
+            <input type="password" placeholder="Contrasena" value={password} onChange={e => setPassword(e.target.value)} required className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
+            <button disabled={loading} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm">{loading ? '⏳' : 'INGRESAR →'}</button>
           </div>
           <button type="button" onClick={() => router.push('/')} className="w-full mt-4 text-sm text-gray-500">← Volver</button>
         </form>
@@ -215,55 +211,51 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen pb-8 bg-black text-white">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl"></div>
-      </div>
+    <div className="min-h-screen pb-8 bg-[#F5F5F5] text-[#333]">
 
-      <header className="sticky top-0 z-40 bg-black/90 backdrop-blur-xl border-b border-white/10 px-4 py-3">
+      <header className="sticky top-0 z-40 bg-[#FFE600] border-b border-yellow-300 px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src={LogoImg} alt="logo" width={40} height={40} className="object-contain rounded-lg" />
+            <div className="w-10 h-10 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-sm">MR</div>
             <div>
-              <h1 className="text-lg font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">ADMIN</h1>
-              <p className="text-xs text-gray-500">Panel de control</p>
+              <h1 className="text-lg font-black text-[#1A3C6D]">ADMIN</h1>
+              <p className="text-xs text-[#666]">Panel de control</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => router.push('/')} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-full font-bold text-sm">Ver App 🎰</button>
-            <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-full font-bold text-sm">Salir</button>
+            <button onClick={() => router.push('/')} className="bg-[#1A3C6D] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[#152f55] transition-colors">Ver App 🎰</button>
+            <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm">Salir</button>
           </div>
         </div>
       </header>
 
       {notif && (
-        <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-3 text-center font-black animate-bounce cursor-pointer" onClick={() => setNotif('')}>
+        <div className="bg-[#39B54A] text-white px-4 py-3 text-center font-bold animate-bounce cursor-pointer" onClick={() => setNotif('')}>
           {notif} (toca para cerrar)
         </div>
       )}
 
       <main className="max-w-2xl mx-auto p-4 space-y-4 relative z-10">
         <div className="grid grid-cols-3 gap-3">
-          <div className="p-4 rounded-2xl text-center bg-gradient-to-b from-pink-500/20 to-purple-500/20 border border-pink-500/30">
+          <div className="p-4 rounded-lg text-center bg-white border border-[#EBEBEB] shadow-sm">
             <p className="text-3xl mb-1">📬</p>
-            <p className="text-2xl font-black text-pink-500">{pendientesPago.length}</p>
+            <p className="text-2xl font-black text-[#3483FA]">{pendientesPago.length}</p>
             <p className="text-xs text-gray-500">Pendientes</p>
           </div>
-          <div className="p-4 rounded-2xl text-center bg-gradient-to-b from-emerald-500/20 to-green-500/20 border border-emerald-500/30">
+          <div className="p-4 rounded-lg text-center bg-white border border-[#EBEBEB] shadow-sm">
             <p className="text-3xl mb-1">✅</p>
-            <p className="text-2xl font-black text-emerald-500">{vendidosCount}</p>
+            <p className="text-2xl font-black text-[#39B54A]">{vendidosCount}</p>
             <p className="text-xs text-gray-500">Vendidos</p>
           </div>
-          <div className="p-4 rounded-2xl text-center bg-gradient-to-b from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
+          <div className="p-4 rounded-lg text-center bg-white border border-[#EBEBEB] shadow-sm">
             <p className="text-3xl mb-1">🎁</p>
-            <p className="text-2xl font-black text-cyan-500">{productos.length}</p>
+            <p className="text-2xl font-black text-[#1A3C6D]">{productos.length}</p>
             <p className="text-xs text-gray-500">Rifas</p>
           </div>
         </div>
 
-        <div className="rounded-3xl bg-gradient-to-b from-orange-500/20 to-yellow-500/20 border-2 border-orange-500/50 p-4">
-          <h2 className="font-black text-lg mb-3 flex items-center gap-2">📬 BANDEJA DE ENTRADA - PAGOS PENDIENTES</h2>
+        <div className="rounded-lg bg-white border-2 border-[#FFE600] p-4 shadow-sm">
+          <h2 className="font-black text-lg mb-3 flex items-center gap-2 text-[#333]">📬 BANDEJA DE ENTRADA - PAGOS PENDIENTES</h2>
           {pendientesPago.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <span className="text-5xl mb-3 block">📭</span>
@@ -275,18 +267,18 @@ export default function AdminPage() {
               {pendientesPago.map(b => {
                 const producto = productos.find(p => p.id === b.producto_id);
                 return (
-                  <div key={b.id} className="bg-black/50 rounded-2xl p-4">
+                  <div key={b.id} className="bg-[#F5F5F5] rounded-lg p-4 border border-[#EBEBEB]">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-3xl font-black text-yellow-400">#{String(b.numero).padStart(2,'0')}</span>
-                      <span className="text-xs bg-orange-500 text-white px-2 py-1 rounded-full font-bold">⏳ 10 min</span>
+                      <span className="text-3xl font-black text-[#FFE600]">#{String(b.numero).padStart(2,'0')}</span>
+                      <span className="text-xs bg-[#FFE600] text-[#333] px-2 py-1 rounded font-bold">⏳ 10 min</span>
                     </div>
-                    <p className="font-bold text-lg">{b.nombre || 'Sin nombre'}</p>
-                    <p className="text-gray-400 text-sm">{b.whatsapp}</p>
-                    <p className="text-pink-500 font-black mt-1">{producto?.nombre} - {producto?.precio}</p>
+                    <p className="font-bold text-lg text-[#333]">{b.nombre || 'Sin nombre'}</p>
+                    <p className="text-gray-500 text-sm">{b.whatsapp}</p>
+                    <p className="text-[#3483FA] font-black mt-1">{producto?.nombre} - {producto?.precio}</p>
                     <div className="flex gap-2 mt-3">
-                      <button onClick={() => setShowConfirmModal(b)} className="flex-1 bg-green-500 text-white py-3 rounded-xl font-black text-sm shadow-lg">✅ CONFIRMAR PAGO</button>
-                      <button onClick={() => cancelarReserva(b)} className="bg-red-500 text-white px-4 py-3 rounded-xl font-bold text-sm">❌</button>
-                      {b.whatsapp && <button onClick={() => window.open('https://wa.me/' + b.whatsapp, '_blank')} className="bg-green-600 text-white px-4 py-3 rounded-xl font-bold text-sm">📱</button>}
+                      <button onClick={() => setShowConfirmModal(b)} className="flex-1 bg-[#39B54A] text-white py-3 rounded-lg font-bold text-sm shadow-sm hover:bg-[#2d9e3d] transition-colors">✅ CONFIRMAR PAGO</button>
+                      <button onClick={() => cancelarReserva(b)} className="bg-red-500 text-white px-4 py-3 rounded-lg font-bold text-sm">❌</button>
+                      {b.whatsapp && <button onClick={() => window.open('https://wa.me/' + b.whatsapp, '_blank')} className="bg-[#39B54A] text-white px-4 py-3 rounded-lg font-bold text-sm">📱</button>}
                     </div>
                   </div>
                 );
@@ -295,18 +287,18 @@ export default function AdminPage() {
           )}
         </div>
 
-        <div className="rounded-3xl bg-white/5 border border-white/10 p-4">
+        <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="font-black">🎁 MIS RIFAS</h2>
-            <button onClick={() => setShowForm(!showForm)} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-2xl font-bold text-sm">{showForm ? '✕ Cancelar' : '+ Nueva Rifa'}</button>
+            <h2 className="font-black text-[#333]">🎁 MIS RIFAS</h2>
+            <button onClick={() => setShowForm(!showForm)} className="bg-[#3483FA] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[#2d6fd4] transition-colors">{showForm ? '✕ Cancelar' : '+ Nueva Rifa'}</button>
           </div>
 
           {showForm && (
-            <form onSubmit={crearProducto} className="p-4 rounded-2xl bg-white/5 space-y-3 mb-4">
-              <input placeholder="Nombre del producto" required value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white/10" />
-              <input placeholder="Precio (Ej: $3500- pesos)" required value={formData.precio} onChange={e => setFormData({...formData, precio: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white/10" />
-              <textarea placeholder="Descripcion (opcional)" value={formData.descripcion || ''} onChange={e => setFormData({...formData, descripcion: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white/10" rows="2" />
-              <select required value={formData.categoria_id} onChange={e => setFormData({...formData, categoria_id: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white/10">
+            <form onSubmit={crearProducto} className="p-4 rounded-lg bg-[#F5F5F5] space-y-3 mb-4 border border-[#EBEBEB]">
+              <input placeholder="Nombre del producto" required value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
+              <input placeholder="Precio (Ej: $3500- pesos)" required value={formData.precio} onChange={e => setFormData({...formData, precio: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
+              <textarea placeholder="Descripcion (opcional)" value={formData.descripcion || ''} onChange={e => setFormData({...formData, descripcion: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" rows="2" />
+              <select required value={formData.categoria_id} onChange={e => setFormData({...formData, categoria_id: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]">
                 <option value="">Selecciona categoria</option>
                 {categorias.map(c => {
                   const emoji = c.nombre === 'Zapatillas' ? '👟' : c.nombre === 'Celulares' ? '📱' : c.nombre === 'Tecnologia' ? '💻' : c.nombre === 'Electrodomesticos' ? '⚡' : c.nombre === 'Hogar' ? '🏠' : '🎁';
@@ -314,12 +306,12 @@ export default function AdminPage() {
                 })}
               </select>
               <div>
-                <label className="text-sm font-bold block mb-2">Imagen del producto</label>
+                <label className="text-sm font-bold block mb-2 text-[#333]">Imagen del producto</label>
                 <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
-                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 rounded-xl font-bold">{uploadingImage ? '⏳ Subiendo...' : '📷 Subir imagen'}</button>
-                {formData.imagen && <div className="relative mt-2"><img src={formData.imagen} alt="preview" className="w-full h-40 object-cover rounded-xl" /><button type="button" onClick={() => setFormData({...formData, imagen: ''})} className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">✕</button></div>}
+                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage} className="w-full bg-[#3483FA] text-white p-3 rounded-lg font-bold shadow-sm">{uploadingImage ? '⏳ Subiendo...' : '📷 Subir imagen'}</button>
+                {formData.imagen && <div className="relative mt-2"><img src={formData.imagen} alt="preview" className="w-full h-40 object-cover rounded-lg" /><button type="button" onClick={() => setFormData({...formData, imagen: ''})} className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">✕</button></div>}
               </div>
-              <button disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-cyan-500 text-white py-3 rounded-xl font-black shadow-lg">{loading ? '⏳ Creando...' : 'CREAR RIFA 🎁'}</button>
+              <button disabled={loading} className="w-full bg-[#3483FA] text-white py-3 rounded-lg font-bold shadow-sm hover:bg-[#2d6fd4] transition-colors">{loading ? '⏳ Creando...' : 'CREAR RIFA 🎁'}</button>
             </form>
           )}
 
@@ -329,32 +321,32 @@ export default function AdminPage() {
               const res = (boletosData[p.id] || []).filter(b => b.estado === 'reservado').length;
               const porcent = Math.round((vend / 100) * 100);
               return (
-                <div key={p.id} className={`p-4 rounded-2xl bg-white/5 ${p.finalizado ? 'opacity-60 border border-yellow-500/30' : ''}`}>
+                <div key={p.id} className={`p-4 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB] ${p.finalizado ? 'opacity-60' : ''}`}>
                   <div className="flex gap-3">
-                    {p.imagen && <img src={p.imagen} alt={p.nombre} className="w-16 h-16 object-cover rounded-xl" />}
+                    {p.imagen && <img src={p.imagen} alt={p.nombre} className="w-16 h-16 object-cover rounded-lg" />}
                     <div className="flex-1">
-                      <h3 className="font-bold">{p.nombre}</h3>
-                      <p className="text-pink-500 font-black">{p.precio}</p>
+                      <h3 className="font-bold text-[#333]">{p.nombre}</h3>
+                      <p className="text-[#39B54A] font-black">{p.precio}</p>
                       <div className="flex items-center gap-3 mt-2 text-xs">
-                        <span className="text-emerald-400 font-bold">✅ {vend}/100</span>
-                        {res > 0 && <span className="text-orange-400 font-bold">⏳ {res} reservados</span>}
-                        <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden"><div className={`h-full rounded-full ${vend >= 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-pink-500 to-cyan-500'}`} style={{ width: porcent + '%' }}></div></div>
+                        <span className="text-[#3483FA] font-bold">✅ {vend}/100</span>
+                        {res > 0 && <span className="text-[#FFE600] font-bold">⏳ {res} reservados</span>}
+                        <div className="flex-1 h-2 bg-[#EBEBEB] rounded-full overflow-hidden"><div className={`h-full rounded-full ${vend >= 100 ? 'bg-[#39B54A]' : 'bg-[#3483FA]'}`} style={{ width: porcent + '%' }}></div></div>
                       </div>
                     </div>
-                    <button onClick={() => eliminarProducto(p.id, p.nombre)} className="bg-red-500 text-white px-3 py-2 rounded-xl font-bold self-start">🗑️</button>
+                    <button onClick={() => eliminarProducto(p.id, p.nombre)} className="bg-red-500 text-white px-3 py-2 rounded-lg font-bold self-start">🗑️</button>
                   </div>
                   {vend >= 100 && !p.finalizado && (
                     <div className="mt-3 space-y-2">
-                      <div className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-center py-2 rounded-xl font-black text-sm shadow-lg animate-pulse">🎉 TODOS VENDIDOS - LISTO PARA SORTEAR</div>
+                      <div className="bg-[#39B54A] text-white text-center py-2 rounded-lg font-bold text-sm shadow-sm animate-pulse">🎉 TODOS VENDIDOS - LISTO PARA SORTEAR</div>
                       <button
                         onClick={() => setShowSorteoModal(p)}
-                        className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-black py-3 rounded-xl text-sm shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                        className="w-full bg-[#FFE600] text-[#333] font-bold py-3 rounded-lg text-sm shadow-sm hover:bg-[#f0d800] transition-colors"
                       >
                         🎰 SORTEO QUINIENA NOCTURNA (21HS)
                       </button>
                     </div>
                   )}
-                  {p.finalizado && <div className="mt-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-center py-2 rounded-xl font-black text-sm shadow-lg">🏆 GANADOR: #{String(p.ganador_num).padStart(2,'0')} - {p.ganador_nombre}</div>}
+                  {p.finalizado && <div className="mt-3 bg-[#FFE600] text-[#333] text-center py-2 rounded-lg font-bold text-sm shadow-sm">🏆 GANADOR: #{String(p.ganador_num).padStart(2,'0')} - {p.ganador_nombre}</div>}
                 </div>
               );
             })}
@@ -363,29 +355,29 @@ export default function AdminPage() {
 
           <MercadoLibrePanel categorias={categorias} />
 
-          <div className="rounded-3xl bg-gradient-to-b from-blue-500/20 to-purple-500/20 border border-blue-500/30 p-4">
-          <h2 className="font-black text-lg mb-3">📋 COMO FUNCIONA</h2>
+          <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
+          <h2 className="font-black text-lg mb-3 text-[#1A3C6D]">📋 CÓMO FUNCIONA</h2>
           <div className="space-y-3 text-sm">
-            <div className="flex gap-3 items-start"><span className="text-2xl">🛒</span><div><p className="font-bold">Importar de Mercado Libre</p><p className="text-gray-400">Usa el panel "Importar de Mercado Libre" para buscar productos populares y crear rifas con 1 click. También podés crear manualmente con "+ Nueva Rifa".</p></div></div>
-            <div className="flex gap-3 items-start"><span className="text-2xl">2️⃣</span><div><p className="font-bold">Recibir Reservas</p><p className="text-gray-400">Cuando alguien elige números, aparecen en la "Bandeja de Entrada". Verificá el pago antes de confirmar.</p></div></div>
-            <div className="flex gap-3 items-start"><span className="text-2xl">3️⃣</span><div><p className="font-bold">Confirmar Pagos</p><p className="text-gray-400">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Se le notifica al comprador por WhatsApp.</p></div></div>
-            <div className="flex gap-3 items-start"><span className="text-2xl">🀄</span><div><p className="font-bold">Sorteo por Quiniela Nacional Nocturna</p><p className="text-gray-400">Cuando se vendan los 100 números, usa el botón "SORTEO QUINIENA NOCTURNA (21HS)". El ganador se define con las últimas 2 cifras de la cabeza del sorteo Nocturna (21hs) de la Quiniela Nacional. El sorteo debe realizarse después de las 21hs. 100% transparente.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">🛒</span><div><p className="font-bold text-[#333]">Importar de Mercado Libre</p><p className="text-gray-500">Usa el panel "Importar de Mercado Libre" para buscar productos populares y crear rifas con 1 click. También podés crear manualmente con "+ Nueva Rifa".</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">2️⃣</span><div><p className="font-bold text-[#333]">Recibir Reservas</p><p className="text-gray-500">Cuando alguien elige números, aparecen en la "Bandeja de Entrada". Verificá el pago antes de confirmar.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">3️⃣</span><div><p className="font-bold text-[#333]">Confirmar Pagos</p><p className="text-gray-500">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Se le notifica al comprador por WhatsApp.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">🀄</span><div><p className="font-bold text-[#333]">Sorteo por Quiniela Nacional Nocturna</p><p className="text-gray-500">Cuando se vendan los 100 números, usa el botón "SORTEO QUINIENA NOCTURNA (21HS)". El ganador se define con las últimas 2 cifras de la cabeza del sorteo Nocturna (21hs) de la Quiniela Nacional. El sorteo debe realizarse después de las 21hs. 100% transparente.</p></div></div>
           </div>
         </div>
       </main>
 
       <div className="max-w-2xl mx-auto px-4 mb-4">
         <div className="flex gap-2">
-          <button onClick={manualRefresh} className="flex-1 bg-gray-800 text-white py-2 rounded-xl font-bold text-sm">🔄 Actualizar datos</button>
-          <button onClick={() => setShowDebug(!showDebug)} className={`flex-1 py-2 rounded-xl font-bold text-sm ${showDebug ? 'bg-red-500' : 'bg-purple-500'} text-white`}>🐛 DEBUG {showDebug ? 'OCULTAR' : 'MOSTRAR'}</button>
+          <button onClick={manualRefresh} className="flex-1 bg-white text-[#333] py-2 rounded-lg font-bold text-sm border border-[#EBEBEB] shadow-sm">🔄 Actualizar datos</button>
+          <button onClick={() => setShowDebug(!showDebug)} className={`flex-1 py-2 rounded-lg font-bold text-sm ${showDebug ? 'bg-red-500 text-white' : 'bg-[#1A3C6D] text-white'} shadow-sm`}>🐛 DEBUG {showDebug ? 'OCULTAR' : 'MOSTRAR'}</button>
         </div>
       </div>
 
       {showDebug && (
         <div className="max-w-2xl mx-auto px-4 mb-4">
-          <div className="bg-black/80 border border-red-500 rounded-2xl p-4">
+          <div className="bg-white border border-red-300 rounded-lg p-4 shadow-sm">
             <h3 className="font-black text-red-500 mb-3">🔴 DEBUG - TODOS LOS BOLETOS</h3>
-            <div className="text-xs text-gray-400 mb-3">
+            <div className="text-xs text-gray-500 mb-3">
               <p>Total boletos: {todosBoletos.length}</p>
               <p>Reservados: {pendientesPago.length}</p>
               <p>Vendidos: {vendidosCount}</p>
@@ -396,22 +388,22 @@ export default function AdminPage() {
                 const reservados = prodBoletos.filter(b => b.estado === 'reservado');
                 const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
                 return (
-                  <div key={prod.id} className="border border-gray-700 rounded-xl p-2">
-                    <p className="font-bold text-yellow-400">{prod.nombre} ({prodBoletos.length} boletos)</p>
+                  <div key={prod.id} className="border border-[#EBEBEB] rounded-lg p-2">
+                    <p className="font-bold text-[#FFE600]">{prod.nombre} ({prodBoletos.length} boletos)</p>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {reservados.length > 0 && (
                         <div className="w-full">
-                          <p className="text-orange-400 text-xs font-bold">RESERVADOS ({reservados.length}):</p>
+                          <p className="text-orange-500 text-xs font-bold">RESERVADOS ({reservados.length}):</p>
                           {reservados.map(b => (
-                            <span key={b.id} className="bg-orange-500/30 text-orange-400 px-1 rounded text-xs mr-1">#{String(b.numero).padStart(2,'0')} ({b.nombre})</span>
+                            <span key={b.id} className="bg-orange-100 text-orange-600 px-1 rounded text-xs mr-1">#{String(b.numero).padStart(2,'0')} ({b.nombre})</span>
                           ))}
                         </div>
                       )}
                       {vendidos.length > 0 && (
                         <div className="w-full">
-                          <p className="text-green-400 text-xs font-bold">VENDIDOS ({vendidos.length}):</p>
+                          <p className="text-[#39B54A] text-xs font-bold">VENDIDOS ({vendidos.length}):</p>
                           {vendidos.map(b => (
-                            <span key={b.id} className="bg-green-500/30 text-green-400 px-1 rounded text-xs mr-1">#{String(b.numero).padStart(2,'0')}</span>
+                            <span key={b.id} className="bg-green-100 text-[#39B54A] px-1 rounded text-xs mr-1">#{String(b.numero).padStart(2,'0')}</span>
                           ))}
                         </div>
                       )}
@@ -426,16 +418,16 @@ export default function AdminPage() {
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowConfirmModal(null)}></div>
-          <div className="relative w-full max-w-sm rounded-3xl p-6 text-center bg-gray-900 border border-white/10">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowConfirmModal(null)}></div>
+          <div className="relative w-full max-w-sm rounded-lg p-6 text-center bg-white border border-[#EBEBEB] shadow-lg">
             <div className="text-6xl mb-4">✅</div>
-            <h2 className="text-2xl font-black">CONFIRMAR PAGO</h2>
-            <p className="text-5xl font-black text-yellow-400 my-4">#{String(showConfirmModal.numero).padStart(2,'0')}</p>
-            <p className="text-xl font-bold">{showConfirmModal.nombre}</p>
-            <p className="text-gray-400 mb-6">{showConfirmModal.whatsapp}</p>
+            <h2 className="text-2xl font-black text-[#333]">CONFIRMAR PAGO</h2>
+            <p className="text-5xl font-black text-[#FFE600] my-4">#{String(showConfirmModal.numero).padStart(2,'0')}</p>
+            <p className="text-xl font-bold text-[#333]">{showConfirmModal.nombre}</p>
+            <p className="text-gray-500 mb-6">{showConfirmModal.whatsapp}</p>
             <div className="flex gap-3">
-              <button onClick={() => setShowConfirmModal(null)} className="flex-1 py-3 rounded-2xl font-bold bg-gray-700">Cancelar</button>
-              <button onClick={() => confirmarVenta(showConfirmModal)} className="flex-1 py-3 rounded-2xl font-black bg-green-500 text-white shadow-lg">Confirmar ✅</button>
+              <button onClick={() => setShowConfirmModal(null)} className="flex-1 py-3 rounded-lg font-bold bg-gray-100 text-[#333] border border-[#EBEBEB]">Cancelar</button>
+              <button onClick={() => confirmarVenta(showConfirmModal)} className="flex-1 py-3 rounded-lg font-bold bg-[#39B54A] text-white shadow-sm">Confirmar ✅</button>
             </div>
           </div>
         </div>
@@ -443,40 +435,40 @@ export default function AdminPage() {
 
       {showSorteoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowSorteoModal(null)}></div>
-          <div className="relative w-full max-w-md rounded-3xl p-6 text-center bg-gray-900 border border-white/10">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowSorteoModal(null)}></div>
+          <div className="relative w-full max-w-md rounded-lg p-6 text-center bg-white border border-[#EBEBEB] shadow-lg">
             <div className="text-6xl mb-4">🎰</div>
-            <h2 className="text-2xl font-black bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent">REALIZAR SORTEO</h2>
-            <p className="text-lg font-bold mt-4">{showSorteoModal.nombre}</p>
-            <p className="text-pink-500 font-black text-xl">{showSorteoModal.precio}</p>
-            <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
-              <p className="font-bold text-sm">Metodo de sorteo:</p>
-              <p className="text-lg font-black text-yellow-400">🀄 QUINIENA NACIONAL NOCTURNA</p>
-              <p className="text-xs text-gray-400 mt-1">Se usan las ultimas 2 cifras de la cabeza de la Quiniela Nacional Nocturna (sorteo de las 21hs). 100% transparente.</p>
+            <h2 className="text-2xl font-black text-[#1A3C6D]">REALIZAR SORTEO</h2>
+            <p className="text-lg font-bold mt-4 text-[#333]">{showSorteoModal.nombre}</p>
+            <p className="text-[#39B54A] font-black text-xl">{showSorteoModal.precio}</p>
+            <div className="mt-4 p-4 rounded-lg bg-[#FFE600]/10 border border-[#FFE600]/30">
+              <p className="font-bold text-sm text-[#333]">Método de sorteo:</p>
+              <p className="text-lg font-black text-[#FFE600]">🀄 QUINIENA NACIONAL NOCTURNA</p>
+              <p className="text-xs text-gray-500 mt-1">Se usan las últimas 2 cifras de la cabeza de la Quiniela Nacional Nocturna (sorteo de las 21hs). 100% transparente.</p>
             </div>
             {showSorteoResult && (
-              <div className={`mt-4 p-4 rounded-2xl ${showSorteoResult.success ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500'}`}>
+              <div className={`mt-4 p-4 rounded-lg ${showSorteoResult.success ? 'bg-[#39B54A]/10 border border-[#39B54A]/30' : 'bg-red-50 border border-red-200'}`}>
                 {showSorteoResult.success ? (
                   <>
                     <span className="text-5xl block mb-2 animate-bounce">🎊</span>
-                    <p className="text-2xl font-black text-green-400">GANADOR!</p>
-                    <p className="text-6xl font-black text-yellow-400 my-2">#{String(showSorteoResult.ganador.numero).padStart(2,'0')}</p>
-                    <p className="text-xl font-bold">{showSorteoResult.ganador.nombre}</p>
+                    <p className="text-2xl font-black text-[#39B54A]">GANADOR!</p>
+                    <p className="text-6xl font-black text-[#FFE600] my-2">#{String(showSorteoResult.ganador.numero).padStart(2,'0')}</p>
+                    <p className="text-xl font-bold text-[#333]">{showSorteoResult.ganador.nombre}</p>
                     {showSorteoResult.quiniela && (
-                      <div className="mt-3 text-xs text-gray-400">
+                      <div className="mt-3 text-xs text-gray-500">
                         <p>Quiniela Nacional Nocturna: {showSorteoResult.quiniela.numero_completo}</p>
-                        <p>Ultimas 2 cifras: {showSorteoResult.quiniela.ultimas_dos}</p>
+                        <p>Últimas 2 cifras: {showSorteoResult.quiniela.ultimas_dos}</p>
                         <p>Significado: {showSorteoResult.quiniela.significado}</p>
                       </div>
                     )}
-                    <button onClick={() => { setShowSorteoModal(null); setShowSorteoResult(null); fetchData(); }} className="mt-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black py-3 px-8 rounded-xl">
+                    <button onClick={() => { setShowSorteoModal(null); setShowSorteoResult(null); fetchData(); }} className="mt-4 bg-[#39B54A] text-white font-bold py-3 px-8 rounded-lg shadow-sm hover:bg-[#2d9e3d] transition-colors">
                       CERRAR 🎉
                     </button>
                   </>
                 ) : (
                   <>
-                    <p className="text-red-400 font-bold">Error: {showSorteoResult.error}</p>
-                    <button onClick={() => setShowSorteoResult(null)} className="mt-3 bg-gray-700 text-white font-bold py-2 px-6 rounded-xl">Volver</button>
+                    <p className="text-red-600 font-bold">Error: {showSorteoResult.error}</p>
+                    <button onClick={() => setShowSorteoResult(null)} className="mt-3 bg-gray-100 text-[#333] font-bold py-2 px-6 rounded-lg border border-[#EBEBEB]">Volver</button>
                   </>
                 )}
               </div>
@@ -485,7 +477,7 @@ export default function AdminPage() {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setShowSorteoModal(null)}
-                  className="flex-1 py-3 rounded-2xl font-bold bg-gray-700"
+                  className="flex-1 py-3 rounded-lg font-bold bg-gray-100 text-[#333] border border-[#EBEBEB]"
                   disabled={sorteando}
                 >Cancelar</button>
                 <button
@@ -500,7 +492,7 @@ export default function AdminPage() {
                       const result = await res.json();
                       setShowSorteoResult(result);
                       if (result.success) {
-                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700', '#FF1493', '#00BFFF'] });
+                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFE600', '#3483FA', '#39B54A'] });
                       }
                     } catch (err) {
                       setShowSorteoResult({ success: false, error: 'Error de conexion' });
@@ -508,7 +500,7 @@ export default function AdminPage() {
                     setSorteando(false);
                   }}
                   disabled={sorteando}
-                  className="flex-1 py-3 rounded-2xl font-black bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-lg disabled:opacity-50"
+                  className="flex-1 py-3 rounded-lg font-bold bg-[#FFE600] text-[#333] shadow-sm disabled:opacity-50 hover:bg-[#f0d800] transition-colors"
                 >
                   {sorteando ? '⏳ SORTEANDO...' : '🎰 SORTEAR'}
                 </button>

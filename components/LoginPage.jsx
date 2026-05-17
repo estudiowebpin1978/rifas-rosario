@@ -82,25 +82,19 @@ setAuthLoading(false);
   };
 
   return (
-    <div className={`min-h-screen ${theme ? 'bg-black text-white' : 'bg-white'}`}>
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl"></div>
-      </div>
+    <div className="min-h-screen bg-[#F5F5F5] text-[#333]">
 
-      <header className={`sticky top-0 z-50 ${theme ? 'bg-black/90 backdrop-blur-xl border-b border-white/10' : 'bg-white/90 backdrop-blur-xl border-b'}`}>
+      <header className="sticky top-0 z-50 bg-[#FFE600] border-b border-yellow-300">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src={LogoImg} alt="Mercado Rifas" width={48} height={48} className="object-contain rounded-xl" />
+            <div className="w-12 h-12 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-lg">MR</div>
             <div>
-              <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">MERCADO RIFAS</h1>
-              <p className="text-[10px] text-gray-500">Los productos que amas, en rifas que pagas</p>
+              <h1 className="text-xl font-black text-[#1A3C6D]">MERCADO RIFAS</h1>
+              <p className="text-[10px] text-[#666] font-medium">Los productos que amas, en rifas que pagas</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            
-
-            <button onClick={() => setShowMenu(!showMenu)} className={`p-2 rounded-full ${theme ? 'bg-white/10' : 'bg-black/10'}`}>
+            <button onClick={() => setShowMenu(!showMenu)} className="p-2 rounded-lg bg-white/80 text-[#333] shadow-sm hover:bg-white transition-colors">
               {showMenu ? '✕' : '☰'}
             </button>
           </div>
@@ -108,41 +102,41 @@ setAuthLoading(false);
       </header>
 
       {showMenu && (
-        <div className={`fixed inset-0 z-40 ${theme ? 'bg-black/95' : 'bg-white/95'} backdrop-blur-xl p-6`}>
+        <div className="fixed inset-0 z-40 bg-white/95 backdrop-blur-xl p-6">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-black">Menu</h2>
+            <h2 className="text-2xl font-black text-[#1A3C6D]">Menu</h2>
             <button onClick={() => setShowMenu(false)} className="text-3xl">✕</button>
           </div>
           <nav className="space-y-4">
-            <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black text-lg text-center shadow-lg">👤 Mi Cuenta</button>
-            <a href="/admin" className="block p-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black text-lg text-center shadow-lg">🔐 Panel Admin</a>
-            <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black text-lg text-center shadow-lg">📱 WhatsApp</a>
-            {showInstall && <button onClick={async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') setShowInstall(false); setDeferredPrompt(null); setShowMenu(false); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-lg text-center shadow-lg">📲 Instalar App</button>}
+            <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#3483FA] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d6fd4] transition-colors">👤 Mi Cuenta</button>
+            <a href="/admin" className="block p-4 rounded-lg bg-[#1A3C6D] text-white font-bold text-lg text-center shadow-sm hover:bg-[#152f55] transition-colors">🔐 Panel Admin</a>
+            <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
+            {showInstall && <button onClick={async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') setShowInstall(false); setDeferredPrompt(null); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#FFE600] text-[#333] font-bold text-lg text-center shadow-sm hover:bg-[#f0d800] transition-colors">📲 Instalar App</button>}
           </nav>
         </div>
       )}
 
       <main className="max-w-lg mx-auto p-6 relative z-10">
         <div className="text-center mb-8">
-          <div className="w-32 h-32 mx-auto mb-4 rounded-3xl overflow-hidden shadow-2xl shadow-pink-500/30">
-            <Image src={LogoImg} alt="Mercado Rifas" width={128} height={128} className="object-cover" />
+          <div className="w-32 h-32 mx-auto mb-4 rounded-lg overflow-hidden shadow-sm bg-white border border-[#EBEBEB] flex items-center justify-center">
+            <div className="w-24 h-24 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-3xl">MR</div>
           </div>
-          <h2 className="text-3xl font-black mb-2">MERCADO RIFAS</h2>
-          <p className="text-xl font-bold text-pink-500">🛒 Los productos que más te gustan · Por una rifa económica</p>
+          <h2 className="text-3xl font-black mb-2 text-[#1A3C6D]">MERCADO RIFAS</h2>
+          <p className="text-lg font-medium text-[#666]">🛒 Los productos que más te gustan · Por una rifa económica</p>
         </div>
 
         <div className="space-y-4">
-          <button onClick={() => { setShowAuth(true); setAuthMode('login'); }} className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-black py-5 rounded-3xl text-xl shadow-xl shadow-pink-500/40 animate-bounce">
+          <button onClick={() => { setShowAuth(true); setAuthMode('login'); }} className="w-full bg-[#3483FA] text-white font-bold py-5 rounded-lg text-xl shadow-sm hover:bg-[#2d6fd4] transition-colors">
             🚀 Entrar a Mercado Rifas
           </button>
           
-<button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className={`w-full font-black py-4 rounded-3xl text-lg hover:opacity-90 transition-all ${theme ? 'bg-white/10 border-2 border-white/20 text-white' : 'bg-pink-500 text-white shadow-lg'}`}>
-                ✨ Crear cuenta gratis
-              </button>
+          <button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className="w-full font-bold py-4 rounded-lg text-lg bg-white border-2 border-[#FFE600] text-[#333] shadow-sm hover:bg-[#FFE600]/10 transition-all">
+            ✨ Crear cuenta gratis
+          </button>
         </div>
 
         <div className="mt-8 text-center">
-          <a href="/app" className="text-pink-500 font-bold text-lg hover:underline">
+          <a href="/app" className="text-[#3483FA] font-bold text-lg hover:underline">
             Ver rifas disponibles sin cuenta →
           </a>
         </div>
@@ -150,31 +144,31 @@ setAuthLoading(false);
 
       {showAuth && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className={`absolute inset-0 ${theme ? 'bg-black/90' : 'bg-black/60'} backdrop-blur-sm`} onClick={() => setShowAuth(false)}></div>
-          <div className={`relative w-full max-w-sm rounded-3xl p-6 ${theme ? 'bg-gray-900 border border-white/10' : 'bg-white'} shadow-2xl`}>
-            <button onClick={() => setShowAuth(false)} className="absolute top-4 right-4 text-2xl">✕</button>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowAuth(false)}></div>
+          <div className="relative w-full max-w-sm rounded-lg p-6 bg-white border border-[#EBEBEB] shadow-lg">
+            <button onClick={() => setShowAuth(false)} className="absolute top-4 right-4 text-2xl text-[#333]">✕</button>
             
             <div className="text-center mb-6">
-              <Image src={LogoImg} alt="logo" width={64} height={64} className="object-cover mx-auto mb-3 rounded-xl" />
-              <h2 className="text-2xl font-black">{authMode === 'login' ? 'ENTRAR' : 'CREAR CUENTA'}</h2>
+              <div className="w-16 h-16 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-xl mx-auto mb-3">MR</div>
+              <h2 className="text-2xl font-black text-[#1A3C6D]">{authMode === 'login' ? 'ENTRAR' : 'CREAR CUENTA'}</h2>
             </div>
 
-            {authError && <div className="bg-red-500/20 border border-red-500 text-red-400 p-3 rounded-xl text-sm mb-4 text-center">{authError}</div>}
-            {authSuccess && <div className="bg-emerald-500/20 border border-emerald-500 text-emerald-400 p-3 rounded-xl text-sm mb-4 text-center">{authSuccess}</div>}
+            {authError && <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm mb-4 text-center">{authError}</div>}
+            {authSuccess && <div className="bg-green-50 border border-green-200 text-[#39B54A] p-3 rounded-lg text-sm mb-4 text-center">{authSuccess}</div>}
 
             <form onSubmit={handleAuth} className="space-y-4">
               {authMode === 'signup' && (
-                <input type="text" placeholder="Tu nombre" required value={authForm.nombre} onChange={e => setAuthForm({...authForm, nombre: e.target.value})} className={`w-full rounded-xl p-4 font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`} />
+                <input type="text" placeholder="Tu nombre" required value={authForm.nombre} onChange={e => setAuthForm({...authForm, nombre: e.target.value})} className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               )}
-              <input type="email" placeholder="Email" required value={authForm.email} onChange={e => setAuthForm({...authForm, email: e.target.value})} className={`w-full rounded-xl p-4 font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`} />
-              <input type="password" placeholder="Contrasena" required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} className={`w-full rounded-xl p-4 font-bold ${theme ? 'bg-white/10' : 'bg-gray-100'}`} />
-              <button disabled={authLoading} className="w-full bg-gradient-to-r from-pink-500 to-cyan-500 text-white font-black py-4 rounded-xl shadow-lg">
+              <input type="email" placeholder="Email" required value={authForm.email} onChange={e => setAuthForm({...authForm, email: e.target.value})} className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
+              <input type="password" placeholder="Contrasena" required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
+              <button disabled={authLoading} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm hover:bg-[#2d6fd4] transition-colors">
                 {authLoading ? '⏳' : authMode === 'login' ? '🚀 ENTRAR' : '✨ CREAR CUENTA'}
               </button>
             </form>
 
             <div className="mt-4 text-center">
-              <button onClick={() => { setAuthMode(authMode === 'login' ? 'signup' : 'login'); setAuthError(''); setAuthSuccess(''); }} className="text-sm font-bold text-pink-500">
+              <button onClick={() => { setAuthMode(authMode === 'login' ? 'signup' : 'login'); setAuthError(''); setAuthSuccess(''); }} className="text-sm font-bold text-[#3483FA]">
                 {authMode === 'login' ? 'No tienes cuenta? Crea una' : 'Ya tienes cuenta? Inicia sesion'}
               </button>
             </div>

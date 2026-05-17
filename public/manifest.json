@@ -1,7 +1,7 @@
 {
-  "name": "RIFAS ROSARIO",
-  "short_name": "Rifas Rosario",
-  "description": "Las mejores rifas en Rosario",
+  "name": "Mercado Rifas ",
+  "short_name": "Mercado Rifas ",
+  "description": "Sabias que ahora puedes acceder a eso que mas te gusta por medio de una rifa?",
   "start_url": "/app",
   "display": "standalone",
   "background_color": "#000000",

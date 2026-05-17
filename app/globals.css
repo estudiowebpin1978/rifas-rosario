@@ -4,11 +4,78 @@
 
 @layer base {
   :root {
-    color-scheme: light dark;
+    color-scheme: light;
   }
 }
 
 @layer components {
+  .btn-ml {
+    @apply relative bg-[#3483FA] text-white font-bold py-4 px-6 rounded-lg shadow-md;
+    transition: all 0.15s ease;
+  }
+  .btn-ml:hover {
+    background-color: #2d6fd4;
+  }
+  .btn-ml:active {
+    transform: scale(0.97);
+  }
+
+  .btn-ml-yellow {
+    @apply relative bg-[#FFE600] text-[#333] font-bold py-4 px-6 rounded-lg shadow-md;
+    transition: all 0.15s ease;
+  }
+  .btn-ml-yellow:hover {
+    background-color: #f0d800;
+  }
+  .btn-ml-yellow:active {
+    transform: scale(0.97);
+  }
+
+  .btn-ml-green {
+    @apply relative bg-[#39B54A] text-white font-bold py-4 px-6 rounded-lg shadow-md;
+    transition: all 0.15s ease;
+  }
+  .btn-ml-green:hover {
+    background-color: #2d9e3d;
+  }
+  .btn-ml-green:active {
+    transform: scale(0.97);
+  }
+
+  .card-ml {
+    @apply bg-white rounded-lg border border-[#EBEBEB] shadow-sm;
+  }
+
+  .precio-ml {
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 400;
+  }
+  .precio-ml .simbolo {
+    font-size: 1rem;
+    vertical-align: super;
+  }
+  .precio-ml .decimal {
+    font-size: 0.75rem;
+    vertical-align: super;
+  }
+
+  .badge-ml {
+    @apply bg-[#39B54A] text-white text-xs font-bold px-2 py-0.5 rounded;
+  }
+
+  .header-ml {
+    background-color: #FFE600;
+    color: #333;
+  }
+
+  .input-ml {
+    @apply w-full rounded-lg border border-[#EBEBEB] p-3.5 text-sm outline-none;
+  }
+  .input-ml:focus {
+    border-color: #3483FA;
+  }
+
   .btn-3d-pink {
     @apply relative bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 text-white font-black py-4 px-6 rounded-2xl shadow-lg;
     box-shadow: 0 6px 0 #9b2060, 0 8px 20px rgba(219, 39, 119, 0.4);
@@ -64,24 +131,6 @@
     transform: translateY(3px);
   }
 
-  .card-3d {
-    @apply relative rounded-3xl overflow-hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 60px rgba(236, 72, 153, 0.1);
-    transform: translateY(0);
-    transition: all 0.3s ease;
-  }
-
-  .number-btn-3d {
-    @apply relative h-10 rounded-lg font-black text-xs text-white shadow-lg;
-    box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 6px 15px rgba(0,0,0,0.2);
-    transform: translateY(0);
-    transition: all 0.15s ease;
-  }
-  .number-btn-3d:active:not(:disabled) {
-    box-shadow: 0 1px 0 rgba(0,0,0,0.3);
-    transform: translateY(3px);
-  }
-
   .neon-glow-pink {
     text-shadow: 0 0 10px rgba(236, 72, 153, 0.8), 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.3);
   }
@@ -94,9 +143,20 @@
     text-shadow: 0 0 10px rgba(245, 158, 11, 0.8), 0 0 20px rgba(245, 158, 11, 0.5), 0 0 40px rgba(245, 158, 11, 0.3);
   }
 
-  .btn-glass {
-    @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+  .animate-slideDown {
+    animation: slideDown 0.5s ease-out;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
@@ -104,22 +164,8 @@
   from { transform: translate(-50%, -100px); opacity: 0; }
   to { transform: translate(-50%, 0); opacity: 1; }
 }
-.animate-slideDown {
-  animation: slideDown 0.5s ease-out;
-}
 
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
-}
-.animate-shimmer {
-  animation: shimmer 2s infinite;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
