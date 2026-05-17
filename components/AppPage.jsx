@@ -57,7 +57,7 @@ export default function AppPage() {
 
   const theme = true;
   const WHATSAPP = '5493416971479';
-  const ALIAS = 'rifas.rosario.';
+  const ALIAS = 'eco-rifas';
   const URL_APP = typeof window !== 'undefined' ? window.location.origin + '/app' : 'https://eco-rifas.vercel.app/app';
 
     const formatPrice = (precio) => {
@@ -325,7 +325,7 @@ export default function AppPage() {
       const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio).replace(/[^\d.,]/g,'').replace(',','.'));
       const total = formatPrice((precioUnit * selectedNumbers.length).toString());
       const p = productoSeleccionado;
-      const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tus numeros!\n\n⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
+      const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: eco-rifas\n\n📋 Enviame el comprobante de pago y reservo tus numeros!\n\n⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
       window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
       setTimeout(() => { setShowBulkReserva(false); setSelectedNumbers([]); fetchBoletos(productoSeleccionado.id); }, 2000);
     } else {
@@ -354,7 +354,7 @@ export default function AppPage() {
       
       if (result.success) {
         confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
-        const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
+        const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: eco-rifas\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
         window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
         setTimeout(() => { setShowReserva(false); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
       } else {
@@ -507,7 +507,7 @@ export default function AppPage() {
             <div className="space-y-4">
               <div className="flex gap-4 items-start"><span className="text-3xl">🛒</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TU PRODUCTO</p><p className="text-gray-500 text-sm">Navegá los productos populares y elegí el que más te guste. Solo 100 números por rifa.</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">2️⃣</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TUS NÚMEROS</p><p className="text-gray-500 text-sm">Seleccioná del 1 al 100. Comprando más números aumentás tus chances de ganar.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá por transferencia al alias rifas.rosario.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá por transferencia al alias eco-rifas</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">🀄</span><div><p className="font-black text-sm text-[#333]">SORTEO POR QUINIENA NACIONAL NOCTURNA</p><p className="text-gray-500 text-sm">Cuando se vendan los 100 números, el ganador se define con las últimas 2 cifras del sorteo Nocturna (21hs) de la Quiniela Nacional. 100% transparente.</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm text-[#333]">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-500 text-sm">Entre más participen, más chances tienen de ganar. Compartí la rifa con todos!</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm text-[#333]">RECLAMÁ TU PREMIO</p><p className="text-gray-500 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega. Subí tu foto ganadora al chat!</p></div></div>
@@ -744,7 +744,7 @@ export default function AppPage() {
                   <p className="font-bold text-sm text-[#333]">PAGÁ CON TRANSFERENCIA</p>
                 </div>
                 <div className="flex items-center justify-center gap-3 bg-[#F5F5F5] rounded-lg p-3">
-                  <p className="text-2xl font-black text-[#333] tracking-wider">rifas.rosario.</p>
+                  <p className="text-2xl font-black text-[#333] tracking-wider">eco-rifas</p>
                   <button onClick={copyAlias} className="bg-[#3483FA] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-[#2d6fd4] transition-colors">
                     📋 COPIAR
                   </button>
@@ -785,7 +785,7 @@ export default function AppPage() {
             </div>
             <div className="text-center p-3 rounded-lg mb-4 bg-[#FFE600]/10 border border-[#FFE600]/30">
               <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
-              <p className="text-xl font-black text-[#333] tracking-wider">rifas.rosario.</p>
+              <p className="text-xl font-black text-[#333] tracking-wider">eco-rifas</p>
               <button onClick={copyAlias} className="bg-[#F59E0B] text-black px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#D97706] transition-colors">📋 COPIAR ALIAS</button>
             </div>
             <form onSubmit={handleReserva} className="space-y-3">
@@ -836,8 +836,8 @@ export default function AppPage() {
             </div>
             <div className="text-center p-3 rounded-lg mb-4 bg-[#FFE600]/10 border border-[#FFE600]/30">
               <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
-              <p className="text-sm font-black text-[#333] mt-1">rifas.rosario.</p>
-              <button onClick={() => { navigator.clipboard?.writeText('rifas.rosario.'); }} className="mt-1 text-xs text-[#3483FA] font-bold">📋 COPIAR</button>
+              <p className="text-sm font-black text-[#333] mt-1">eco-rifas</p>
+              <button onClick={() => { navigator.clipboard?.writeText('eco-rifas'); }} className="mt-1 text-xs text-[#3483FA] font-bold">📋 COPIAR</button>
             </div>
             <form onSubmit={handleBulkReserva} className="space-y-3">
               <div>
