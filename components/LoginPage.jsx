@@ -18,6 +18,8 @@ export default function RifaApp() {
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
   const [user, setUser] = useState(null);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstall, setShowInstall] = useState(false);
 
   const LOGO_URL = '/logo.png';
   const WHATSAPP = '5493416971479';
@@ -37,7 +39,14 @@ export default function RifaApp() {
       setUser(session?.user || null);
     });
 
-    return () => subscription.unsubscribe();
+    const handleInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstall(true);
+    };
+    window.addEventListener('beforeinstallprompt', handleInstallPrompt);
+
+    return () => { subscription.unsubscribe(); window.removeEventListener('beforeinstallprompt', handleInstallPrompt); };
   }, []);
 
   const handleAuth = async (e) => {
@@ -82,10 +91,10 @@ setAuthLoading(false);
       <header className={`sticky top-0 z-50 ${theme ? 'bg-black/90 backdrop-blur-xl border-b border-white/10' : 'bg-white/90 backdrop-blur-xl border-b'}`}>
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src={LogoImg} alt="Rifas Rosario" width={48} height={48} className="object-contain rounded-xl" />
+            <Image src={LogoImg} alt="Mercado Rifas" width={48} height={48} className="object-contain rounded-xl" />
             <div>
-              <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">RIFAS ROSARIO</h1>
-              <p className="text-[10px] text-gray-500">Sin tarjeta · 100% gratis</p>
+              <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">MERCADO RIFAS</h1>
+              <p className="text-[10px] text-gray-500">Los productos que amas, en rifas que pagas</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -108,6 +117,7 @@ setAuthLoading(false);
             <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black text-lg text-center shadow-lg">👤 Mi Cuenta</button>
             <a href="/admin" className="block p-4 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black text-lg text-center shadow-lg">🔐 Panel Admin</a>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black text-lg text-center shadow-lg">📱 WhatsApp</a>
+            {showInstall && <button onClick={async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') setShowInstall(false); setDeferredPrompt(null); setShowMenu(false); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-lg text-center shadow-lg">📲 Instalar App</button>}
           </nav>
         </div>
       )}
@@ -115,15 +125,15 @@ setAuthLoading(false);
       <main className="max-w-lg mx-auto p-6 relative z-10">
         <div className="text-center mb-8">
           <div className="w-32 h-32 mx-auto mb-4 rounded-3xl overflow-hidden shadow-2xl shadow-pink-500/30">
-            <Image src={LogoImg} alt="Rifas Rosario" width={128} height={128} className="object-cover" />
+            <Image src={LogoImg} alt="Mercado Rifas" width={128} height={128} className="object-cover" />
           </div>
-          <h2 className="text-3xl font-black mb-2">RIFAS ROSARIO</h2>
-          <p className="text-xl font-bold text-pink-500">👟 ZAPATILLAS · 📱 CELULARES · 💻 TECNOLOGÍA</p>
+          <h2 className="text-3xl font-black mb-2">MERCADO RIFAS</h2>
+          <p className="text-xl font-bold text-pink-500">🛒 Los productos que más te gustan · Por una rifa económica</p>
         </div>
 
         <div className="space-y-4">
           <button onClick={() => { setShowAuth(true); setAuthMode('login'); }} className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-black py-5 rounded-3xl text-xl shadow-xl shadow-pink-500/40 animate-bounce">
-            🚀 Entrar a Rifas Rosario
+            🚀 Entrar a Mercado Rifas
           </button>
           
 <button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className={`w-full font-black py-4 rounded-3xl text-lg hover:opacity-90 transition-all ${theme ? 'bg-white/10 border-2 border-white/20 text-white' : 'bg-pink-500 text-white shadow-lg'}`}>

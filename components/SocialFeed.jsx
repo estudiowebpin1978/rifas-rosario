@@ -9,6 +9,22 @@ export default function SocialFeed() {
   const [reels, setReels] = useState([]);
   const [winners, setWinners] = useState([]);
   const [loading, setLoading] = useState(true);
+  const URL_APP = typeof window !== 'undefined' ? window.location.origin + '/app' : 'https://rifas-rosario.vercel.app/app';
+
+  const copyToClipboard = async (text, msg) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert(msg || 'Copiado!');
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert(msg || 'Copiado!');
+    }
+  };
 
   useEffect(() => {
     fetchReels();
@@ -39,14 +55,14 @@ export default function SocialFeed() {
   };
 
   const shareWinner = (winner) => {
-    const msg = '🏆 MIEMBRO DE RIFAS ROSARIO\n\n🎉 ' + winner.ganador_nombre + ' ganó ' + winner.nombre + '!\n\nTu próxima oportunidad está a un click!';
+    const msg = '🏆 MERCADO RIFAS\n\n🎉 ' + winner.ganador_nombre + ' ganó ' + winner.nombre + '!\n\nTu próxima oportunidad está a un click! ' + URL_APP;
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
   };
 
-  const shareWA = () => { window.open('https://wa.me/?text=' + encodeURIComponent('Mira estas rifas increíbles en Rosario! 🎉 https://rifas-rosario.vercel.app/app'), '_blank'); };
-  const shareIG = () => { window.open('https://instagram.com', '_blank'); };
-  const shareTT = () => { window.open('https://www.tiktok.com', '_blank'); };
-  const shareX = () => { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Las mejores rifas de Rosario! 🎉 https://rifas-rosario.vercel.app/app'), '_blank'); };
+  const shareWA = () => { window.open('https://wa.me/?text=' + encodeURIComponent('Mercado Rifas - Los productos que amas! 🎉 ' + URL_APP), '_blank'); };
+  const shareIG = () => { copyToClipboard(URL_APP, 'Link copiado! Pegalo en tu Instagram 📷'); };
+  const shareTT = () => { copyToClipboard(URL_APP, 'Link copiado! Pegalo en tu TikTok 🎵'); };
+  const shareX = () => { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mercado Rifas - Los productos que amas en rifas que pagas! 🎉 ' + URL_APP), '_blank'); };
 
   return (
     <div className="min-h-screen bg-black text-white pb-24">

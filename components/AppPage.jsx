@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
 import LogoImg from '../public/logo.png';
+import ChatBox from '@/components/ChatBox';
 
 export default function AppPage() {
   const router = useRouter();
@@ -33,6 +34,10 @@ export default function AppPage() {
   const [liveNotif, setLiveNotif] = useState(null);
   const [showLiveNotif, setShowLiveNotif] = useState(false);
   const [hotProducts, setHotProducts] = useState([]);
+  const [showChat, setShowChat] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstall, setShowInstall] = useState(false);
 
   useEffect(() => {
     const names = ['Carlos', 'Maria', 'Jose', 'Ana', 'Luis', 'Sofia', 'Diego', 'Valentina', 'Martin', 'Camila', 'Tomas', 'Lucia', 'Franco', 'Florencia', 'Mateo', 'Rocio'];
@@ -54,7 +59,7 @@ export default function AppPage() {
   const theme = true;
   const WHATSAPP = '5493416971479';
   const ALIAS = 'rifas.rosario.';
-  const URL_APP = 'https://rifas-rosario.vercel.app/app';
+  const URL_APP = typeof window !== 'undefined' ? window.location.origin + '/app' : 'https://rifas-rosario.vercel.app/app';
 
     const formatPrice = (precio) => {
     if (!precio) return '';
@@ -76,9 +81,43 @@ export default function AppPage() {
     return '🎁';
   };
 
+  const copyToClipboard = async (text, msg) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert(msg || 'Copiado!');
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert(msg || 'Copiado!');
+    }
+  };
+
   const copyAlias = () => {
-    navigator.clipboard.writeText(ALIAS);
-    alert('Alias copiado!');
+    copyToClipboard(ALIAS, 'Alias copiado!');
+  };
+
+  const installApp = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') setShowInstall(false);
+    setDeferredPrompt(null);
+  };
+
+  const shareApp = async () => {
+    const url = URL_APP;
+    const text = 'Mira estas rifas increibles! 🎉 ' + url;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'MERCADO RIFAS 🎉', text, url });
+        return;
+      } catch {}
+    }
+    copyToClipboard(url, 'Link copiado para compartir!');
   };
 
   useEffect(() => {
@@ -87,9 +126,22 @@ export default function AppPage() {
   }, []);
 
   useEffect(() => {
+    if (supabase) {
+      supabase.auth.getSession().then(({ data }) => {
+        setCurrentUser(data.session?.user || null);
+      });
+    }
     fetchCategorias();
     fetchProductos();
     fetchGanadores();
+
+    const handleInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstall(true);
+    };
+    window.addEventListener('beforeinstallprompt', handleInstallPrompt);
+
     if (supabase) {
       try {
         const sub = supabase.channel('cambios').on('postgres_changes', { event: '*', schema: 'public', table: 'boletos' }, () => {
@@ -100,13 +152,14 @@ export default function AppPage() {
           fetchProductos();
           fetchGanadores();
         }).subscribe();
-        return () => supabase.removeChannel(sub);
+        return () => { supabase.removeChannel(sub); window.removeEventListener('beforeinstallprompt', handleInstallPrompt); };
       } catch (e) { 
         console.log('Realtime no disponible, usando polling');
         const iv2 = setInterval(() => { fetchProductos(); fetchCategorias(); fetchGanadores(); }, 8000);
-        return () => clearInterval(iv2);
+        return () => { clearInterval(iv2); window.removeEventListener('beforeinstallprompt', handleInstallPrompt); };
       }
     }
+    return () => window.removeEventListener('beforeinstallprompt', handleInstallPrompt);
   }, []);
 
   useEffect(() => { fetchProductos(); }, [categoriaActiva]);
@@ -128,7 +181,7 @@ export default function AppPage() {
     } catch(e) { console.log('Error update'); }
     
     const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
-    const msgPrevio = '🎉 SORTEO EN VIVO! - RIFAS ROSARIO\n\n🎁 Producto: ' + producto.nombre + '\n💰 Todos los numeros fueron vendidos!\n\n⏰ El sorteo inicia en 30 SEGUNDOS!\n\n👉 Mira el sorteo en vivo ahora:\nhttps://rifas-rosario.vercel.app/app\n\nSuerte a todos! 🍀';
+    const msgPrevio = '🎉 SORTEO EN VIVO! - MERCADO RIFAS\n\n🎁 Producto: ' + producto.nombre + '\n💰 Todos los numeros fueron vendidos!\n\n⏰ El sorteo inicia en 30 SEGUNDOS!\n\n👉 Mira el sorteo en vivo ahora: ' + URL_APP + '\n\nSuerte a todos! 🍀';
     
     vendidos.forEach((b, i) => {
       if (b.whatsapp) setTimeout(() => window.open('https://wa.me/' + b.whatsapp + '?text=' + encodeURIComponent(msgPrevio), '_blank'), i * 500);
@@ -189,7 +242,7 @@ export default function AppPage() {
         if (b.whatsapp) {
           const msg = b.numero === winner.numero 
             ? '🎉🎉🎉 FELICIDADES! 🎉🎉🎉\n\nGanaste el SORTEO!\n\n🎁 Producto: ' + producto.nombre + '\n🏆 Tu numero: #' + String(winner.numero).padStart(2,'0') + '\n\nContacta al admin para reclamar tu premio!'
-            : '😢 NO Fuiste el ganador esta vez\n\nTu numero: #' + String(b.numero).padStart(2,'0') + '\n🏆 Ganador: #' + String(winner.numero).padStart(2,'0') + '\n\nNo te pierdas las proximas rifas! https://rifas-rosario.vercel.app/app';
+            : '😢 NO Fuiste el ganador esta vez\n\nTu numero: #' + String(b.numero).padStart(2,'0') + '\n🏆 Ganador: #' + String(winner.numero).padStart(2,'0') + '\n\nNo te pierdas las proximas rifas! ' + URL_APP;
           setTimeout(() => window.open('https://wa.me/' + b.whatsapp + '?text=' + encodeURIComponent(msg), '_blank'), i * 1000);
         }
       });
@@ -270,7 +323,7 @@ export default function AppPage() {
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
       const numsStr = selectedNumbers.map(n => '#' + String(n).padStart(2,'0')).join(', ');
       const total = formatPrice((parseFloat(productoSeleccionado.precio.replace(/[^\d.,]/g,'').replace(',','.')) * selectedNumbers.length).toString());
-      const msg = '🎟️ RIFA RESERVADA - RIFAS ROSARIO\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + productoSeleccionado.nombre + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(productoSeleccionado.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tus numeros!\n\n⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
+      const msg = '🎟️ RIFA RESERVADA - MERCADO RIFAS\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + productoSeleccionado.nombre + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(productoSeleccionado.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tus numeros!\n\n⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
       window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
       setTimeout(() => { setShowBulkReserva(false); setSelectedNumbers([]); fetchBoletos(productoSeleccionado.id); }, 2000);
     } else {
@@ -299,7 +352,7 @@ export default function AppPage() {
       
       if (result.success) {
         confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
-        const msg = '🎟️ RIFA RESERVADA - RIFAS ROSARIO\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + productoSeleccionado.nombre + '\n💰 Precio: ' + formatPrice(productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
+        const msg = '🎟️ RIFA RESERVADA - MERCADO RIFAS\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + productoSeleccionado.nombre + '\n💰 Precio: ' + formatPrice(productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
         window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
         setTimeout(() => { setShowReserva(false); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
       } else {
@@ -314,12 +367,20 @@ export default function AppPage() {
 
   const handleSeleccionarNumero = (numero) => { setSeleccionado(numero); setShowReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); };
 
-  const shareProduct = (prod) => window.open('https://wa.me/?text=' + encodeURIComponent('🔥 Mira esta rifa en RIFAS ROSARIO!\n\n🎁 ' + prod.nombre + '\n💰 ' + formatPrice(prod.precio) + '\n\nParticipá acá: ' + URL_APP));
+  const shareProduct = (prod) => window.open('https://wa.me/?text=' + encodeURIComponent('🔥 Mercado Rifas - ' + prod.nombre + '\n💰 ' + formatPrice(prod.precio) + '\n\nParticipá acá: ' + URL_APP));
   const shareWhatsApp = () => window.open('https://wa.me/?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
   const shareX = () => window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
-  const shareFacebook = () => window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(URL_APP));
-  const shareInstagram = () => window.open('https://instagram.com');
-  const shareTikTok = () => window.open('https://www.tiktok.com');
+  const shareFacebook = () => window.open('https://www.facebook.com/sharer.php?u=' + encodeURIComponent(URL_APP) + '&quote=' + encodeURIComponent('Mira estas rifas increibles! 🎉'), '_blank', 'width=600,height=400');
+  const shareInstagram = () => {
+    const url = URL_APP;
+    const msg = 'Mira estas rifas increibles! 🎉 ' + url;
+    copyToClipboard(msg, 'Link copiado! Pegalo en tu Instagram 📷');
+  };
+  const shareTikTok = () => {
+    const url = URL_APP;
+    const msg = 'Mira estas rifas increibles! 🎉 ' + url;
+    copyToClipboard(msg, 'Link copiado! Pegalo en tu TikTok 🎵');
+  };
   const shareGmail = () => window.open('mailto:?subject=' + encodeURIComponent('Mira estas rifas increibles! 🎉') + '&body=' + encodeURIComponent('Echa un vistazo a esta app de rifas: ' + URL_APP));
   const contactarGanador = () => window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('🎊 FELICIDADES! Ganaste ' + productoSeleccionado?.nombre + '!\n\nQuiero coordinar la entrega de mi premio.'), '_blank');
   const verOtrosProductos = () => { setShowPremio(false); setShowSorteo(false); setProductoSeleccionado(null); setGanadorAnimado(null); };
@@ -403,10 +464,10 @@ export default function AppPage() {
       <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/10 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src={LogoImg} alt="Rifas Rosario" width={40} height={40} className="object-contain rounded-lg" />
+            <Image src={LogoImg} alt="Mercado Rifas" width={40} height={40} className="object-contain rounded-lg" />
             <div>
-              <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">RIFAS ROSARIO</h1>
-              <p className="text-[10px] text-pink-400 font-bold">Tu mejor inversion!</p>
+              <h1 className="text-xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">MERCADO RIFAS</h1>
+              <p className="text-[10px] text-pink-400 font-bold">Productos que amas, rifas que pagas</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -442,11 +503,12 @@ export default function AppPage() {
             <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
             <h2 className="text-xl font-black text-center mb-6 bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">COMO FUNCIONAN LAS RIFAS?</h2>
             <div className="space-y-4">
-              <div className="flex gap-4 items-start"><span className="text-3xl">1️⃣</span><div><p className="font-black text-sm">ELEGÍ TU NÚMERO</p><p className="text-gray-400 text-sm">Seleccioná el número que más te guste de la rifa activa. Cada número es único!</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">2️⃣</span><div><p className="font-black text-sm">RESERVÁ Y PAGÁ</p><p className="text-gray-400 text-sm">Completá tus datos y pagá via Mercado Pago al alias rifas.rosario.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm">ESPERÁ EL SORTEO</p><p className="text-gray-400 text-sm">Cuando se vendan los 100 números, se sortea automáticamente con un contador de 30 segundos!</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">🎉</span><div><p className="font-black text-sm">SORTEO EN VIVO</p><p className="text-gray-400 text-sm">El sistema elige un número al azar. Si es el tuyo, GANASTE! Te notificamos por WhatsApp.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm">RECLAMÁ TU PREMIO</p><p className="text-gray-400 text-sm">Contactá al admin por WhatsApp y coordiná la entrega de tu premio!</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">🛒</span><div><p className="font-black text-sm">ELEGÍ TU PRODUCTO</p><p className="text-gray-400 text-sm">Navegá los productos populares de Mercado Libre y elegí el que más te guste. Solo 100 números por rifa.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">2️⃣</span><div><p className="font-black text-sm">ELEGÍ TUS NÚMEROS</p><p className="text-gray-400 text-sm">Seleccioná del 1 al 100. Comprando más números aumentás tus chances de ganar.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm">RESERVÁ Y PAGÁ</p><p className="text-gray-400 text-sm">Completá tus datos y pagá con Mercado Pago al alias rifas.rosario.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">🀄</span><div><p className="font-black text-sm">SORTEO POR QUINIENA NACIONAL</p><p className="text-gray-400 text-sm">Cuando se vendan los 100 números, el ganador se define con las últimas 2 cifras de la Quiniela Nacional de Buenos Aires. 100% transparente y verificable.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-400 text-sm">Entre más participen, más chances tienen de ganar en grupo. Compartí la rifa con todos!</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm">RECLAMÁ TU PREMIO</p><p className="text-gray-400 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega de tu premio. Subí tu foto ganadora al chat!</p></div></div>
             </div>
             <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 btn-3d-cyan">ENTENDÍ! 💪</button>
           </div>
@@ -462,7 +524,9 @@ export default function AppPage() {
           <nav className="space-y-4">
             <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-2xl btn-3d-cyan text-lg">❓ Como Funciona?</button>
             <a href="/admin" className="block p-4 rounded-2xl btn-3d-yellow text-black text-lg text-center">🔐 Panel Admin</a>
+            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black text-lg text-center shadow-lg">📤 Compartir App</button>
             <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-2xl btn-3d-green text-lg">📱 WhatsApp</a>
+            {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-lg text-center shadow-lg">📲 Instalar App</button>}
           </nav>
         </div>
       )}
@@ -471,7 +535,7 @@ export default function AppPage() {
         <main className="max-w-lg mx-auto p-4 space-y-6 relative z-10">
           {ganadores.length > 0 && (
             <div className="rounded-3xl p-4 bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30">
-              <h2 className="font-black text-lg mb-3 flex items-center gap-2"><span className="animate-bounce inline-block">🏆</span> GANADORES ANTERIORES</h2>
+              <h2 className="font-black text-lg mb-3 flex items-center gap-2"><span className="animate-bounce inline-block">🏆</span> GANADORES</h2>
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {ganadores.map(g => (
                   <div key={g.id} className="flex-shrink-0 p-3 rounded-2xl bg-black/50">
@@ -498,7 +562,7 @@ export default function AppPage() {
                 <div className="relative aspect-[4/3]">
                   {heroProd.imagen ? <img src={heroProd.imagen} alt={heroProd.nombre} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" /> : <div className="w-full h-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center"><span className="text-8xl animate-pulse">🎁</span></div>}
                   <div className="absolute top-3 left-3 z-20 flex gap-2">
-                    <span className="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg animate-pulse">🔥 RIFA ACTIVA</span>
+                    <span className="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg animate-pulse">🔥 ACTIVA</span>
                     <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-black px-3 py-1.5 rounded-full shadow-lg">{getCategoryEmoji(heroProd.categorias?.nombre)} {heroProd.categorias?.nombre}</span>
                   </div>
                   {heroRestantes <= 20 && heroRestantes > 0 && (
@@ -598,6 +662,12 @@ export default function AppPage() {
               <p className="text-xl font-black">Proximamente</p>
               <p className="mt-2 text-gray-500">Nuevas rifas muy pronto!</p>
             </div>
+          )}
+
+          {showInstall && (
+            <button onClick={installApp} className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-amber-500/40 animate-bounce text-lg">
+              📲 INSTALAR APP EN TU CELULAR
+            </button>
           )}
         </main>
       ) : (
@@ -779,11 +849,27 @@ export default function AppPage() {
         </div>
       )}
 
+      {showChat && (
+        <ChatBox
+          user={currentUser}
+          isOpen={showChat}
+          onClose={() => setShowChat(false)}
+        />
+      )}
+
       <nav className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 z-50">
         <div className="max-w-lg mx-auto flex justify-around">
           <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
           <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-pink-500"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
+          <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-1 text-gray-400 relative">
+            <span className="text-xl relative">
+              💬
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            </span>
+            <span className="text-xs font-bold">Chat</span>
+          </button>
           <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
+          {showInstall && <button onClick={installApp} className="flex flex-col items-center gap-1 text-amber-400"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>}
         </div>
       </nav>
     </div>

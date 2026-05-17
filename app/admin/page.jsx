@@ -5,6 +5,7 @@ import LogoImg from '../../public/logo.png';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/lib/supabaseClient';
+import MercadoLibrePanel from '@/components/MercadoLibrePanel';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -21,6 +22,9 @@ export default function AdminPage() {
   const [notif, setNotif] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(null);
+  const [showSorteoModal, setShowSorteoModal] = useState(null);
+  const [sorteando, setSorteando] = useState(false);
+  const [showSorteoResult, setShowSorteoResult] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const fileInputRef = useRef(null);
   const theme = true;
@@ -152,7 +156,7 @@ export default function AdminPage() {
         setNotif(`✅ Venta confirmada! #${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}`);
         setShowConfirmModal(null);
         fetchData();
-        const msg = `✅ VENTA CONFIRMADA - RIFAS ROSARIO\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
+        const msg = `✅ VENTA CONFIRMADA - MERCADO RIFAS\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
         if (boleto.whatsapp) window.open('https://wa.me/' + boleto.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
       } else {
         alert('Error: ' + (result.error || 'No se pudo confirmar'));
@@ -339,7 +343,17 @@ export default function AdminPage() {
                     </div>
                     <button onClick={() => eliminarProducto(p.id, p.nombre)} className="bg-red-500 text-white px-3 py-2 rounded-xl font-bold self-start">🗑️</button>
                   </div>
-                  {vend >= 100 && !p.finalizado && <div className="mt-3 bg-gradient-to-r from-emerald-500 to-green-500 text-white text-center py-2 rounded-xl font-black text-sm shadow-lg animate-pulse">🎉 TODOS VENDIDOS - ESPERANDO SORTEO AUTOMATICO</div>}
+                  {vend >= 100 && !p.finalizado && (
+                    <div className="mt-3 space-y-2">
+                      <div className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-center py-2 rounded-xl font-black text-sm shadow-lg animate-pulse">🎉 TODOS VENDIDOS - LISTO PARA SORTEAR</div>
+                      <button
+                        onClick={() => setShowSorteoModal(p)}
+                        className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-black py-3 rounded-xl text-sm shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                      >
+                        🎰 REALIZAR SORTEO POR QUINIENA NACIONAL
+                      </button>
+                    </div>
+                  )}
                   {p.finalizado && <div className="mt-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-center py-2 rounded-xl font-black text-sm shadow-lg">🏆 GANADOR: #{String(p.ganador_num).padStart(2,'0')} - {p.ganador_nombre}</div>}
                 </div>
               );
@@ -347,13 +361,15 @@ export default function AdminPage() {
           </div>
         </div>
 
+          <MercadoLibrePanel categorias={categorias} />
+
           <div className="rounded-3xl bg-gradient-to-b from-blue-500/20 to-purple-500/20 border border-blue-500/30 p-4">
           <h2 className="font-black text-lg mb-3">📋 COMO FUNCIONA</h2>
           <div className="space-y-3 text-sm">
-            <div className="flex gap-3 items-start"><span className="text-2xl">1️⃣</span><div><p className="font-bold">Crear Rifas</p><p className="text-gray-400">Usa el botón "+ Nueva Rifa" para crear productos. Se crean 100 números (del 1 al 100) automáticamente.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">🛒</span><div><p className="font-bold">Importar de Mercado Libre</p><p className="text-gray-400">Usa el panel "Importar de Mercado Libre" para buscar productos populares y crear rifas con 1 click. También podés crear manualmente con "+ Nueva Rifa".</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">2️⃣</span><div><p className="font-bold">Recibir Reservas</p><p className="text-gray-400">Cuando alguien elige números, aparecen en la "Bandeja de Entrada". Verificá el pago antes de confirmar.</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">3️⃣</span><div><p className="font-bold">Confirmar Pagos</p><p className="text-gray-400">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Se le notifica al comprador por WhatsApp.</p></div></div>
-            <div className="flex gap-3 items-start"><span className="text-2xl">4️⃣</span><div><p className="font-bold">Sorteo Automatico</p><p className="text-gray-400">Cuando se venden los 100 números, el sistema sortea automáticamente y notifica a todos por WhatsApp. Categorías activas: Zapatillas 👟 y Celulares 📱 agregadas!</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">🀄</span><div><p className="font-bold">Sorteo por Quiniela Nacional</p><p className="text-gray-400">Cuando se vendan los 100 números, usa el botón "REALIZAR SORTEO POR QUINIENA NACIONAL". El ganador se define con las últimas 2 cifras de la Quiniela Nacional de Buenos Aires. 100% transparente.</p></div></div>
           </div>
         </div>
       </main>
@@ -421,6 +437,83 @@ export default function AdminPage() {
               <button onClick={() => setShowConfirmModal(null)} className="flex-1 py-3 rounded-2xl font-bold bg-gray-700">Cancelar</button>
               <button onClick={() => confirmarVenta(showConfirmModal)} className="flex-1 py-3 rounded-2xl font-black bg-green-500 text-white shadow-lg">Confirmar ✅</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showSorteoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowSorteoModal(null)}></div>
+          <div className="relative w-full max-w-md rounded-3xl p-6 text-center bg-gray-900 border border-white/10">
+            <div className="text-6xl mb-4">🎰</div>
+            <h2 className="text-2xl font-black bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent">REALIZAR SORTEO</h2>
+            <p className="text-lg font-bold mt-4">{showSorteoModal.nombre}</p>
+            <p className="text-pink-500 font-black text-xl">{showSorteoModal.precio}</p>
+            <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
+              <p className="font-bold text-sm">Metodo de sorteo:</p>
+              <p className="text-lg font-black text-yellow-400">🀄 QUINIENA NACIONAL</p>
+              <p className="text-xs text-gray-400 mt-1">Se usan las ultimas 2 cifras de la cabeza de la Quiniela Nacional de Buenos Aires</p>
+            </div>
+            {showSorteoResult && (
+              <div className={`mt-4 p-4 rounded-2xl ${showSorteoResult.success ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500'}`}>
+                {showSorteoResult.success ? (
+                  <>
+                    <span className="text-5xl block mb-2 animate-bounce">🎊</span>
+                    <p className="text-2xl font-black text-green-400">GANADOR!</p>
+                    <p className="text-6xl font-black text-yellow-400 my-2">#{String(showSorteoResult.ganador.numero).padStart(2,'0')}</p>
+                    <p className="text-xl font-bold">{showSorteoResult.ganador.nombre}</p>
+                    {showSorteoResult.quiniela && (
+                      <div className="mt-3 text-xs text-gray-400">
+                        <p>Quiniela Nacional: {showSorteoResult.quiniela.numero_completo}</p>
+                        <p>Ultimas 2 cifras: {showSorteoResult.quiniela.ultimas_dos}</p>
+                        <p>Significado: {showSorteoResult.quiniela.significado}</p>
+                      </div>
+                    )}
+                    <button onClick={() => { setShowSorteoModal(null); setShowSorteoResult(null); fetchData(); }} className="mt-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-black py-3 px-8 rounded-xl">
+                      CERRAR 🎉
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-red-400 font-bold">Error: {showSorteoResult.error}</p>
+                    <button onClick={() => setShowSorteoResult(null)} className="mt-3 bg-gray-700 text-white font-bold py-2 px-6 rounded-xl">Volver</button>
+                  </>
+                )}
+              </div>
+            )}
+            {!showSorteoResult && (
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowSorteoModal(null)}
+                  className="flex-1 py-3 rounded-2xl font-bold bg-gray-700"
+                  disabled={sorteando}
+                >Cancelar</button>
+                <button
+                  onClick={async () => {
+                    setSorteando(true);
+                    try {
+                      const res = await fetch('/api/sortear', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ producto_id: showSorteoModal.id, metodo: 'quiniela' })
+                      });
+                      const result = await res.json();
+                      setShowSorteoResult(result);
+                      if (result.success) {
+                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700', '#FF1493', '#00BFFF'] });
+                      }
+                    } catch (err) {
+                      setShowSorteoResult({ success: false, error: 'Error de conexion' });
+                    }
+                    setSorteando(false);
+                  }}
+                  disabled={sorteando}
+                  className="flex-1 py-3 rounded-2xl font-black bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-lg disabled:opacity-50"
+                >
+                  {sorteando ? '⏳ SORTEANDO...' : '🎰 SORTEAR'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

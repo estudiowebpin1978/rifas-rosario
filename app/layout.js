@@ -1,8 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Rifas Rosario - Gana Zapatillas, Celulares y más!',
-  description: 'Las mejores rifas en Rosario - Participá y ganá! Zapatillas, Celulares, Tecnología y mucho más por un pago mínimo.',
+  title: 'Mercado Rifas - Los productos que amas, en rifas que pagas',
+  description: 'Accedé a los productos populares de Mercado Libre por una rifa económica. Sorteo transparente por Quiniela Nacional. Solo 100 números por rifa.',
   manifest: '/manifest.json',
   icons: {
     icon: '/logo.png',
@@ -11,7 +11,7 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Rifas Rosario',
+    title: 'Mercado Rifas',
   },
 }
 
