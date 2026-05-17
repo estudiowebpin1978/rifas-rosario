@@ -1,8 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Mercado Rifas - Los productos que amas, en rifas que pagas',
-  description: 'Accedé a los productos populares de Mercado Libre por una rifa económica. Sorteo transparente por Quiniela Nacional. Solo 100 números por rifa.',
+  title: 'Mercado Rifas - Los productos que amas, ahora los podes ganar en rifas economicas!',
+  description: 'Los productos que amas, ahora los podes ganar en rifas economicas! Sorteo transparente por Quiniela Nacional. Solo 100 numeros por rifa.',
   manifest: '/manifest.json',
   icons: {
     icon: '/logo.png',

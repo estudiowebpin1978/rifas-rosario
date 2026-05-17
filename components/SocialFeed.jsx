@@ -59,10 +59,10 @@ export default function SocialFeed() {
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
   };
 
-  const shareWA = () => { window.open('https://wa.me/?text=' + encodeURIComponent('Mercado Rifas - Los productos que amas! 🎉 ' + URL_APP), '_blank'); };
+  const shareWA = () => { window.open('https://wa.me/?text=' + encodeURIComponent('Mercado Rifas - Los productos que amas, ahora los podes ganar en rifas economicas! 🎉 ' + URL_APP), '_blank'); };
   const shareIG = () => { copyToClipboard(URL_APP, 'Link copiado! Pegalo en tu Instagram 📷'); };
   const shareTT = () => { copyToClipboard(URL_APP, 'Link copiado! Pegalo en tu TikTok 🎵'); };
-  const shareX = () => { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mercado Rifas - Los productos que amas en rifas que pagas! 🎉 ' + URL_APP), '_blank'); };
+  const shareX = () => { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mercado Rifas - Los productos que amas, ahora los podes ganar en rifas economicas! 🎉 ' + URL_APP), '_blank'); };
 
   return (
     <div className="min-h-screen bg-black text-white pb-24">

@@ -95,7 +95,7 @@ export default function ProfilePage() {
   const nivelEmoji = stats.ganados >= 10 ? '👑' : stats.ganados >= 5 ? '🏆' : stats.ganados >= 2 ? '⭐' : '🐣';
 
   const shareToWhatsApp = () => {
-    const msg = 'Mercado Rifas - Los productos que amas por una rifa económica! 🎉 ' + (typeof window !== 'undefined' ? window.location.origin + '/app' : '');
+    const msg = 'Mercado Rifas - Los productos que amas, ahora los podes ganar en rifas economicas! 🎉 ' + (typeof window !== 'undefined' ? window.location.origin + '/app' : '');
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
   };
 

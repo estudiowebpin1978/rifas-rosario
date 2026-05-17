@@ -3,6 +3,39 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ML_API = 'https://api.mercadolibre.com';
+const ML_CLIENT_ID = process.env.ML_CLIENT_ID;
+const ML_CLIENT_SECRET = process.env.ML_CLIENT_SECRET;
+
+let cachedToken = null;
+let tokenExpiresAt = 0;
+
+async function getAccessToken() {
+  if (cachedToken && Date.now() < tokenExpiresAt) return cachedToken;
+
+  const accessToken = process.env.ML_ACCESS_TOKEN;
+  if (accessToken) return accessToken;
+
+  if (ML_CLIENT_ID && ML_CLIENT_SECRET) {
+    try {
+      const res = await fetch(`${ML_API}/oauth/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+        body: new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: ML_CLIENT_ID,
+          client_secret: ML_CLIENT_SECRET
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        cachedToken = data.access_token;
+        tokenExpiresAt = Date.now() + (data.expires_in - 60) * 1000;
+        return cachedToken;
+      }
+    } catch (e) {}
+  }
+  return null;
+}
 
 export async function GET(request) {
   try {
@@ -10,9 +43,17 @@ export async function GET(request) {
     const q = searchParams.get('q') || 'popular';
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
 
-    const res = await fetch(`${ML_API}/sites/MLA/search?q=${encodeURIComponent(q)}&sort=popular&limit=${limit}`, {
-      headers: { 'Accept': 'application/json' }
-    });
+    const token = await getAccessToken();
+    const headers = { 'Accept': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${ML_API}/sites/MLA/search?q=${encodeURIComponent(q)}&sort=popular&limit=${limit}`, { headers });
+
+    if (res.status === 403) {
+      return Response.json({
+        error: 'MercadoLibre requiere autenticación. Configurá ML_CLIENT_ID y ML_CLIENT_SECRET en las variables de entorno de Vercel, o ML_ACCESS_TOKEN con un token válido.'
+      }, { status: 403 });
+    }
 
     if (!res.ok) {
       return Response.json({ error: 'Error al buscar en MercadoLibre' }, { status: 502 });

@@ -191,6 +191,23 @@ export default function AdminPage() {
   const pendientesPago = todosBoletos.filter(b => b.estado === 'reservado');
   const vendidosCount = todosBoletos.filter(b => b.estado === 'vendido').length;
 
+  const [showUsers, setShowUsers] = useState(false);
+
+  const usuariosMap = {};
+  todosBoletos.filter(b => b.estado === 'vendido' && b.whatsapp).forEach(b => {
+    if (!usuariosMap[b.whatsapp]) {
+      usuariosMap[b.whatsapp] = { nombre: b.nombre, whatsapp: b.whatsapp, boletos: [], totalGastado: 0, productosComprados: new Set() };
+    }
+    usuariosMap[b.whatsapp].boletos.push(b);
+    usuariosMap[b.whatsapp].totalGastado += 1;
+    if (b.producto_id) usuariosMap[b.whatsapp].productosComprados.add(b.producto_id);
+  });
+  const usuarios = Object.values(usuariosMap).map(u => ({
+    ...u,
+    productosComprados: u.productosComprados.size,
+    boletosCount: u.boletos.length
+  })).sort((a, b) => b.boletosCount - a.boletosCount);
+
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-[#F5F5F5]">
@@ -354,6 +371,58 @@ export default function AdminPage() {
         </div>
 
           <MercadoLibrePanel categorias={categorias} />
+
+          <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-black text-lg text-[#1A3C6D]">👥 USUARIOS ({usuarios.length})</h2>
+              <button onClick={() => setShowUsers(!showUsers)} className={`px-4 py-2 rounded-lg font-bold text-sm shadow-sm ${showUsers ? 'bg-red-500 text-white' : 'bg-[#3483FA] text-white'}`}>
+                {showUsers ? '✕ Ocultar' : '📊 Ver usuarios'}
+              </button>
+            </div>
+            {showUsers && (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {usuarios.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <span className="text-5xl block mb-3">👥</span>
+                    <p className="font-bold">No hay usuarios aún</p>
+                  </div>
+                ) : (
+                  usuarios.map((u, i) => (
+                    <div key={u.whatsapp} className="bg-[#F5F5F5] rounded-lg p-4 border border-[#EBEBEB]">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-black text-[#1A3C6D]">#{i + 1}</span>
+                          <span className="font-bold text-[#333]">{u.nombre || 'Sin nombre'}</span>
+                        </div>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${u.boletosCount >= 5 ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {u.boletosCount} nums
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">📱 {u.whatsapp}</p>
+                      <div className="flex gap-2 text-xs">
+                        <span className="bg-[#3483FA]/10 text-[#3483FA] px-2 py-1 rounded font-bold">🎁 {u.productosComprados} productos</span>
+                        <span className="bg-[#39B54A]/10 text-[#39B54A] px-2 py-1 rounded font-bold">🎟️ {u.boletosCount} boletos</span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {u.boletos.slice(0, 5).map(b => {
+                          const prod = productos.find(p => p.id === b.producto_id);
+                          return (
+                            <span key={b.id} className="text-[10px] bg-white border border-[#EBEBEB] px-1.5 py-0.5 rounded font-bold text-[#333]">
+                              #{String(b.numero).padStart(2,'0')} {prod ? `- ${prod.nombre.substring(0, 15)}...` : ''}
+                            </span>
+                          );
+                        })}
+                        {u.boletos.length > 5 && <span className="text-[10px] text-gray-400">+{u.boletos.length - 5} más</span>}
+                      </div>
+                      <div className="mt-2 flex gap-2">
+                        <button onClick={() => window.open('https://wa.me/' + u.whatsapp, '_blank')} className="text-xs bg-[#39B54A] text-white px-3 py-1.5 rounded-lg font-bold">📱 Contactar</button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
           <h2 className="font-black text-lg mb-3 text-[#1A3C6D]">📋 CÓMO FUNCIONA</h2>

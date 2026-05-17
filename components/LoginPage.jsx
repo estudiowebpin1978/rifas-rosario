@@ -90,7 +90,7 @@ setAuthLoading(false);
             <div className="w-12 h-12 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-lg">MR</div>
             <div>
               <h1 className="text-xl font-black text-[#1A3C6D]">MERCADO RIFAS</h1>
-              <p className="text-[10px] text-[#666] font-medium">Los productos que amas, en rifas que pagas</p>
+              <p className="text-[10px] text-[#666] font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -112,6 +112,7 @@ setAuthLoading(false);
             <a href="/admin" className="block p-4 rounded-lg bg-[#1A3C6D] text-white font-bold text-lg text-center shadow-sm hover:bg-[#152f55] transition-colors">🔐 Panel Admin</a>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
             {showInstall && <button onClick={async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') setShowInstall(false); setDeferredPrompt(null); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#FFE600] text-[#333] font-bold text-lg text-center shadow-sm hover:bg-[#f0d800] transition-colors">📲 Instalar App</button>}
+            <a href="/terminos" className="block p-4 rounded-lg bg-white text-[#666] font-bold text-lg text-center border border-[#EBEBEB] shadow-sm hover:bg-[#F5F5F5] transition-colors">📜 Terminos y Condiciones</a>
           </nav>
         </div>
       )}
@@ -122,17 +123,23 @@ setAuthLoading(false);
             <div className="w-24 h-24 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-3xl">MR</div>
           </div>
           <h2 className="text-3xl font-black mb-2 text-[#1A3C6D]">MERCADO RIFAS</h2>
-          <p className="text-lg font-medium text-[#666]">🛒 Los productos que más te gustan · Por una rifa económica</p>
+          <p className="text-lg font-medium text-[#666]">🛒 Los productos que amas · ahora en rifas economicas!</p>
         </div>
 
         <div className="space-y-4">
-          <button onClick={() => { setShowAuth(true); setAuthMode('login'); }} className="w-full bg-[#3483FA] text-white font-bold py-5 rounded-lg text-xl shadow-sm hover:bg-[#2d6fd4] transition-colors">
+          <button onClick={() => { setShowAuth(true); setAuthMode('login'); }} className="w-full btn-3d-blue text-xl">
             🚀 Entrar a Mercado Rifas
           </button>
           
-          <button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className="w-full font-bold py-4 rounded-lg text-lg bg-white border-2 border-[#FFE600] text-[#333] shadow-sm hover:bg-[#FFE600]/10 transition-all">
+          <button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className="w-full font-bold py-4 rounded-2xl text-lg bg-white border-2 border-[#FFE600] text-[#333] shadow-md hover:bg-[#FFE600]/10 hover:shadow-lg transition-all active:scale-[0.98]">
             ✨ Crear cuenta gratis
           </button>
+        </div>
+
+        <div className="mt-6 flex justify-center gap-3 flex-wrap">
+          <span className="trust-badge">🔒 Pago Seguro</span>
+          <span className="trust-badge">🀄 Sorteo Transparente</span>
+          <span className="trust-badge">✅ 100% Confiable</span>
         </div>
 
         <div className="mt-8 text-center">
@@ -162,7 +169,7 @@ setAuthLoading(false);
               )}
               <input type="email" placeholder="Email" required value={authForm.email} onChange={e => setAuthForm({...authForm, email: e.target.value})} className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               <input type="password" placeholder="Contrasena" required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
-              <button disabled={authLoading} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm hover:bg-[#2d6fd4] transition-colors">
+              <button disabled={authLoading} className="w-full btn-3d-blue disabled:opacity-60">
                 {authLoading ? '⏳' : authMode === 'login' ? '🚀 ENTRAR' : '✨ CREAR CUENTA'}
               </button>
             </form>

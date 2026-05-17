@@ -92,14 +92,13 @@ export default function MercadoLibrePanel({ categorias }) {
   ];
 
   return (
-    <div className="rounded-3xl bg-gradient-to-b from-blue-500/20 to-purple-500/20 border border-blue-500/30 p-4">
+    <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
       <div className="flex items-center gap-2 mb-3">
         <span className="text-2xl">🛒</span>
-        <h2 className="font-black text-lg">IMPORTAR DE MERCADO LIBRE</h2>
-        <span className="text-xs bg-blue-500/30 text-blue-300 px-2 py-0.5 rounded-full font-bold">NUEVO</span>
+        <h2 className="font-black text-lg text-[#1A3C6D]">IMPORTAR DE MERCADO LIBRE</h2>
       </div>
 
-      <p className="text-sm text-gray-400 mb-4">
+      <p className="text-sm text-gray-500 mb-4">
         Busca productos populares en Mercado Libre y crealos como rifa con un solo click.
       </p>
 
@@ -109,12 +108,12 @@ export default function MercadoLibrePanel({ categorias }) {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Buscar en Mercado Libre..."
-          className="flex-1 rounded-xl bg-white/10 border border-white/20 p-3 font-bold text-sm outline-none focus:border-blue-500"
+          className="flex-1 rounded-lg bg-white border border-[#EBEBEB] p-3 font-bold text-sm outline-none focus:border-[#3483FA] text-[#333]"
         />
         <button
           type="submit"
           disabled={loading || !search.trim()}
-          className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 rounded-xl font-black text-sm disabled:opacity-50"
+          className="bg-[#3483FA] text-white px-5 rounded-lg font-bold text-sm disabled:opacity-50 hover:bg-[#2d6fd4] transition-colors"
         >
           {loading ? '⏳' : '🔍'}
         </button>
@@ -125,7 +124,7 @@ export default function MercadoLibrePanel({ categorias }) {
           <button
             key={sug}
             onClick={() => { setSearch(sug); setTimeout(() => document.querySelector('form')?.requestSubmit(), 100); }}
-            className="text-xs bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-full font-bold transition-colors"
+            className="text-xs bg-[#F5F5F5] hover:bg-[#EBEBEB] text-[#666] px-2.5 py-1 rounded font-bold transition-colors border border-[#EBEBEB]"
           >
             {sug}
           </button>
@@ -138,7 +137,7 @@ export default function MercadoLibrePanel({ categorias }) {
           <button
             key={cat.id}
             onClick={() => setSelectedCategoria(cat.id)}
-            className={`text-xs px-2.5 py-1 rounded-full font-bold transition-all ${selectedCategoria === cat.id ? 'bg-pink-500 text-white' : 'bg-white/10 hover:bg-white/20'}`}
+            className={`text-xs px-2.5 py-1 rounded font-bold transition-all ${selectedCategoria === cat.id ? 'bg-[#3483FA] text-white' : 'bg-[#F5F5F5] text-[#666] hover:bg-[#EBEBEB] border border-[#EBEBEB]'}`}
           >
             {cat.emoji} {cat.nombre}
           </button>
@@ -146,31 +145,31 @@ export default function MercadoLibrePanel({ categorias }) {
       </div>
 
       {error && (
-        <div className="bg-red-500/20 border border-red-500 text-red-400 p-3 rounded-xl text-sm mb-3">{error}</div>
+        <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm mb-3">{error}</div>
       )}
 
       {results.length > 0 && (
         <div className="max-h-[500px] overflow-y-auto space-y-2">
           <div className="flex justify-between items-center mb-2">
-            <p className="text-sm font-bold text-blue-400">{results.length} productos encontrados</p>
+            <p className="text-sm font-bold text-[#3483FA]">{results.length} productos encontrados</p>
             <button
               onClick={() => { setResults([]); setSearch(''); }}
-              className="text-xs text-gray-500 hover:text-white"
+              className="text-xs text-gray-500 hover:text-[#333]"
             >✕ Cerrar</button>
           </div>
           {results.map(product => (
             <div
               key={product.ml_id}
-              className="bg-black/40 rounded-xl p-3 flex gap-3 items-center hover:bg-black/60 transition-colors"
+              className="bg-[#F5F5F5] rounded-lg p-3 flex gap-3 items-center hover:bg-[#EBEBEB] transition-colors border border-[#EBEBEB]"
             >
               <img
                 src={product.imagen}
                 alt={product.nombre}
-                className="w-16 h-16 object-contain rounded-lg bg-white/5 flex-shrink-0"
+                className="w-16 h-16 object-contain rounded-lg bg-white flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-sm truncate">{product.nombre}</h4>
-                <p className="text-pink-500 font-black text-sm">{product.precio}</p>
+                <h4 className="font-bold text-sm truncate text-[#333]">{product.nombre}</h4>
+                <p className="text-[#39B54A] font-black text-sm">{product.precio}</p>
                 <p className="text-[10px] text-gray-500">
                   {product.vendidos > 0 && `🔥 ${product.vendidos} vendidos`}
                   {product.ubicacion && ` · ${product.ubicacion}`}
@@ -179,7 +178,7 @@ export default function MercadoLibrePanel({ categorias }) {
               <button
                 onClick={() => handleImport(product)}
                 disabled={importing === product.ml_id || !selectedCategoria}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-black disabled:opacity-50 flex-shrink-0"
+                className="bg-[#3483FA] text-white px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-50 flex-shrink-0 hover:bg-[#2d6fd4] transition-colors"
               >
                 {importing === product.ml_id ? '⏳' : '⬇ Importar'}
               </button>
@@ -199,7 +198,7 @@ export default function MercadoLibrePanel({ categorias }) {
       {loading && (
         <div className="text-center py-8">
           <span className="text-3xl animate-bounce block mb-2">🔍</span>
-          <p className="text-sm text-gray-400">Buscando en Mercado Libre...</p>
+          <p className="text-sm text-gray-500">Buscando en Mercado Libre...</p>
         </div>
       )}
     </div>

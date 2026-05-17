@@ -34,7 +34,6 @@ export default function AppPage() {
   const [liveNotif, setLiveNotif] = useState(null);
   const [showLiveNotif, setShowLiveNotif] = useState(false);
   const [hotProducts, setHotProducts] = useState([]);
-  const [showChat, setShowChat] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
@@ -467,7 +466,7 @@ export default function AppPage() {
             <div className="w-10 h-10 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-sm">MR</div>
             <div>
               <h1 className="text-xl font-black text-[#1A3C6D]">MERCADO RIFAS</h1>
-              <p className="text-[10px] text-[#666] font-medium">Los productos que amas, en rifas que pagas</p>
+              <p className="text-[10px] text-[#666] font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -527,6 +526,7 @@ export default function AppPage() {
             <a href="/admin" className="block p-4 rounded-lg bg-[#1A3C6D] text-white font-bold text-lg text-center shadow-sm hover:bg-[#152f55] transition-colors">🔐 Panel Admin</a>
             <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
             {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#FFE600] text-[#333] font-bold text-lg text-center shadow-sm hover:bg-[#f0d800] transition-colors">📲 Instalar App</button>}
+            <a href="/terminos" className="block p-4 rounded-lg bg-white text-[#666] font-bold text-lg text-center border border-[#EBEBEB] shadow-sm hover:bg-[#F5F5F5] transition-colors">📜 Terminos y Condiciones</a>
           </nav>
         </div>
       )}
@@ -590,7 +590,7 @@ export default function AppPage() {
                       <div className="h-full bg-[#3483FA] rounded-full transition-all duration-1000" style={{ width: heroPorcent + '%' }}></div>
                     </div>
                   </div>
-                  <button className="w-full mt-4 bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm hover:bg-[#2d6fd4] active:scale-95 transition-all flex items-center justify-center gap-2">
+                  <button className="w-full mt-4 btn-3d-blue flex items-center justify-center gap-2">
                     <span>🎰 PARTICIPAR</span>
                     <span className="text-lg">→</span>
                   </button>
@@ -600,18 +600,27 @@ export default function AppPage() {
             ) : null;
           })()}
 
-          <button onClick={() => setShowComoFunciona(true)} className="w-full bg-white border border-[#EBEBEB] shadow-sm rounded-lg p-4 text-center">
-            <p className="font-bold text-sm text-[#3483FA]">❓ CÓMO FUNCIONAN LAS RIFAS?</p>
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => setShowComoFunciona(true)} className="flex-1 bg-white border border-[#EBEBEB] shadow-sm rounded-xl p-4 text-center hover:shadow-md transition-all active:scale-[0.98]">
+              <p className="font-bold text-sm text-[#3483FA]">❓ CÓMO FUNCIONAN LAS RIFAS?</p>
+            </button>
+            <div className="flex-shrink-0 bg-gradient-to-r from-[#39B54A]/10 to-[#3483FA]/10 border border-[#39B54A]/20 rounded-xl p-3 flex items-center gap-2">
+              <span className="text-lg">🛡️</span>
+              <div className="text-[10px] leading-tight">
+                <p className="font-bold text-[#39B54A]">100% Seguro</p>
+                <p className="text-gray-500">Pago protegido</p>
+              </div>
+            </div>
+          </div>
 
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-5 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 ${!categoriaActiva ? 'bg-[#3483FA] text-white shadow-md scale-105' : 'bg-white/70 text-[#666] hover:bg-white/90 border border-[#EBEBEB]'}`}>
+            <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 ${!categoriaActiva ? 'bg-gradient-to-r from-[#3483FA] to-blue-500 text-white shadow-lg scale-105' : 'bg-white/70 text-[#666] hover:bg-white/90 border border-[#EBEBEB] hover:shadow-md'}`}>
               🔥 Todas
             </button>
             {categorias.map(cat => {
               const prodCount = allProductos.filter(p => p.categoria_id === cat.id && !p.finalizado).length;
               return (
-                <button key={cat.id} onClick={() => setCategoriaActiva(cat.id)} className={`flex-shrink-0 px-5 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 ${categoriaActiva === cat.id ? 'bg-[#3483FA] text-white shadow-md scale-105' : 'bg-white/70 text-[#666] hover:bg-white/90 border border-[#EBEBEB]'}`}>
+                <button key={cat.id} onClick={() => setCategoriaActiva(cat.id)} className={`flex-shrink-0 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 ${categoriaActiva === cat.id ? 'bg-gradient-to-r from-[#3483FA] to-blue-500 text-white shadow-lg scale-105' : 'bg-white/70 text-[#666] hover:bg-white/90 border border-[#EBEBEB] hover:shadow-md'}`}>
                   {getCategoryEmoji(cat.nombre)} {cat.nombre} {prodCount > 0 && <span className="text-xs opacity-60">({prodCount})</span>}
                 </button>
               );
@@ -644,7 +653,7 @@ export default function AppPage() {
                     <div className="h-1.5 bg-[#EBEBEB] rounded-full overflow-hidden">
                       <div className={`h-full rounded-full ${prodVend >= 100 ? 'bg-[#39B54A]' : 'bg-[#3483FA]'}`} style={{ width: prodVend + '%' }}></div>
                     </div>
-                    <button className={`w-full py-2 rounded-lg font-bold text-xs ${prod.finalizado ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-[#3483FA] text-white shadow-sm'}`}>
+                    <button className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all active:scale-95 ${prod.finalizado ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-gradient-to-r from-[#3483FA] to-blue-600 text-white shadow-md hover:shadow-lg'}`}>
                       {prod.finalizado ? '🏆 FINALIZADO' : prodVend >= 100 ? '🎉 SORTEANDO...' : `🎰 ${prodVend}/100`}
                     </button>
                   </div>
@@ -669,8 +678,8 @@ export default function AppPage() {
         </main>
       ) : (
         <main className="max-w-lg mx-auto p-4 space-y-4 relative z-10">
-          <button onClick={() => { setProductoSeleccionado(null); setSeleccionado(null); }} className="flex items-center gap-2 font-bold text-[#3483FA]">← Volver</button>
-          <button onClick={() => shareProduct(productoSeleccionado)} className="w-full bg-[#39B54A] text-white font-bold py-3 rounded-lg shadow-sm text-sm hover:bg-[#2d9e3d] transition-colors">📤 COMPARTIR ESTA RIFA 🚀</button>
+          <button onClick={() => { setProductoSeleccionado(null); setSeleccionado(null); }} className="flex items-center gap-2 font-bold text-[#3483FA] hover:gap-3 transition-all">← Volver a rifas</button>
+          <button onClick={() => shareProduct(productoSeleccionado)} className="w-full btn-3d-green text-sm">📤 COMPARTIR ESTA RIFA 🚀</button>
 
           <div className="rounded-lg overflow-hidden bg-white border border-[#EBEBEB] shadow-sm">
             <div className="relative aspect-video bg-gray-50">
@@ -719,7 +728,7 @@ export default function AppPage() {
                       <p className="font-bold text-lg text-[#333]">{selectedNumbers.length} {selectedNumbers.length === 1 ? 'número seleccionado' : 'números seleccionados'}</p>
                       <p className="text-xs text-gray-500">Seleccionados: {selectedNumbers.map(n => `#${String(n).padStart(2,'0')}`).join(', ')}</p>
                     </div>
-                    <button onClick={openBulkReserva} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm hover:bg-[#2d6fd4] transition-colors text-lg">
+                    <button onClick={openBulkReserva} className="w-full btn-3d-gold text-lg">
                       🎟️ RESERVAR {selectedNumbers.length} {selectedNumbers.length === 1 ? 'NÚMERO' : 'NÚMEROS'}
                     </button>
                   </div>
@@ -785,7 +794,7 @@ export default function AppPage() {
                 <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
                 <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               </div>
-              <button disabled={loading} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm disabled:opacity-50 hover:bg-[#2d6fd4] active:scale-[0.98] transition-all">
+              <button disabled={loading} className="w-full btn-3d-gold disabled:opacity-50">
                 {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
               </button>
               <p className="text-[10px] text-center text-gray-500">Reservá tu número y te enviamos los datos de pago por WhatsApp</p>
@@ -836,7 +845,7 @@ export default function AppPage() {
                 <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
                 <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               </div>
-              <button disabled={loading} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm disabled:opacity-50 hover:bg-[#2d6fd4] active:scale-[0.98] transition-all">
+              <button disabled={loading} className="w-full btn-3d-gold disabled:opacity-50">
                 {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
               </button>
               <p className="text-[10px] text-center text-gray-500">Tus números quedan reservados al enviar el comprobante</p>
@@ -846,25 +855,16 @@ export default function AppPage() {
         </div>
       )}
 
-      {showChat && (
-        <ChatBox
-          user={currentUser}
-          isOpen={showChat}
-          onClose={() => setShowChat(false)}
-        />
-      )}
+      <ChatBox
+        user={currentUser}
+        productos={allProductos}
+        allBoletos={allBoletos}
+      />
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-50 shadow-[0_-1px_6px_rgba(0,0,0,0.05)]">
         <div className="max-w-lg mx-auto flex justify-around">
           <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
           <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-[#3483FA]"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
-          <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors relative">
-            <span className="text-xl relative">
-              💬
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#39B54A] rounded-full animate-pulse"></span>
-            </span>
-            <span className="text-xs font-bold">Chat</span>
-          </button>
           <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
           {showInstall && <button onClick={installApp} className="flex flex-col items-center gap-1 text-[#FFE600]"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>}
         </div>
