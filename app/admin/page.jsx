@@ -350,7 +350,7 @@ export default function AdminPage() {
                         onClick={() => setShowSorteoModal(p)}
                         className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-black py-3 rounded-xl text-sm shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform"
                       >
-                        🎰 REALIZAR SORTEO POR QUINIENA NACIONAL
+                        🎰 SORTEO QUINIENA NOCTURNA (21HS)
                       </button>
                     </div>
                   )}
@@ -369,7 +369,7 @@ export default function AdminPage() {
             <div className="flex gap-3 items-start"><span className="text-2xl">🛒</span><div><p className="font-bold">Importar de Mercado Libre</p><p className="text-gray-400">Usa el panel "Importar de Mercado Libre" para buscar productos populares y crear rifas con 1 click. También podés crear manualmente con "+ Nueva Rifa".</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">2️⃣</span><div><p className="font-bold">Recibir Reservas</p><p className="text-gray-400">Cuando alguien elige números, aparecen en la "Bandeja de Entrada". Verificá el pago antes de confirmar.</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">3️⃣</span><div><p className="font-bold">Confirmar Pagos</p><p className="text-gray-400">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Se le notifica al comprador por WhatsApp.</p></div></div>
-            <div className="flex gap-3 items-start"><span className="text-2xl">🀄</span><div><p className="font-bold">Sorteo por Quiniela Nacional</p><p className="text-gray-400">Cuando se vendan los 100 números, usa el botón "REALIZAR SORTEO POR QUINIENA NACIONAL". El ganador se define con las últimas 2 cifras de la Quiniela Nacional de Buenos Aires. 100% transparente.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">🀄</span><div><p className="font-bold">Sorteo por Quiniela Nacional Nocturna</p><p className="text-gray-400">Cuando se vendan los 100 números, usa el botón "SORTEO QUINIENA NOCTURNA (21HS)". El ganador se define con las últimas 2 cifras de la cabeza del sorteo Nocturna (21hs) de la Quiniela Nacional. El sorteo debe realizarse después de las 21hs. 100% transparente.</p></div></div>
           </div>
         </div>
       </main>
@@ -451,8 +451,8 @@ export default function AdminPage() {
             <p className="text-pink-500 font-black text-xl">{showSorteoModal.precio}</p>
             <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
               <p className="font-bold text-sm">Metodo de sorteo:</p>
-              <p className="text-lg font-black text-yellow-400">🀄 QUINIENA NACIONAL</p>
-              <p className="text-xs text-gray-400 mt-1">Se usan las ultimas 2 cifras de la cabeza de la Quiniela Nacional de Buenos Aires</p>
+              <p className="text-lg font-black text-yellow-400">🀄 QUINIENA NACIONAL NOCTURNA</p>
+              <p className="text-xs text-gray-400 mt-1">Se usan las ultimas 2 cifras de la cabeza de la Quiniela Nacional Nocturna (sorteo de las 21hs). 100% transparente.</p>
             </div>
             {showSorteoResult && (
               <div className={`mt-4 p-4 rounded-2xl ${showSorteoResult.success ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500'}`}>
@@ -464,7 +464,7 @@ export default function AdminPage() {
                     <p className="text-xl font-bold">{showSorteoResult.ganador.nombre}</p>
                     {showSorteoResult.quiniela && (
                       <div className="mt-3 text-xs text-gray-400">
-                        <p>Quiniela Nacional: {showSorteoResult.quiniela.numero_completo}</p>
+                        <p>Quiniela Nacional Nocturna: {showSorteoResult.quiniela.numero_completo}</p>
                         <p>Ultimas 2 cifras: {showSorteoResult.quiniela.ultimas_dos}</p>
                         <p>Significado: {showSorteoResult.quiniela.significado}</p>
                       </div>

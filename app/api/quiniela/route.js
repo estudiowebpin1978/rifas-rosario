@@ -1,39 +1,23 @@
-// API de Quiniela Nacional de Buenos Aires
-// Obtiene las ultimas 2 cifras de la cabeza de la quiniela
+// API de Quiniela Nacional Nocturna (21hs)
+// Obtiene las ultimas 2 cifras de la cabeza del sorteo Nocturno
 
-const FUENTES = [
-  'https://api.argentinadatos.com/v1/loteria/nacional/ultimo',
-  'https://www.loterias.com/quiniela-nacional'
-];
+const URL_NACIONALLOTERIA = 'https://www.nacionalloteria.com/argentina/quiniela-nacional.php';
 
-async function fetchDesdeArgDatos() {
+async function fetchNocturna() {
   try {
-    const res = await fetch(FUENTES[0], {
-      signal: AbortSignal.timeout(5000),
-      headers: { 'Accept': 'application/json' }
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchDesdeLoterias() {
-  try {
-    const res = await fetch(FUENTES[1], {
-      signal: AbortSignal.timeout(8000)
+    const res = await fetch(URL_NACIONALLOTERIA, {
+      signal: AbortSignal.timeout(10000),
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
     });
     if (!res.ok) return null;
     const html = await res.text();
 
-    // Buscar el numero de la cabeza (primer premio) en la quiniela Nacional
-    const matches = html.match(/Nacional[^]*?(\d{4})/i);
-    if (matches) {
-      return { numero: matches[1], fuente: 'loterias.com' };
-    }
+    const regex = /<li class="nocturna">Nocturna<\/li><li class="nocturna">(\d{4}) <\/li>/;
+    const match = html.match(regex);
 
+    if (match && match[1]) {
+      return { numero: match[1], fuente: 'nacionalloteria.com' };
+    }
     return null;
   } catch {
     return null;
@@ -42,48 +26,36 @@ async function fetchDesdeLoterias() {
 
 export async function GET() {
   try {
-    let data = await fetchDesdeArgDatos();
+    const data = await fetchNocturna();
 
     if (data && data.numero) {
-      const numStr = String(data.numero);
-      const ultimasDos = numStr.slice(-2);
-      const numeroCompleto = numStr;
-      const numeroSorteo = parseInt(ultimasDos);
-
-      return Response.json({
-        success: true,
-        numero_completo: numeroCompleto,
-        ultimas_dos_cifras: ultimasDos,
-        numero_rifa: numeroSorteo === 0 ? 100 : numeroSorteo,
-        fecha: data.fecha || new Date().toISOString().split('T')[0],
-        hora: data.hora || '',
-        fuente: 'argentinadatos.com',
-        significado: getSignificado(numeroSorteo)
-      });
-    }
-
-    data = await fetchDesdeLoterias();
-
-    if (data && data.numero) {
-      const numStr = String(data.numero).padStart(4, '0');
+      const numStr = data.numero.padStart(4, '0');
       const ultimasDos = numStr.slice(-2);
       const numeroSorteo = parseInt(ultimasDos);
 
       return Response.json({
         success: true,
+        tipo_sorteo: 'Nocturna',
+        horario: '21:00 hs',
         numero_completo: numStr,
         ultimas_dos_cifras: ultimasDos,
         numero_rifa: numeroSorteo === 0 ? 100 : numeroSorteo,
         fecha: new Date().toISOString().split('T')[0],
-        fuente: 'loterias.com',
+        fuente: data.fuente,
         significado: getSignificado(numeroSorteo)
       });
     }
 
+    const fechaArgentina = new Date().toLocaleDateString('es-AR', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
     return Response.json({
       success: false,
-      error: 'No se pudo obtener el resultado de la Quiniela Nacional',
-      mensaje: 'Intenta de nuevo mas tarde o usa el sorteo manual'
+      error: 'El sorteo Nocturna (21hs) aún no se realizó hoy',
+      mensaje: `El sorteo Nocturna de la Quiniela Nacional se realiza a las 21hs. Vuelve después de las 21hs (hoy es ${fechaArgentina}).`,
+      horario: '21:00 hs'
     }, { status: 503 });
   } catch (err) {
     return Response.json({ success: false, error: err.message }, { status: 500 });

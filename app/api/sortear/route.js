@@ -56,7 +56,7 @@ export async function POST(request) {
           ganador = boletos.find(b => b.numero === numeroGanador);
 
           if (!ganador) {
-            const msg = `La Quiniela dio el numero #${String(numeroGanador).padStart(2, '0')} pero ese boleto no fue vendido. Se usara sorteo aleatorio.`;
+            const msg = `La Quiniela Nocturna dio el #${String(numeroGanador).padStart(2, '0')} pero ese boleto no fue vendido. Se usara sorteo aleatorio.`;
             ganador = boletos[Math.floor(Math.random() * boletos.length)];
             ganador._quiniela_msg = msg;
           } else {
@@ -64,6 +64,12 @@ export async function POST(request) {
             ganador._quiniela_completo = quinielaData.numero_completo;
             ganador._quiniela_significado = quinielaData.significado;
           }
+        } else {
+          return Response.json({
+            success: false,
+            error: 'El sorteo Nocturna (21hs) aún no se realizó hoy',
+            mensaje: quinielaData.mensaje || 'Esperá a las 21hs para realizar el sorteo por la Quiniela Nacional Nocturna'
+          }, { status: 400 });
         }
       }
     }
