@@ -6,10 +6,10 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { nombre, precio, imagen, descripcion, categoria_id, telefono } = body;
+    const { title, description, image, price, raffle_price, numbers_total, categoria_id } = body;
 
-    if (!nombre || !precio || !categoria_id) {
-      return Response.json({ error: 'Faltan campos requeridos: nombre, precio, categoria_id' }, { status: 400 });
+    if (!title || !raffle_price) {
+      return Response.json({ error: 'Faltan campos requeridos: title, raffle_price' }, { status: 400 });
     }
 
     if (!supabaseUrl || !supabaseServiceKey) {
@@ -18,15 +18,23 @@ export async function POST(request) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    const totalNumeros = parseInt(numbers_total) || 100;
+
     const { data: producto, error: errorProducto } = await supabase
       .from('productos')
       .insert([{
-        nombre,
-        precio,
-        imagen: imagen || null,
-        descripcion: descripcion || null,
-        categoria_id: parseInt(categoria_id),
-        telefono: telefono || '5493416971479'
+        title,
+        description: description || null,
+        image: image || null,
+        price: parseFloat(price) || 0,
+        raffle_price: parseFloat(raffle_price) || 0,
+        numbers_total: totalNumeros,
+        categoria_id: categoria_id ? parseInt(categoria_id) : null,
+        nombre: title,
+        descripcion: description || null,
+        imagen: image || null,
+        precio: '$ ' + (parseFloat(raffle_price) || 0).toLocaleString('es-AR') + '-',
+        telefono: '5493416971479'
       }])
       .select()
       .single();
@@ -36,7 +44,7 @@ export async function POST(request) {
     }
 
     const boletosInsert = [];
-    for (let i = 1; i <= 100; i++) {
+    for (let i = 1; i <= totalNumeros; i++) {
       boletosInsert.push({ numero: i, producto_id: producto.id, estado: 'disponible' });
     }
 

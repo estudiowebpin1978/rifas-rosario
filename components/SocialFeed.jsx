@@ -55,7 +55,7 @@ export default function SocialFeed() {
   };
 
   const shareWinner = (winner) => {
-    const msg = '🏆 MERCADO RIFAS\n\n🎉 ' + winner.ganador_nombre + ' ganó ' + winner.nombre + '!\n\nTu próxima oportunidad está a un click! ' + URL_APP;
+    const msg = '🏆 MERCADO RIFAS\n\n🎉 ' + winner.ganador_nombre + ' ganó ' + (winner.title || winner.nombre) + '!\n\nTu próxima oportunidad está a un click! ' + URL_APP;
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
   };
 
@@ -97,7 +97,7 @@ export default function SocialFeed() {
                   </div>
                   <div className="flex-1">
                     <p className="font-black">{w.ganador_nombre}</p>
-                    <p className="text-sm text-pink-400">Ganó: {w.nombre}</p>
+                    <p className="text-sm text-pink-400">Ganó: {w.title || w.nombre}</p>
                     <p className="text-xs text-gray-500">#{String(w.ganador_num).padStart(2,'0')}</p>
                   </div>
                   {i === 0 && <span className="text-2xl">👑</span>}

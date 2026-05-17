@@ -226,7 +226,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
                 <div className="w-3 h-3 bg-[#39B54A] rounded-full animate-pulse"></div>
                 <div>
                   <h2 className="font-black text-sm text-[#1A3C6D]">
-                    {productoActivo ? productoActivo.nombre : 'CHAT EN VIVO'}
+                    {productoActivo ? (productoActivo.title || productoActivo.nombre) : 'CHAT EN VIVO'}
                   </h2>
                   <p className="text-[10px] text-[#666]">{messages.length} mensajes</p>
                 </div>
@@ -261,7 +261,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
                     onClick={() => { setProductoActivo(p); setShowProductSelector(false); }}
                     className={`w-full text-left p-3 rounded-lg text-sm font-bold transition-colors ${productoActivo?.id === p.id ? 'bg-[#FFE600] text-[#333]' : 'hover:bg-[#F5F5F5] text-[#666]'}`}
                   >
-                    🎰 {p.nombre}
+                    🎰 {p.title || p.nombre}
                   </button>
                 ))}
               </div>
@@ -273,7 +273,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
                 <div className="text-center py-12">
                   <span className="text-5xl mb-3 block">💬</span>
                   <p className="font-bold text-gray-500">
-                    {productoActivo ? 'Chat de ' + productoActivo.nombre : 'Chat General'}
+                    {productoActivo ? 'Chat de ' + (productoActivo.title || productoActivo.nombre) : 'Chat General'}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
                     {productoActivo && !verifiedWhatsapp 
@@ -332,7 +332,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
                             )}
                             {msg.producto_id && (
                               <span className="text-[10px] text-gray-400 mt-1 block">
-                                🎰 {productos?.find(p => p.id === msg.producto_id)?.nombre || 'Producto'}
+                                🎰 {productos?.find(p => p.id === msg.producto_id)?.title || productos?.find(p => p.id === msg.producto_id)?.nombre || 'Producto'}
                               </span>
                             )}
                           </div>
@@ -424,7 +424,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
               <h2 className="text-xl font-black text-[#1A3C6D]">IDENTIFICATE</h2>
               <p className="text-xs text-gray-500 mt-1">
                 Ingresá tu WhatsApp para chatear en el producto
-                {productoActivo && <span className="font-bold"> {productoActivo.nombre}</span>}
+                {productoActivo && <span className="font-bold"> {productoActivo.title || productoActivo.nombre}</span>}
               </p>
               {!productoActivo && (
                 <p className="text-xs text-gray-400 mt-2">Solo quienes hayan pagado pueden participar en los chats de productos</p>

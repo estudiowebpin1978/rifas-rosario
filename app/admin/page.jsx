@@ -18,7 +18,7 @@ export default function AdminPage() {
   const [productos, setProductos] = useState([]);
   const [boletosData, setBoletosData] = useState({});
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479', descripcion: '' });
+  const [formData, setFormData] = useState({ title: '', price: '', raffle_price: '', image: '', categoria_id: '', description: '', numbers_total: '100' });
   const [notif, setNotif] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(null);
@@ -99,7 +99,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/upload-image', { method: 'POST', body: uploadFormData });
       const data = await res.json();
-      if (data.url) setFormData({...formData, imagen: data.url});
+      if (data.url) setFormData({...formData, image: data.url});
     } catch (err) { console.error('Upload error:', err); }
     setUploadingImage(false);
   };
@@ -111,14 +111,15 @@ export default function AdminPage() {
   const crearProducto = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (!formData.nombre || !formData.precio || !formData.categoria_id) { alert('Completá todos los campos'); setLoading(false); return; }
+    if (!formData.title || !formData.raffle_price) { alert('Completá todos los campos requeridos'); setLoading(false); return; }
     const productoData = {
-      nombre: formData.nombre,
-      precio: formData.precio,
-      imagen: formData.imagen || null,
-      descripcion: formData.descripcion || null,
-      categoria_id: parseInt(formData.categoria_id),
-      telefono: '5493416971479'
+      title: formData.title,
+      raffle_price: formData.raffle_price,
+      price: formData.price || formData.raffle_price,
+      image: formData.image || null,
+      description: formData.description || null,
+      numbers_total: parseInt(formData.numbers_total) || 100,
+      categoria_id: formData.categoria_id ? parseInt(formData.categoria_id) : null
     };
     try {
       const res = await fetch('/api/crear-producto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(productoData) });
@@ -126,7 +127,7 @@ export default function AdminPage() {
       if (!res.ok) alert('Error: ' + (result.error || 'Error desconocido'));
       else {
         setShowForm(false);
-        setFormData({ nombre: '', precio: '', imagen: '', categoria_id: '', telefono: '5493416971479', descripcion: '' });
+        setFormData({ title: '', price: '', raffle_price: '', image: '', categoria_id: '', description: '', numbers_total: '100' });
         setTimeout(() => { fetchData(); alert('✅ Producto creado con 100 números!'); }, 500);
       }
     } catch (err) { alert('Error al crear: ' + err.message); }
@@ -291,7 +292,7 @@ export default function AdminPage() {
                     </div>
                     <p className="font-bold text-lg text-[#333]">{b.nombre || 'Sin nombre'}</p>
                     <p className="text-gray-500 text-sm">{b.whatsapp}</p>
-                    <p className="text-[#3483FA] font-black mt-1">{producto?.nombre} - {producto?.precio}</p>
+                    <p className="text-[#3483FA] font-black mt-1">{producto?.title || producto?.nombre} - ${(producto?.raffle_price || 0).toLocaleString('es-AR')}-</p>
                     <div className="flex gap-2 mt-3">
                       <button onClick={() => setShowConfirmModal(b)} className="flex-1 bg-[#39B54A] text-white py-3 rounded-lg font-bold text-sm shadow-sm hover:bg-[#2d9e3d] transition-colors">✅ CONFIRMAR PAGO</button>
                       <button onClick={() => cancelarReserva(b)} className="bg-red-500 text-white px-4 py-3 rounded-lg font-bold text-sm">❌</button>
@@ -312,11 +313,15 @@ export default function AdminPage() {
 
           {showForm && (
             <form onSubmit={crearProducto} className="p-4 rounded-lg bg-[#F5F5F5] space-y-3 mb-4 border border-[#EBEBEB]">
-              <input placeholder="Nombre del producto" required value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
-              <input placeholder="Precio (Ej: $3500- pesos)" required value={formData.precio} onChange={e => setFormData({...formData, precio: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
-              <textarea placeholder="Descripcion (opcional)" value={formData.descripcion || ''} onChange={e => setFormData({...formData, descripcion: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" rows="2" />
-              <select required value={formData.categoria_id} onChange={e => setFormData({...formData, categoria_id: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]">
-                <option value="">Selecciona categoria</option>
+              <input placeholder="Titulo del producto *" required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
+              <div className="grid grid-cols-2 gap-3">
+                <input placeholder="Precio original (ARS)" type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
+                <input placeholder="Precio rifa (ARS) *" type="number" required value={formData.raffle_price} onChange={e => setFormData({...formData, raffle_price: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
+              </div>
+              <input placeholder="Cantidad de numeros (default 100)" type="number" value={formData.numbers_total} onChange={e => setFormData({...formData, numbers_total: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
+              <textarea placeholder="Descripcion del producto (opcional)" value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" rows="2" />
+              <select value={formData.categoria_id} onChange={e => setFormData({...formData, categoria_id: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]">
+                <option value="">Selecciona categoria (opcional)</option>
                 {categorias.map(c => {
                   const emoji = c.nombre === 'Zapatillas' ? '👟' : c.nombre === 'Celulares' ? '📱' : c.nombre === 'Tecnologia' ? '💻' : c.nombre === 'Electrodomesticos' ? '⚡' : c.nombre === 'Hogar' ? '🏠' : '🎁';
                   return <option key={c.id} value={c.id}>{emoji} {c.nombre}</option>;
@@ -326,7 +331,7 @@ export default function AdminPage() {
                 <label className="text-sm font-bold block mb-2 text-[#333]">Imagen del producto</label>
                 <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
                 <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage} className="w-full bg-[#3483FA] text-white p-3 rounded-lg font-bold shadow-sm">{uploadingImage ? '⏳ Subiendo...' : '📷 Subir imagen'}</button>
-                {formData.imagen && <div className="relative mt-2"><img src={formData.imagen} alt="preview" className="w-full h-40 object-cover rounded-lg" /><button type="button" onClick={() => setFormData({...formData, imagen: ''})} className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">✕</button></div>}
+                {formData.image && <div className="relative mt-2"><img src={formData.image} alt="preview" className="w-full h-40 object-cover rounded-lg" /><button type="button" onClick={() => setFormData({...formData, image: ''})} className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">✕</button></div>}
               </div>
               <button disabled={loading} className="w-full bg-[#3483FA] text-white py-3 rounded-lg font-bold shadow-sm hover:bg-[#2d6fd4] transition-colors">{loading ? '⏳ Creando...' : 'CREAR RIFA 🎁'}</button>
             </form>
@@ -340,17 +345,17 @@ export default function AdminPage() {
               return (
                 <div key={p.id} className={`p-4 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB] ${p.finalizado ? 'opacity-60' : ''}`}>
                   <div className="flex gap-3">
-                    {p.imagen && <img src={p.imagen} alt={p.nombre} className="w-16 h-16 object-cover rounded-lg" />}
+                    {(p.image || p.imagen) && <img src={p.image || p.imagen} alt={p.title || p.nombre} className="w-16 h-16 object-cover rounded-lg" />}
                     <div className="flex-1">
-                      <h3 className="font-bold text-[#333]">{p.nombre}</h3>
-                      <p className="text-[#39B54A] font-black">{p.precio}</p>
+                      <h3 className="font-bold text-[#333]">{p.title || p.nombre}</h3>
+                      <p className="text-[#39B54A] font-black">${(p.raffle_price || 0).toLocaleString('es-AR')}-</p>
                       <div className="flex items-center gap-3 mt-2 text-xs">
-                        <span className="text-[#3483FA] font-bold">✅ {vend}/100</span>
+                        <span className="text-[#3483FA] font-bold">✅ {vend}/{p.numbers_total || 100}</span>
                         {res > 0 && <span className="text-[#FFE600] font-bold">⏳ {res} reservados</span>}
                         <div className="flex-1 h-2 bg-[#EBEBEB] rounded-full overflow-hidden"><div className={`h-full rounded-full ${vend >= 100 ? 'bg-[#39B54A]' : 'bg-[#3483FA]'}`} style={{ width: porcent + '%' }}></div></div>
                       </div>
                     </div>
-                    <button onClick={() => eliminarProducto(p.id, p.nombre)} className="bg-red-500 text-white px-3 py-2 rounded-lg font-bold self-start">🗑️</button>
+                    <button onClick={() => eliminarProducto(p.id, p.title || p.nombre)} className="bg-red-500 text-white px-3 py-2 rounded-lg font-bold self-start">🗑️</button>
                   </div>
                   {vend >= 100 && !p.finalizado && (
                     <div className="mt-3 space-y-2">
@@ -408,7 +413,7 @@ export default function AdminPage() {
                           const prod = productos.find(p => p.id === b.producto_id);
                           return (
                             <span key={b.id} className="text-[10px] bg-white border border-[#EBEBEB] px-1.5 py-0.5 rounded font-bold text-[#333]">
-                              #{String(b.numero).padStart(2,'0')} {prod ? `- ${prod.nombre.substring(0, 15)}...` : ''}
+                              #{String(b.numero).padStart(2,'0')} {prod ? `- ${(prod.title || prod.nombre).substring(0, 15)}...` : ''}
                             </span>
                           );
                         })}
@@ -458,7 +463,7 @@ export default function AdminPage() {
                 const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
                 return (
                   <div key={prod.id} className="border border-[#EBEBEB] rounded-lg p-2">
-                    <p className="font-bold text-[#FFE600]">{prod.nombre} ({prodBoletos.length} boletos)</p>
+                    <p className="font-bold text-[#FFE600]">{prod.title || prod.nombre} ({prodBoletos.length} boletos)</p>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {reservados.length > 0 && (
                         <div className="w-full">
@@ -508,8 +513,8 @@ export default function AdminPage() {
           <div className="relative w-full max-w-md rounded-lg p-6 text-center bg-white border border-[#EBEBEB] shadow-lg">
             <div className="text-6xl mb-4">🎰</div>
             <h2 className="text-2xl font-black text-[#1A3C6D]">REALIZAR SORTEO</h2>
-            <p className="text-lg font-bold mt-4 text-[#333]">{showSorteoModal.nombre}</p>
-            <p className="text-[#39B54A] font-black text-xl">{showSorteoModal.precio}</p>
+            <p className="text-lg font-bold mt-4 text-[#333]">{showSorteoModal.title || showSorteoModal.nombre}</p>
+            <p className="text-[#39B54A] font-black text-xl">${(showSorteoModal.raffle_price || 0).toLocaleString('es-AR')}-</p>
             <div className="mt-4 p-4 rounded-lg bg-[#FFE600]/10 border border-[#FFE600]/30">
               <p className="font-bold text-sm text-[#333]">Método de sorteo:</p>
               <p className="text-lg font-black text-[#FFE600]">🀄 QUINIENA NACIONAL NOCTURNA</p>

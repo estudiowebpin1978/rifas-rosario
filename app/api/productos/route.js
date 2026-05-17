@@ -27,7 +27,13 @@ export async function GET(request) {
     
     const productosConCategoria = productos.map(p => ({
       ...p,
-      categorias: categorias.find(c => c.id === p.categoria_id) || null
+      categorias: categorias.find(c => c.id === p.categoria_id) || null,
+      title: p.title || p.nombre,
+      description: p.description || p.descripcion,
+      image: p.image || p.imagen,
+      price: p.price || 0,
+      raffle_price: p.raffle_price || 0,
+      numbers_total: p.numbers_total || 100,
     }));
     
     return Response.json({ 

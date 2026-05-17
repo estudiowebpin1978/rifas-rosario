@@ -59,9 +59,11 @@ export default function MercadoLibrePanel({ categorias }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nombre: product.nombre,
-          precio: product.precio,
-          imagen: product.imagen,
+          title: product.nombre,
+          raffle_price: parseFloat(product.precio.replace(/[^\d.,]/g,'').replace(',','.')) || 0,
+          price: parseFloat(product.precio_original?.replace(/[^\d.,]/g,'').replace(',','.')) || 0,
+          image: product.imagen,
+          description: product.nombre,
           categoria_id: selectedCategoria,
           ml_url: product.permalink
         })

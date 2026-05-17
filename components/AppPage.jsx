@@ -47,7 +47,7 @@ export default function AppPage() {
       const fakeProd = allProductos.filter(p => !p.finalizado);
       if (fakeProd.length > 0) {
         const prod = fakeProd[Math.floor(Math.random() * fakeProd.length)];
-        setLiveNotif({ nombre: fakeName, numero: fakeNum, producto: prod.nombre, imagen: prod.imagen });
+        setLiveNotif({ nombre: fakeName, numero: fakeNum, producto: prod.title || prod.nombre, imagen: prod.image || prod.imagen });
         setShowLiveNotif(true);
         setTimeout(() => setShowLiveNotif(false), 4000);
       }
@@ -62,6 +62,7 @@ export default function AppPage() {
 
     const formatPrice = (precio) => {
     if (!precio) return '';
+    if (typeof precio === 'number') return '$ ' + precio.toLocaleString('es-AR') + '-';
     const num = parseFloat(String(precio).replace(/[^\d.,]/g, '').replace(',', '.'));
     if (isNaN(num)) return precio;
     return '$ ' + num.toLocaleString('es-AR') + '-';
@@ -180,13 +181,13 @@ export default function AppPage() {
     } catch(e) { console.log('Error update'); }
     
     const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
-    const msgPrevio = '🎉 SORTEO EN VIVO! - MERCADO RIFAS\n\n🎁 Producto: ' + producto.nombre + '\n💰 Todos los numeros fueron vendidos!\n\n⏰ El sorteo inicia en 30 SEGUNDOS!\n\n👉 Mira el sorteo en vivo ahora: ' + URL_APP + '\n\nSuerte a todos! 🍀';
+    const msgPrevio = '🎉 SORTEO EN VIVO! - MERCADO RIFAS\n\n🎁 Producto: ' + (producto.title || producto.nombre) + '\n💰 Todos los numeros fueron vendidos!\n\n⏰ El sorteo inicia en 30 SEGUNDOS!\n\n👉 Mira el sorteo en vivo ahora: ' + URL_APP + '\n\nSuerte a todos! 🍀';
     
     vendidos.forEach((b, i) => {
       if (b.whatsapp) setTimeout(() => window.open('https://wa.me/' + b.whatsapp + '?text=' + encodeURIComponent(msgPrevio), '_blank'), i * 500);
     });
     
-    setTimeout(() => window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('🎰 SORTEO PROXIMO: ' + producto.nombre + ' - Todos los 100 numeros vendidos!'), '_blank'), 500);
+    setTimeout(() => window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('🎰 SORTEO PROXIMO: ' + (producto.title || producto.nombre) + ' - Todos los ' + (producto.numbers_total || 100) + ' numeros vendidos!'), '_blank'), 500);
     setTimeout(() => iniciarSorteoAuto(producto, prodBoletos), 3000);
   };
 
@@ -235,12 +236,12 @@ export default function AppPage() {
       
       supabase.from('productos').update({ finalizado: true, winner_num: winner.numero, winner_nombre: winner.nombre }).eq('id', producto.id);
       
-      window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('🏆 GANADOR DEL SORTEO!\n\n🎁 Producto: ' + producto.nombre + '\n🏆 Numero Ganador: #' + String(winner.numero).padStart(2,'0') + '\n👤 Nombre: ' + winner.nombre + '\n📱 WhatsApp: ' + winner.whatsapp), '_blank');
+      window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('🏆 GANADOR DEL SORTEO!\n\n🎁 Producto: ' + (producto.title || producto.nombre) + '\n🏆 Numero Ganador: #' + String(winner.numero).padStart(2,'0') + '\n👤 Nombre: ' + winner.nombre + '\n📱 WhatsApp: ' + winner.whatsapp), '_blank');
       
       vendidos.forEach((b, i) => {
         if (b.whatsapp) {
           const msg = b.numero === winner.numero 
-            ? '🎉🎉🎉 FELICIDADES! 🎉🎉🎉\n\nGanaste el SORTEO!\n\n🎁 Producto: ' + producto.nombre + '\n🏆 Tu numero: #' + String(winner.numero).padStart(2,'0') + '\n\nContacta al admin para reclamar tu premio!'
+            ? '🎉🎉🎉 FELICIDADES! 🎉🎉🎉\n\nGanaste el SORTEO!\n\n🎁 Producto: ' + (producto.title || producto.nombre) + '\n🏆 Tu numero: #' + String(winner.numero).padStart(2,'0') + '\n\nContacta al admin para reclamar tu premio!'
             : '😢 NO Fuiste el ganador esta vez\n\nTu numero: #' + String(b.numero).padStart(2,'0') + '\n🏆 Ganador: #' + String(winner.numero).padStart(2,'0') + '\n\nNo te pierdas las proximas rifas! ' + URL_APP;
           setTimeout(() => window.open('https://wa.me/' + b.whatsapp + '?text=' + encodeURIComponent(msg), '_blank'), i * 1000);
         }
@@ -321,8 +322,10 @@ export default function AppPage() {
     if (successful > 0) {
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
       const numsStr = selectedNumbers.map(n => '#' + String(n).padStart(2,'0')).join(', ');
-      const total = formatPrice((parseFloat(productoSeleccionado.precio.replace(/[^\d.,]/g,'').replace(',','.')) * selectedNumbers.length).toString());
-      const msg = '🎟️ RIFA RESERVADA - MERCADO RIFAS\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + productoSeleccionado.nombre + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(productoSeleccionado.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tus numeros!\n\n⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
+      const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio).replace(/[^\d.,]/g,'').replace(',','.'));
+      const total = formatPrice((precioUnit * selectedNumbers.length).toString());
+      const p = productoSeleccionado;
+      const msg = '🎟️ RIFA RESERVADA - MERCADO RIFAS\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tus numeros!\n\n⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
       window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
       setTimeout(() => { setShowBulkReserva(false); setSelectedNumbers([]); fetchBoletos(productoSeleccionado.id); }, 2000);
     } else {
@@ -351,7 +354,7 @@ export default function AppPage() {
       
       if (result.success) {
         confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
-        const msg = '🎟️ RIFA RESERVADA - MERCADO RIFAS\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + productoSeleccionado.nombre + '\n💰 Precio: ' + formatPrice(productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
+        const msg = '🎟️ RIFA RESERVADA - MERCADO RIFAS\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
         window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
         setTimeout(() => { setShowReserva(false); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
       } else {
@@ -366,7 +369,7 @@ export default function AppPage() {
 
   const handleSeleccionarNumero = (numero) => { setSeleccionado(numero); setShowReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); };
 
-  const shareProduct = (prod) => window.open('https://wa.me/?text=' + encodeURIComponent('🔥 Mercado Rifas - ' + prod.nombre + '\n💰 ' + formatPrice(prod.precio) + '\n\nParticipá acá: ' + URL_APP));
+  const shareProduct = (prod) => window.open('https://wa.me/?text=' + encodeURIComponent('🔥 Mercado Rifas - ' + (prod.title || prod.nombre) + '\n💰 ' + formatPrice(prod.raffle_price || prod.precio) + '\n\nParticipá acá: ' + URL_APP));
   const shareWhatsApp = () => window.open('https://wa.me/?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
   const shareX = () => window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
   const shareFacebook = () => window.open('https://www.facebook.com/sharer.php?u=' + encodeURIComponent(URL_APP) + '&quote=' + encodeURIComponent('Mira estas rifas increibles! 🎉'), '_blank', 'width=600,height=400');
@@ -381,7 +384,7 @@ export default function AppPage() {
     copyToClipboard(msg, 'Link copiado! Pegalo en tu TikTok 🎵');
   };
   const shareGmail = () => window.open('mailto:?subject=' + encodeURIComponent('Mira estas rifas increibles! 🎉') + '&body=' + encodeURIComponent('Echa un vistazo a esta app de rifas: ' + URL_APP));
-  const contactarGanador = () => window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('🎊 FELICIDADES! Ganaste ' + productoSeleccionado?.nombre + '!\n\nQuiero coordinar la entrega de mi premio.'), '_blank');
+  const contactarGanador = () => window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('🎊 FELICIDADES! Ganaste ' + (productoSeleccionado?.title || productoSeleccionado?.nombre) + '!\n\nQuiero coordinar la entrega de mi premio.'), '_blank');
   const verOtrosProductos = () => { setShowPremio(false); setShowSorteo(false); setProductoSeleccionado(null); setGanadorAnimado(null); };
 
   const vendidosCount = productoSeleccionado ? boletos.filter(b => b.estado === 'vendido').length : 0;
@@ -409,7 +412,7 @@ export default function AppPage() {
                 <p className="text-2xl font-black text-yellow-500 mb-2">GANADOR!</p>
                 <p className="text-8xl font-black bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent animate-pulse">#{String(ganadorAnimado).padStart(2,'0')}</p>
                 <p className="mt-4 text-xl font-bold">{boletos.find(b => b.numero === ganadorAnimado)?.nombre}</p>
-                <p className="mt-2 text-pink-500 font-bold">{productoSeleccionado?.nombre}</p>
+                <p className="mt-2 text-pink-500 font-bold">{productoSeleccionado?.title || productoSeleccionado?.nombre}</p>
                 <div className="mt-8 space-y-3">
                   <button onClick={contactarGanador} className="w-full bg-green-500 text-white font-black py-4 rounded-2xl text-lg">📱 Contactar para reclamar premio</button>
                   <button onClick={verOtrosProductos} className="w-full bg-pink-500 text-white font-black py-4 rounded-2xl text-lg">🎰 Ver otras rifas</button>
@@ -541,7 +544,7 @@ export default function AppPage() {
                   <div key={g.id} className="flex-shrink-0 p-3 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
                     <p className="font-black text-[#39B54A]">#{String(g.ganador_num).padStart(2,'0')}</p>
                     <p className="text-xs text-gray-600">{g.ganador_nombre}</p>
-                    <p className="text-[10px] text-gray-400">{g.nombre}</p>
+                    <p className="text-[10px] text-gray-400">{g.title || g.nombre}</p>
                   </div>
                 ))}
               </div>
@@ -558,7 +561,7 @@ export default function AppPage() {
             return heroProd ? (
               <div onClick={() => setProductoSeleccionado(heroProd)} className="cursor-pointer rounded-lg overflow-hidden bg-white border border-[#EBEBEB] shadow-sm relative group">
                 <div className="relative aspect-[4/3]">
-                  {heroProd.imagen ? <img src={heroProd.imagen} alt={heroProd.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center"><span className="text-8xl">🎁</span></div>}
+                  {(heroProd.image || heroProd.imagen) ? <img src={heroProd.image || heroProd.imagen} alt={heroProd.title || heroProd.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center"><span className="text-8xl">🎁</span></div>}
                   <div className="absolute top-3 left-3 z-10 flex gap-2">
                     <span className="bg-[#3483FA] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">🔥 ACTIVA</span>
                     <span className="bg-[#FFE600] text-[#333] text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">{getCategoryEmoji(heroProd.categorias?.nombre)} {heroProd.categorias?.nombre}</span>
@@ -576,10 +579,10 @@ export default function AppPage() {
                 </div>
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-[#333] text-2xl font-black">{heroProd.nombre}</h2>
+                    <h2 className="text-[#333] text-2xl font-black">{heroProd.title || heroProd.nombre}</h2>
                     {heroPorcent >= 50 && <span className="bg-[#FFE600] text-[#333] text-xs font-bold px-2 py-0.5 rounded-lg">🔥 TRENDING</span>}
                   </div>
-                  <p className="text-3xl font-black text-[#39B54A]">{formatPrice(heroProd.precio)}</p>
+                  <p className="text-3xl font-black text-[#39B54A]">{formatPrice(heroProd.raffle_price || heroProd.precio)}</p>
                   <div className="mt-3">
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-[#3483FA] font-bold">🎟 {heroVendidos}/100</span>
@@ -594,7 +597,7 @@ export default function AppPage() {
                     <span>🎰 PARTICIPAR</span>
                     <span className="text-lg">→</span>
                   </button>
-                  {heroProd.descripcion && <p className="text-gray-400 text-xs mt-2 line-clamp-1">{heroProd.descripcion}</p>}
+                  {(heroProd.description || heroProd.descripcion) && <p className="text-gray-400 text-xs mt-2 line-clamp-1">{heroProd.description || heroProd.descripcion}</p>}
                 </div>
               </div>
             ) : null;
@@ -637,7 +640,7 @@ export default function AppPage() {
               return (
                 <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-lg overflow-hidden bg-white border transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-sm ${prod.finalizado ? 'opacity-50 border-gray-200' : isHot ? 'border-[#FFE600]' : 'border-[#EBEBEB]'}`}>
                   <div className="relative aspect-square">
-                    {prod.imagen ? <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><span className="text-5xl">{getCategoryEmoji(prod.categorias?.nombre)}</span></div>}
+                    {(prod.image || prod.imagen) ? <img src={prod.image || prod.imagen} alt={prod.title || prod.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><span className="text-5xl">{getCategoryEmoji(prod.categorias?.nombre)}</span></div>}
                     <div className="absolute top-2 left-2 flex gap-1">
                       <span className="bg-white/90 text-[#666] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">{getCategoryEmoji(prod.categorias?.nombre)} {prod.categorias?.nombre}</span>
                     </div>
@@ -648,8 +651,8 @@ export default function AppPage() {
                     <div className="absolute bottom-2 right-2 bg-white/90 text-[#666] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">{100 - prodVend - prodRes} disp.</div>
                   </div>
                   <div className="p-3 space-y-1.5">
-                    <h3 className="font-bold text-sm truncate text-[#333]">{prod.nombre}</h3>
-                    <p className="text-[#39B54A] font-black text-sm">{formatPrice(prod.precio)}</p>
+                    <h3 className="font-bold text-sm truncate text-[#333]">{prod.title || prod.nombre}</h3>
+                    <p className="text-[#39B54A] font-black text-sm">{formatPrice(prod.raffle_price || prod.precio)}</p>
                     <div className="h-1.5 bg-[#EBEBEB] rounded-full overflow-hidden">
                       <div className={`h-full rounded-full ${prodVend >= 100 ? 'bg-[#39B54A]' : 'bg-[#3483FA]'}`} style={{ width: prodVend + '%' }}></div>
                     </div>
@@ -683,14 +686,14 @@ export default function AppPage() {
 
           <div className="rounded-lg overflow-hidden bg-white border border-[#EBEBEB] shadow-sm">
             <div className="relative aspect-video bg-gray-50">
-              {productoSeleccionado.imagen ? <img src={productoSeleccionado.imagen} alt={productoSeleccionado.nombre} className="w-full h-full object-contain" /> : <span className="text-7xl">🎁</span>}
+              {(productoSeleccionado.image || productoSeleccionado.imagen) ? <img src={productoSeleccionado.image || productoSeleccionado.imagen} alt={productoSeleccionado.title || productoSeleccionado.nombre} className="w-full h-full object-contain" /> : <span className="text-7xl">🎁</span>}
               {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
             </div>
             <div className="p-4">
               <span className="bg-[#3483FA]/10 text-[#3483FA] text-xs font-bold px-2 py-1 rounded">{productoSeleccionado.categorias?.nombre}</span>
-              <h2 className="font-black text-xl mt-2 text-[#333]">{productoSeleccionado.nombre}</h2>
-              <p className="text-3xl font-black text-[#39B54A] mt-1">{formatPrice(productoSeleccionado.precio)}</p>
-              {productoSeleccionado.descripcion && <p className="mt-3 text-gray-500 text-sm">{productoSeleccionado.descripcion}</p>}
+              <h2 className="font-black text-xl mt-2 text-[#333]">{productoSeleccionado.title || productoSeleccionado.nombre}</h2>
+              <p className="text-3xl font-black text-[#39B54A] mt-1">{formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio)}</p>
+              {(productoSeleccionado.description || productoSeleccionado.descripcion) && <p className="mt-3 text-gray-500 text-sm">{productoSeleccionado.description || productoSeleccionado.descripcion}</p>}
               <div className="mt-3 flex justify-between text-sm"><span className="text-gray-500">{vendidosCount}/100 vendidos</span><span className="font-bold text-[#333]">{porcentaje}%</span></div>
               <div className="h-3 rounded-full mt-2 bg-[#EBEBEB]"><div className="h-full bg-[#3483FA] rounded-full" style={{ width: porcentaje + '%' }}></div></div>
               {vendidosCount === 100 && <p className="mt-2 text-center font-black text-[#39B54A] animate-pulse">🎉 TODOS LOS NUMEROS VENDIDOS!</p>}
@@ -773,10 +776,10 @@ export default function AppPage() {
             </div>
             <div className="p-4 rounded-lg mb-4 bg-[#F5F5F5] border border-[#EBEBEB]">
               <div className="flex items-center gap-3">
-                {productoSeleccionado?.imagen && <img src={productoSeleccionado.imagen} className="w-16 h-16 rounded-lg object-cover" />}
+                {(productoSeleccionado?.image || productoSeleccionado?.imagen) && <img src={productoSeleccionado.image || productoSeleccionado.imagen} className="w-16 h-16 rounded-lg object-cover" />}
                 <div>
-                  <p className="font-bold text-lg text-[#333]">{productoSeleccionado?.nombre}</p>
-                  <p className="text-2xl font-black text-[#39B54A]">{formatPrice(productoSeleccionado?.precio)}</p>
+                  <p className="font-bold text-lg text-[#333]">{productoSeleccionado?.title || productoSeleccionado?.nombre}</p>
+                  <p className="text-2xl font-black text-[#39B54A]">{formatPrice(productoSeleccionado?.raffle_price || productoSeleccionado?.precio)}</p>
                 </div>
               </div>
             </div>
@@ -819,13 +822,13 @@ export default function AppPage() {
             </div>
             <div className="p-4 rounded-lg mb-4 bg-[#F5F5F5] border border-[#EBEBEB]">
               <div className="flex items-center gap-3">
-                {productoSeleccionado?.imagen && <img src={productoSeleccionado.imagen} className="w-16 h-16 rounded-lg object-cover" />}
+                {(productoSeleccionado?.image || productoSeleccionado?.imagen) && <img src={productoSeleccionado.image || productoSeleccionado.imagen} className="w-16 h-16 rounded-lg object-cover" />}
                 <div>
-                  <p className="font-bold text-[#333]">{productoSeleccionado?.nombre}</p>
-                  <p className="text-lg font-black text-[#39B54A]">{selectedNumbers.length} × {formatPrice(productoSeleccionado?.precio)}</p>
+                  <p className="font-bold text-[#333]">{productoSeleccionado?.title || productoSeleccionado?.nombre}</p>
+                  <p className="text-lg font-black text-[#39B54A]">{selectedNumbers.length} × {formatPrice(productoSeleccionado?.raffle_price || productoSeleccionado?.precio)}</p>
                   <p className="text-2xl font-black text-[#333]">
                     {(() => {
-                      try { const num = parseFloat(String(productoSeleccionado?.precio).replace(/[^\d.,]/g,'').replace(',','.')) * selectedNumbers.length; return '$ ' + num.toLocaleString('es-AR') + '-'; } catch { return ''; }
+                      try { const rf = productoSeleccionado?.raffle_price || parseFloat(String(productoSeleccionado?.precio).replace(/[^\d.,]/g,'').replace(',','.')); const num = rf * selectedNumbers.length; return '$ ' + num.toLocaleString('es-AR') + '-'; } catch { return ''; }
                     })()}
                   </p>
                 </div>

@@ -85,10 +85,10 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { nombre, precio, imagen, categoria_id, ml_url } = body;
+    const { title, raffle_price, price, image, description, categoria_id } = body;
 
-    if (!nombre || !precio || !categoria_id) {
-      return Response.json({ error: 'Faltan campos: nombre, precio, categoria_id' }, { status: 400 });
+    if (!title || !raffle_price) {
+      return Response.json({ error: 'Faltan campos: title, raffle_price' }, { status: 400 });
     }
 
     if (!supabaseUrl || !supabaseServiceKey) {
@@ -100,12 +100,18 @@ export async function POST(request) {
     const { data: producto, error: errorProducto } = await supabase
       .from('productos')
       .insert([{
-        nombre,
-        precio,
-        imagen: imagen || null,
-        categoria_id: parseInt(categoria_id),
+        title,
+        raffle_price: parseFloat(raffle_price) || 0,
+        price: parseFloat(price) || 0,
+        image: image || null,
+        description: description || null,
+        numbers_total: 100,
+        categoria_id: categoria_id ? parseInt(categoria_id) : null,
+        nombre: title,
+        precio: '$ ' + (parseFloat(raffle_price) || 0).toLocaleString('es-AR') + '-',
+        imagen: image || null,
+        descripcion: description || null,
         telefono: '5493416971479',
-        descripcion: ml_url || null,
         metodo_sorteo: 'quiniela'
       }])
       .select()

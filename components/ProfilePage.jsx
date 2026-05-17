@@ -210,7 +210,7 @@ export default function ProfilePage() {
                 <div key={i} className="bg-black/50 rounded-xl p-3 flex items-center gap-3">
                   <span className="text-3xl">🎉</span>
                   <div className="flex-1">
-                    <p className="font-black text-sm">{win.productos?.nombre}</p>
+                    <p className="font-black text-sm">{win.productos?.title || win.productos?.nombre}</p>
                     <p className="text-xs text-pink-400">#{String(win.numero).padStart(2,'0')}</p>
                   </div>
                   <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full font-bold">GANADOR</span>
