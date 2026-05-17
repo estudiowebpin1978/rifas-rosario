@@ -27,7 +27,11 @@ export default function AdminPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const fileInputRef = useRef(null);
   const theme = true;
-  const ADMIN_PASSWORD = 'kiarateamo';
+
+  useEffect(() => {
+    const saved = localStorage.getItem('admin_token');
+    if (saved === 'true') setIsLoggedIn(true);
+  }, []);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -74,17 +78,27 @@ export default function AdminPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    if (password === ADMIN_PASSWORD) {
-      setIsLoggedIn(true);
-      localStorage.setItem('admin_logged', 'true');
-    } else {
-      setError('Contrasena incorrecta');
+    try {
+      const res = await fetch('/api/admin-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsLoggedIn(true);
+        localStorage.setItem('admin_token', 'true');
+      } else {
+        setError(data.error || 'Contrasena incorrecta');
+      }
+    } catch (err) {
+      setError('Error de conexion');
     }
     setLoading(false);
   };
 
   const handleLogout = async () => {
-    localStorage.removeItem('admin_logged');
+    localStorage.removeItem('admin_token');
     setIsLoggedIn(false);
     setPassword('');
   };

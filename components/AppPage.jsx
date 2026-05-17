@@ -18,7 +18,6 @@ export default function AppPage() {
   const [categoriaActiva, setCategoriaActiva] = useState(null);
   const [ganadores, setGanadores] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
-  const [fakeWatching, setFakeWatching] = useState(15);
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   const [showBulkReserva, setShowBulkReserva] = useState(false);
   const [showReserva, setShowReserva] = useState(false);
@@ -31,29 +30,16 @@ export default function AppPage() {
   const [showComoFunciona, setShowComoFunciona] = useState(false);
   const [allProductos, setAllProductos] = useState([]);
   const [allBoletos, setAllBoletos] = useState([]);
-  const [liveNotif, setLiveNotif] = useState(null);
-  const [showLiveNotif, setShowLiveNotif] = useState(false);
   const [hotProducts, setHotProducts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
 
   useEffect(() => {
-    const names = ['Carlos', 'Maria', 'Jose', 'Ana', 'Luis', 'Sofia', 'Diego', 'Valentina', 'Martin', 'Camila', 'Tomas', 'Lucia', 'Franco', 'Florencia', 'Mateo', 'Rocio'];
-    const nums = Array.from({length: 100}, (_, i) => i + 1);
-    const interval = setInterval(() => {
-      const fakeName = names[Math.floor(Math.random() * names.length)];
-      const fakeNum = nums[Math.floor(Math.random() * nums.length)];
-      const fakeProd = allProductos.filter(p => !p.finalizado);
-      if (fakeProd.length > 0) {
-        const prod = fakeProd[Math.floor(Math.random() * fakeProd.length)];
-        setLiveNotif({ nombre: fakeName, numero: fakeNum, producto: prod.title || prod.nombre, imagen: prod.image || prod.imagen });
-        setShowLiveNotif(true);
-        setTimeout(() => setShowLiveNotif(false), 4000);
-      }
-    }, 8000);
-    return () => clearInterval(interval);
-  }, [allProductos]);
+    return () => {};
+  }, []);
 
   const theme = true;
   const WHATSAPP = '5493416971479';
@@ -181,13 +167,13 @@ export default function AppPage() {
     } catch(e) { console.log('Error update'); }
     
     const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
-    const msgPrevio = '🎉 SORTEO EN VIVO! - Eco Rifas\n\n🎁 Producto: ' + (producto.title || producto.nombre) + '\n💰 Todos los numeros fueron vendidos!\n\n⏰ El sorteo inicia en 30 SEGUNDOS!\n\n👉 Mira el sorteo en vivo ahora: ' + URL_APP + '\n\nSuerte a todos! 🍀';
     
-    vendidos.forEach((b, i) => {
-      if (b.whatsapp) setTimeout(() => window.open('https://wa.me/' + b.whatsapp + '?text=' + encodeURIComponent(msgPrevio), '_blank'), i * 500);
-    });
+    window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(
+      '🎰 SORTEO PROXIMO: ' + (producto.title || producto.nombre) + ' - Todos los numeros vendidos!\n\n' +
+      'Participantes: ' + vendidos.length + '\n' +
+      'Ver sorteo: ' + URL_APP
+    ), '_blank');
     
-    setTimeout(() => window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('🎰 SORTEO PROXIMO: ' + (producto.title || producto.nombre) + ' - Todos los ' + (producto.numbers_total || 100) + ' numeros vendidos!'), '_blank'), 500);
     setTimeout(() => iniciarSorteoAuto(producto, prodBoletos), 3000);
   };
 
@@ -234,18 +220,25 @@ export default function AppPage() {
       setTimeout(() => confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FFD700', '#FF1493', '#00BFFF'] }), 400);
       setTimeout(() => confetti({ particleCount: 300, spread: 360, origin: { y: 0.5 } }), 1200);
       
-      supabase.from('productos').update({ finalizado: true, winner_num: winner.numero, winner_nombre: winner.nombre }).eq('id', producto.id);
+      supabase.from('productos').update({ finalizado: true, ganador_num: winner.numero, ganador_nombre: winner.nombre }).eq('id', producto.id);
       
-      window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('🏆 GANADOR DEL SORTEO!\n\n🎁 Producto: ' + (producto.title || producto.nombre) + '\n🏆 Numero Ganador: #' + String(winner.numero).padStart(2,'0') + '\n👤 Nombre: ' + winner.nombre + '\n📱 WhatsApp: ' + winner.whatsapp), '_blank');
+      window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(
+        '🏆 GANADOR DEL SORTEO!\n\n' +
+        '🎁 Producto: ' + (producto.title || producto.nombre) + '\n' +
+        '🏆 Numero Ganador: #' + String(winner.numero).padStart(2,'0') + '\n' +
+        '👤 Nombre: ' + winner.nombre + '\n' +
+        '📱 WhatsApp: ' + winner.whatsapp
+      ), '_blank');
       
-      vendidos.forEach((b, i) => {
-        if (b.whatsapp) {
-          const msg = b.numero === winner.numero 
-            ? '🎉🎉🎉 FELICIDADES! 🎉🎉🎉\n\nGanaste el SORTEO!\n\n🎁 Producto: ' + (producto.title || producto.nombre) + '\n🏆 Tu numero: #' + String(winner.numero).padStart(2,'0') + '\n\nContacta al admin para reclamar tu premio!'
-            : '😢 NO Fuiste el ganador esta vez\n\nTu numero: #' + String(b.numero).padStart(2,'0') + '\n🏆 Ganador: #' + String(winner.numero).padStart(2,'0') + '\n\nNo te pierdas las proximas rifas! ' + URL_APP;
-          setTimeout(() => window.open('https://wa.me/' + b.whatsapp + '?text=' + encodeURIComponent(msg), '_blank'), i * 1000);
-        }
-      });
+      if (winner.whatsapp) {
+        window.open('https://wa.me/' + winner.whatsapp + '?text=' + encodeURIComponent(
+          '🎉🎉🎉 FELICIDADES! 🎉🎉🎉\n\n' +
+          'Ganaste el SORTEO!\n\n' +
+          '🎁 Producto: ' + (producto.title || producto.nombre) + '\n' +
+          '🏆 Tu numero: #' + String(winner.numero).padStart(2,'0') + '\n\n' +
+          'Contacta al admin para reclamar tu premio!'
+        ), '_blank');
+      }
       setTimeout(() => setShowPremio(true), 2000);
     });
   };
@@ -297,6 +290,18 @@ export default function AppPage() {
     e.preventDefault();
     if (selectedNumbers.length === 0) return;
     setLoading(true);
+    let receiptUrl = '';
+    if (receiptFile) {
+      setUploadingReceipt(true);
+      const fd = new FormData();
+      fd.append('image', receiptFile);
+      try {
+        const uploadRes = await fetch('/api/upload-image', { method: 'POST', body: fd });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) receiptUrl = uploadData.url;
+      } catch (e) { console.log('Error subiendo comprobante'); }
+      setUploadingReceipt(false);
+    }
     
     let successful = 0;
     for (const num of selectedNumbers) {
@@ -325,7 +330,7 @@ export default function AppPage() {
       const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio).replace(/[^\d.,]/g,'').replace(',','.'));
       const total = formatPrice((precioUnit * selectedNumbers.length).toString());
       const p = productoSeleccionado;
-      const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: eco-rifas\n\n📋 Enviame el comprobante de pago y reservo tus numeros!\n\n⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
+      const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: eco-rifas\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago y reservo tus numeros!\n\n') + '⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
       window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
       setTimeout(() => { setShowBulkReserva(false); setSelectedNumbers([]); fetchBoletos(productoSeleccionado.id); }, 2000);
     } else {
@@ -338,6 +343,18 @@ export default function AppPage() {
     e.preventDefault();
     if (!seleccionado) return;
     setLoading(true);
+    let receiptUrl = '';
+    if (receiptFile) {
+      setUploadingReceipt(true);
+      const fd = new FormData();
+      fd.append('image', receiptFile);
+      try {
+        const uploadRes = await fetch('/api/upload-image', { method: 'POST', body: fd });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) receiptUrl = uploadData.url;
+      } catch (e) { console.log('Error subiendo comprobante'); }
+      setUploadingReceipt(false);
+    }
     
     try {
       const res = await fetch('/api/reservar', {
@@ -354,7 +371,7 @@ export default function AppPage() {
       
       if (result.success) {
         confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
-        const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: eco-rifas\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
+        const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: eco-rifas\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago y reservo tu numero!\n\n') + '⏳ Tu numero queda RESERVADO por 10 minutos.';
         window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
         setTimeout(() => { setShowReserva(false); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
       } else {
@@ -427,21 +444,6 @@ export default function AppPage() {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#FFE600]/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[#3483FA]/20 rounded-full blur-3xl"></div>
       </div>
-
-      {showLiveNotif && liveNotif && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[90] animate-slideDown">
-          <div className="bg-gradient-to-r from-pink-600/90 to-purple-600/90 backdrop-blur-xl border border-pink-400/30 rounded-2xl px-5 py-3 shadow-2xl shadow-pink-500/30 flex items-center gap-3 min-w-[280px]">
-            <div className="w-10 h-10 rounded-full bg-pink-400 flex items-center justify-center text-white font-black text-sm animate-pulse">🔴</div>
-            <div className="flex-1 min-w-0">
-              <p className="text-white font-bold text-sm truncate">
-                <span className="text-yellow-400">{liveNotif.nombre}</span> reservó <span className="text-cyan-400">#{String(liveNotif.numero).padStart(2,'0')}</span>
-              </p>
-              <p className="text-white/70 text-xs truncate">{liveNotif.producto}</p>
-            </div>
-            <span className="text-2xl animate-bounce">🎟️</span>
-          </div>
-        </div>
-      )}
 
       {allProductos.filter(p => !p.finalizado).length > 0 && (() => {
         const totalVendidos = allProductos.filter(p => !p.finalizado).reduce((sum, p) => {
@@ -583,11 +585,10 @@ export default function AppPage() {
                     {heroPorcent >= 50 && <span className="bg-[#FFE600] text-[#333] text-xs font-bold px-2 py-0.5 rounded-lg">🔥 TRENDING</span>}
                   </div>
                   <p className="text-3xl font-black text-[#39B54A]">{formatPrice(heroProd.raffle_price || heroProd.precio)}</p>
-                  <div className="mt-3">
+                    <div className="mt-3">
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-[#3483FA] font-bold">🎟 {heroVendidos}/100</span>
                       {heroReservados > 0 && <span className="text-[#FFE600] font-bold">⏳ {heroReservados} reservados</span>}
-                      <span className="text-gray-400">👁 {fakeWatching} mirando</span>
                     </div>
                     <div className="h-4 bg-[#EBEBEB] rounded-full overflow-hidden">
                       <div className="h-full bg-[#3483FA] rounded-full transition-all duration-1000" style={{ width: heroPorcent + '%' }}></div>
@@ -797,6 +798,10 @@ export default function AppPage() {
                 <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
                 <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Comprobante de pago (opcional)</label>
+                <input type="file" accept="image/*" onChange={e => setReceiptFile(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#3483FA] file:text-white hover:file:bg-[#2d6fd4]" />
+              </div>
               <button disabled={loading} className="w-full btn-3d-gold disabled:opacity-50">
                 {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
               </button>
@@ -847,6 +852,10 @@ export default function AppPage() {
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
                 <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Comprobante de pago (opcional)</label>
+                <input type="file" accept="image/*" onChange={e => setReceiptFile(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#3483FA] file:text-white hover:file:bg-[#2d6fd4]" />
               </div>
               <button disabled={loading} className="w-full btn-3d-gold disabled:opacity-50">
                 {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}

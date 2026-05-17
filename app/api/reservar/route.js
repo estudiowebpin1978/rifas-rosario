@@ -14,6 +14,25 @@ export async function POST(request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
+    const { data: existing, error: checkError } = await supabase
+      .from('boletos')
+      .select('id, estado')
+      .eq('numero', numero)
+      .eq('producto_id', producto_id)
+      .single();
+
+    if (checkError) {
+      return Response.json({ error: 'Error al verificar disponibilidad' }, { status: 500 });
+    }
+
+    if (!existing) {
+      return Response.json({ error: 'Numero no encontrado' }, { status: 404 });
+    }
+
+    if (existing.estado !== 'disponible') {
+      return Response.json({ error: 'El numero ya esta ' + existing.estado }, { status: 409 });
+    }
+
     const { data, error } = await supabase
       .from('boletos')
       .update({ 
@@ -21,13 +40,17 @@ export async function POST(request) {
         nombre: nombre || '', 
         whatsapp: whatsapp || '' 
       })
-      .eq('numero', numero)
-      .eq('producto_id', producto_id)
+      .eq('id', existing.id)
+      .eq('estado', 'disponible')
       .select()
       .single();
 
     if (error) {
       return Response.json({ error: error.message, details: error }, { status: 500 });
+    }
+
+    if (!data) {
+      return Response.json({ error: 'El numero ya fue tomado', intentaDeNuevo: true }, { status: 409 });
     }
 
     return Response.json({ success: true, data });
