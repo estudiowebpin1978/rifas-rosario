@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabaseClient';
@@ -58,7 +58,7 @@ export default function AppPage() {
   const theme = true;
   const WHATSAPP = '5493416971479';
   const ALIAS = 'rifas.rosario.';
-  const URL_APP = typeof window !== 'undefined' ? window.location.origin + '/app' : 'https://rifas-rosario.vercel.app/app';
+  const URL_APP = typeof window !== 'undefined' ? window.location.origin + '/app' : 'https://eco-rifas.vercel.app/app';
 
     const formatPrice = (precio) => {
     if (!precio) return '';
@@ -110,10 +110,10 @@ export default function AppPage() {
 
   const shareApp = async () => {
     const url = URL_APP;
-    const text = 'Mira estas rifas increibles! 🎉 ' + url;
+    const text = 'Mira estas rifas en Eco Rifas! 🎉 ' + url;
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'MERCADO RIFAS 🎉', text, url });
+        await navigator.share({ title: 'Eco Rifas 🎉', text, url });
         return;
       } catch {}
     }
@@ -181,7 +181,7 @@ export default function AppPage() {
     } catch(e) { console.log('Error update'); }
     
     const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
-    const msgPrevio = '🎉 SORTEO EN VIVO! - MERCADO RIFAS\n\n🎁 Producto: ' + (producto.title || producto.nombre) + '\n💰 Todos los numeros fueron vendidos!\n\n⏰ El sorteo inicia en 30 SEGUNDOS!\n\n👉 Mira el sorteo en vivo ahora: ' + URL_APP + '\n\nSuerte a todos! 🍀';
+    const msgPrevio = '🎉 SORTEO EN VIVO! - Eco Rifas\n\n🎁 Producto: ' + (producto.title || producto.nombre) + '\n💰 Todos los numeros fueron vendidos!\n\n⏰ El sorteo inicia en 30 SEGUNDOS!\n\n👉 Mira el sorteo en vivo ahora: ' + URL_APP + '\n\nSuerte a todos! 🍀';
     
     vendidos.forEach((b, i) => {
       if (b.whatsapp) setTimeout(() => window.open('https://wa.me/' + b.whatsapp + '?text=' + encodeURIComponent(msgPrevio), '_blank'), i * 500);
@@ -325,7 +325,7 @@ export default function AppPage() {
       const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio).replace(/[^\d.,]/g,'').replace(',','.'));
       const total = formatPrice((precioUnit * selectedNumbers.length).toString());
       const p = productoSeleccionado;
-      const msg = '🎟️ RIFA RESERVADA - MERCADO RIFAS\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tus numeros!\n\n⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
+      const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tus numeros!\n\n⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
       window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
       setTimeout(() => { setShowBulkReserva(false); setSelectedNumbers([]); fetchBoletos(productoSeleccionado.id); }, 2000);
     } else {
@@ -354,7 +354,7 @@ export default function AppPage() {
       
       if (result.success) {
         confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
-        const msg = '🎟️ RIFA RESERVADA - MERCADO RIFAS\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA:\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
+        const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: rifas.rosario.\n\n📋 Enviame el comprobante de pago y reservo tu numero!\n\n⏳ Tu numero queda RESERVADO por 10 minutos.';
         window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
         setTimeout(() => { setShowReserva(false); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
       } else {
@@ -369,7 +369,7 @@ export default function AppPage() {
 
   const handleSeleccionarNumero = (numero) => { setSeleccionado(numero); setShowReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); };
 
-  const shareProduct = (prod) => window.open('https://wa.me/?text=' + encodeURIComponent('🔥 Mercado Rifas - ' + (prod.title || prod.nombre) + '\n💰 ' + formatPrice(prod.raffle_price || prod.precio) + '\n\nParticipá acá: ' + URL_APP));
+  const shareProduct = (prod) => window.open('https://wa.me/?text=' + encodeURIComponent('🔥 Eco Rifas - ' + (prod.title || prod.nombre) + '\n💰 ' + formatPrice(prod.raffle_price || prod.precio) + '\n\nParticipá acá: ' + URL_APP));
   const shareWhatsApp = () => window.open('https://wa.me/?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
   const shareX = () => window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
   const shareFacebook = () => window.open('https://www.facebook.com/sharer.php?u=' + encodeURIComponent(URL_APP) + '&quote=' + encodeURIComponent('Mira estas rifas increibles! 🎉'), '_blank', 'width=600,height=400');
@@ -451,7 +451,7 @@ export default function AppPage() {
         const totalNumeros = allProductos.filter(p => !p.finalizado).length * 100;
         const totalPorcent = Math.round((totalVendidos / totalNumeros) * 100);
         return totalPorcent > 0 ? (
-          <div className="bg-[#FFE600]/10 border-b border-[#FFE600]/30 px-4 py-2">
+          <div className="bg-[#F59E0B]/10 border-b border-[#F59E0B]/30 px-4 py-2">
             <div className="max-w-lg mx-auto flex items-center gap-3 text-xs">
               <span className="text-[#3483FA] font-black animate-pulse">📊 EN VIVO</span>
               <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
@@ -463,28 +463,28 @@ export default function AppPage() {
         ) : null;
       })()}
 
-      <header className="sticky top-0 z-50 bg-[#FFE600] border-b border-yellow-300 px-4 py-3">
+      <header className="sticky top-0 z-50 bg-[#111827] border-b border-gray-800 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-sm">MR</div>
+            <div className="w-10 h-10 bg-[#F59E0B] rounded-lg flex items-center justify-center text-white font-black text-sm">ER</div>
             <div>
-              <h1 className="text-xl font-black text-[#1A3C6D]">MERCADO RIFAS</h1>
-              <p className="text-[10px] text-[#666] font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
+              <h1 className="text-xl font-black text-[#F59E0B]">ECO RIFAS</h1>
+              <p className="text-[10px] text-gray-400 font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowShare(true)} className="p-2 rounded-lg bg-white/80 text-[#333] shadow-sm hover:bg-white transition-colors">📤</button>
-            <button onClick={() => setShowMenu(!showMenu)} className="p-2 rounded-lg bg-white/80 text-[#333] shadow-sm hover:bg-white transition-colors">{showMenu ? '✕' : '☰'}</button>
+            <button onClick={() => setShowShare(true)} className="p-2 rounded-lg bg-white/10 text-white shadow-sm hover:bg-white/20 transition-colors">📤</button>
+            <button onClick={() => setShowMenu(!showMenu)} className="p-2 rounded-lg bg-white/10 text-white shadow-sm hover:bg-white/20 transition-colors">{showMenu ? '✕' : '☰'}</button>
           </div>
         </div>
       </header>
 
       {showShare && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => setShowShare(false)}>
+          <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => setShowShare(false)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FFE600]" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#F59E0B]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
-            <h2 className="text-xl font-black text-center mb-6 text-[#333]">Compartir en...</h2>
+            <h2 className="text-xl font-black text-center mb-6 text-[#111827]">Compartir en...</h2>
             <div className="grid grid-cols-3 gap-4">
               <button onClick={shareWhatsApp} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#39B54A] text-white shadow-sm"><span className="text-3xl">💬</span><span className="text-xs font-bold">WhatsApp</span></button>
               <button onClick={shareX} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black text-white shadow-sm"><span className="text-3xl">✖</span><span className="text-xs font-bold">X</span></button>
@@ -501,35 +501,35 @@ export default function AppPage() {
       {showComoFunciona && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center" onClick={() => setShowComoFunciona(false)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FFE600]" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#F59E0B]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
-            <h2 className="text-xl font-black text-center mb-6 text-[#1A3C6D]">¿CÓMO FUNCIONAN LAS RIFAS?</h2>
+            <h2 className="text-xl font-black text-center mb-6 text-[#111827]">¿CÓMO FUNCIONAN LAS RIFAS?</h2>
             <div className="space-y-4">
-              <div className="flex gap-4 items-start"><span className="text-3xl">🛒</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TU PRODUCTO</p><p className="text-gray-500 text-sm">Navegá los productos populares de Mercado Libre y elegí el que más te guste. Solo 100 números por rifa.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">🛒</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TU PRODUCTO</p><p className="text-gray-500 text-sm">Navegá los productos populares y elegí el que más te guste. Solo 100 números por rifa.</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">2️⃣</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TUS NÚMEROS</p><p className="text-gray-500 text-sm">Seleccioná del 1 al 100. Comprando más números aumentás tus chances de ganar.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá con Mercado Pago al alias rifas.rosario.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá por transferencia al alias rifas.rosario.</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">🀄</span><div><p className="font-black text-sm text-[#333]">SORTEO POR QUINIENA NACIONAL NOCTURNA</p><p className="text-gray-500 text-sm">Cuando se vendan los 100 números, el ganador se define con las últimas 2 cifras del sorteo Nocturna (21hs) de la Quiniela Nacional. 100% transparente.</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm text-[#333]">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-500 text-sm">Entre más participen, más chances tienen de ganar. Compartí la rifa con todos!</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm text-[#333]">RECLAMÁ TU PREMIO</p><p className="text-gray-500 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega. Subí tu foto ganadora al chat!</p></div></div>
             </div>
-            <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm hover:bg-[#2d6fd4] transition-colors">ENTENDÍ! 💪</button>
+            <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black font-black py-4 rounded-lg shadow-lg hover:shadow-xl active:scale-[0.98] transition-all">ENTENDÍ! 💪</button>
           </div>
         </div>
       )}
 
       {showMenu && (
-        <div className="fixed inset-0 z-40 bg-white/95 backdrop-blur-xl p-6">
+        <div className="fixed inset-0 z-40 bg-[#111827]/95 backdrop-blur-xl p-6">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-black text-[#1A3C6D]">Menu</h2>
-            <button onClick={() => setShowMenu(false)} className="text-3xl">✕</button>
+            <h2 className="text-2xl font-black text-[#F59E0B]">Menu</h2>
+            <button onClick={() => setShowMenu(false)} className="text-3xl text-white">✕</button>
           </div>
           <nav className="space-y-4">
-            <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-lg bg-[#FFE600] text-[#333] font-bold text-lg text-center shadow-sm hover:bg-[#f0d800] transition-colors">❓ Cómo Funciona?</button>
-            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#3483FA] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d6fd4] transition-colors">📤 Compartir App</button>
-            <a href="/admin" className="block p-4 rounded-lg bg-[#1A3C6D] text-white font-bold text-lg text-center shadow-sm hover:bg-[#152f55] transition-colors">🔐 Panel Admin</a>
+            <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">❓ Cómo Funciona?</button>
+            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#F59E0B] text-black font-bold text-lg text-center shadow-sm hover:bg-[#D97706] transition-colors">📤 Compartir App</button>
+            <a href="/admin" className="block p-4 rounded-lg bg-[#78350F] text-white font-bold text-lg text-center shadow-sm hover:bg-[#92400E] transition-colors">🔐 Panel Admin</a>
             <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
-            {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#FFE600] text-[#333] font-bold text-lg text-center shadow-sm hover:bg-[#f0d800] transition-colors">📲 Instalar App</button>}
-            <a href="/terminos" className="block p-4 rounded-lg bg-white text-[#666] font-bold text-lg text-center border border-[#EBEBEB] shadow-sm hover:bg-[#F5F5F5] transition-colors">📜 Terminos y Condiciones</a>
+            {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>}
+            <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Terminos y Condiciones</a>
           </nav>
         </div>
       )}
@@ -741,7 +741,7 @@ export default function AppPage() {
               <div className="rounded-lg p-5 text-center bg-white border border-[#EBEBEB] shadow-sm">
                 <div className="flex items-center justify-center gap-3 mb-2">
                   <span className="text-3xl">💳</span>
-                  <p className="font-bold text-sm text-[#333]">PAGÁ CON MERCADO PAGO</p>
+                  <p className="font-bold text-sm text-[#333]">PAGÁ CON TRANSFERENCIA</p>
                 </div>
                 <div className="flex items-center justify-center gap-3 bg-[#F5F5F5] rounded-lg p-3">
                   <p className="text-2xl font-black text-[#333] tracking-wider">rifas.rosario.</p>
@@ -768,7 +768,7 @@ export default function AppPage() {
       {showReserva && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => setShowReserva(false)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FFE600]" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#F59E0B]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
             <div className="text-center mb-4">
               <p className="text-xs font-bold text-gray-500">🎲 TU NÚMERO DE LA SUERTE</p>
@@ -784,9 +784,9 @@ export default function AppPage() {
               </div>
             </div>
             <div className="text-center p-3 rounded-lg mb-4 bg-[#FFE600]/10 border border-[#FFE600]/30">
-              <p className="text-xs font-bold text-gray-500">💳 ALIAS MERCADO PAGO</p>
+              <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
               <p className="text-xl font-black text-[#333] tracking-wider">rifas.rosario.</p>
-              <button onClick={copyAlias} className="bg-[#3483FA] text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#2d6fd4] transition-colors">📋 COPIAR ALIAS</button>
+              <button onClick={copyAlias} className="bg-[#F59E0B] text-black px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#D97706] transition-colors">📋 COPIAR ALIAS</button>
             </div>
             <form onSubmit={handleReserva} className="space-y-3">
               <div>
@@ -810,7 +810,7 @@ export default function AppPage() {
       {showBulkReserva && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FFE600]" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#F59E0B]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
             <div className="text-center mb-4">
               <p className="text-xs font-bold text-gray-500">TUS NÚMEROS DE LA SUERTE</p>
@@ -835,9 +835,9 @@ export default function AppPage() {
               </div>
             </div>
             <div className="text-center p-3 rounded-lg mb-4 bg-[#FFE600]/10 border border-[#FFE600]/30">
-              <p className="text-xs font-bold text-gray-500">💳 ALIAS MERCADO PAGO</p>
-              <p className="text-xl font-black text-[#333] tracking-wider">rifas.rosario.</p>
-              <button onClick={copyAlias} className="bg-[#3483FA] text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#2d6fd4] transition-colors">📋 COPIAR ALIAS</button>
+              <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
+              <p className="text-sm font-black text-[#333] mt-1">rifas.rosario.</p>
+              <button onClick={() => { navigator.clipboard?.writeText('rifas.rosario.'); }} className="mt-1 text-xs text-[#3483FA] font-bold">📋 COPIAR</button>
             </div>
             <form onSubmit={handleBulkReserva} className="space-y-3">
               <div>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -55,14 +55,14 @@ export default function SocialFeed() {
   };
 
   const shareWinner = (winner) => {
-    const msg = '🏆 MERCADO RIFAS\n\n🎉 ' + winner.ganador_nombre + ' ganó ' + (winner.title || winner.nombre) + '!\n\nTu próxima oportunidad está a un click! ' + URL_APP;
+    const msg = '🏆 Eco Rifas\n\n🎉 ' + winner.ganador_nombre + ' ganó ' + (winner.title || winner.nombre) + '!\n\nTu próxima oportunidad está a un click! ' + URL_APP;
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
   };
 
-  const shareWA = () => { window.open('https://wa.me/?text=' + encodeURIComponent('Mercado Rifas - Los productos que amas, ahora los podes ganar en rifas economicas! 🎉 ' + URL_APP), '_blank'); };
+  const shareWA = () => { window.open('https://wa.me/?text=' + encodeURIComponent('Eco Rifas - Los productos que amas, ahora los podes ganar en rifas economicas! 🎉 ' + URL_APP), '_blank'); };
   const shareIG = () => { copyToClipboard(URL_APP, 'Link copiado! Pegalo en tu Instagram 📷'); };
   const shareTT = () => { copyToClipboard(URL_APP, 'Link copiado! Pegalo en tu TikTok 🎵'); };
-  const shareX = () => { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mercado Rifas - Los productos que amas, ahora los podes ganar en rifas economicas! 🎉 ' + URL_APP), '_blank'); };
+  const shareX = () => { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Eco Rifas - Los productos que amas, ahora los podes ganar en rifas economicas! 🎉 ' + URL_APP), '_blank'); };
 
   return (
     <div className="min-h-screen bg-black text-white pb-24">

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
@@ -95,7 +95,7 @@ export default function ProfilePage() {
   const nivelEmoji = stats.ganados >= 10 ? '👑' : stats.ganados >= 5 ? '🏆' : stats.ganados >= 2 ? '⭐' : '🐣';
 
   const shareToWhatsApp = () => {
-    const msg = 'Mercado Rifas - Los productos que amas, ahora los podes ganar en rifas economicas! 🎉 ' + (typeof window !== 'undefined' ? window.location.origin + '/app' : '');
+    const msg = 'Eco Rifas - Los productos que amas, ahora los podes ganar en rifas economicas! 🎉 ' + (typeof window !== 'undefined' ? window.location.origin + '/app' : '');
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
   };
 
@@ -109,7 +109,7 @@ export default function ProfilePage() {
         
         <div className="relative z-10 w-full max-w-sm">
           <div className="text-center mb-8">
-            <Image src={LogoImg} alt="Mercado Rifas" width={80} height={80} className="object-contain rounded-2xl mx-auto mb-4" />
+            <Image src={LogoImg} alt="Eco Rifas" width={80} height={80} className="object-contain rounded-2xl mx-auto mb-4" />
             <h1 className="text-3xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">MI PERFIL</h1>
             <p className="text-gray-400 mt-2">Tu historial de sorteos ganados</p>
           </div>

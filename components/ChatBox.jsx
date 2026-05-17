@@ -221,11 +221,11 @@ export default function ChatBox({ user, productos, allBoletos }) {
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-[#EBEBEB] bg-gradient-to-r from-[#FFE600] to-yellow-300">
+            <div className="flex items-center justify-between p-4 border-b border-[#EBEBEB] bg-gradient-to-r from-[#111827] to-gray-800">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-[#39B54A] rounded-full animate-pulse"></div>
                 <div>
-                  <h2 className="font-black text-sm text-[#1A3C6D]">
+                  <h2 className="font-black text-sm text-[#F59E0B]">
                     {productoActivo ? (productoActivo.title || productoActivo.nombre) : 'CHAT EN VIVO'}
                   </h2>
                   <p className="text-[10px] text-[#666]">{messages.length} mensajes</p>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import LogoImg from '../../public/logo.png';
@@ -157,7 +157,7 @@ export default function AdminPage() {
         setNotif(`✅ Venta confirmada! #${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}`);
         setShowConfirmModal(null);
         fetchData();
-        const msg = `✅ VENTA CONFIRMADA - MERCADO RIFAS\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
+        const msg = `✅ VENTA CONFIRMADA - Eco Rifas\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
         if (boleto.whatsapp) window.open('https://wa.me/' + boleto.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
       } else {
         alert('Error: ' + (result.error || 'No se pudo confirmar'));
@@ -214,13 +214,13 @@ export default function AdminPage() {
       <div className="min-h-screen flex items-center justify-center p-4 bg-[#F5F5F5]">
         <form onSubmit={handleLogin} className="relative z-10 w-full max-w-sm rounded-lg p-6 shadow-sm bg-white border border-[#EBEBEB]">
           <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-xl mx-auto mb-4">MR</div>
-            <h1 className="text-2xl font-black text-[#1A3C6D]">PANEL ADMIN</h1>
+            <div className="w-16 h-16 bg-[#F59E0B] rounded-lg flex items-center justify-center text-white font-black text-xl mx-auto mb-4">ER</div>
+            <h1 className="text-2xl font-black text-[#111827]">PANEL ADMIN</h1>
           </div>
           {error && <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm mb-4">{error}</div>}
           <div className="space-y-3">
-            <input type="password" placeholder="Contrasena" value={password} onChange={e => setPassword(e.target.value)} required className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
-            <button disabled={loading} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm">{loading ? '⏳' : 'INGRESAR →'}</button>
+            <input type="password" placeholder="Contrasena" value={password} onChange={e => setPassword(e.target.value)} required className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#F59E0B] outline-none text-[#333]" />
+            <button disabled={loading} className="w-full bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black font-bold py-4 rounded-lg shadow-lg">{loading ? '⏳' : 'INGRESAR →'}</button>
           </div>
           <button type="button" onClick={() => router.push('/')} className="w-full mt-4 text-sm text-gray-500">← Volver</button>
         </form>
@@ -231,17 +231,17 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen pb-8 bg-[#F5F5F5] text-[#333]">
 
-      <header className="sticky top-0 z-40 bg-[#FFE600] border-b border-yellow-300 px-4 py-3">
+      <header className="sticky top-0 z-40 bg-[#111827] border-b border-gray-800 px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#1A3C6D] rounded-lg flex items-center justify-center text-white font-black text-sm">MR</div>
+            <div className="w-10 h-10 bg-[#F59E0B] rounded-lg flex items-center justify-center text-white font-black text-sm">ER</div>
             <div>
-              <h1 className="text-lg font-black text-[#1A3C6D]">ADMIN</h1>
-              <p className="text-xs text-[#666]">Panel de control</p>
+              <h1 className="text-lg font-black text-[#F59E0B]">ADMIN</h1>
+              <p className="text-xs text-gray-400">Panel de control - Eco Rifas</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => router.push('/')} className="bg-[#1A3C6D] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[#152f55] transition-colors">Ver App 🎰</button>
+            <button onClick={() => router.push('/')} className="bg-[#78350F] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[#92400E] transition-colors">Ver App 🎰</button>
             <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm">Salir</button>
           </div>
         </div>
@@ -267,7 +267,7 @@ export default function AdminPage() {
           </div>
           <div className="p-4 rounded-lg text-center bg-white border border-[#EBEBEB] shadow-sm">
             <p className="text-3xl mb-1">🎁</p>
-            <p className="text-2xl font-black text-[#1A3C6D]">{productos.length}</p>
+            <p className="text-2xl font-black text-[#111827]">{productos.length}</p>
             <p className="text-xs text-gray-500">Rifas</p>
           </div>
         </div>
@@ -288,7 +288,7 @@ export default function AdminPage() {
                   <div key={b.id} className="bg-[#F5F5F5] rounded-lg p-4 border border-[#EBEBEB]">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-3xl font-black text-[#FFE600]">#{String(b.numero).padStart(2,'0')}</span>
-                      <span className="text-xs bg-[#FFE600] text-[#333] px-2 py-1 rounded font-bold">⏳ 10 min</span>
+                      <span className="text-xs bg-[#111827] text-[#333] px-2 py-1 rounded font-bold">⏳ 10 min</span>
                     </div>
                     <p className="font-bold text-lg text-[#333]">{b.nombre || 'Sin nombre'}</p>
                     <p className="text-gray-500 text-sm">{b.whatsapp}</p>
@@ -362,13 +362,13 @@ export default function AdminPage() {
                       <div className="bg-[#39B54A] text-white text-center py-2 rounded-lg font-bold text-sm shadow-sm animate-pulse">🎉 TODOS VENDIDOS - LISTO PARA SORTEAR</div>
                       <button
                         onClick={() => setShowSorteoModal(p)}
-                        className="w-full bg-[#FFE600] text-[#333] font-bold py-3 rounded-lg text-sm shadow-sm hover:bg-[#f0d800] transition-colors"
+                        className="w-full bg-[#111827] text-[#333] font-bold py-3 rounded-lg text-sm shadow-sm hover:bg-[#f0d800] transition-colors"
                       >
                         🎰 SORTEO QUINIENA NOCTURNA (21HS)
                       </button>
                     </div>
                   )}
-                  {p.finalizado && <div className="mt-3 bg-[#FFE600] text-[#333] text-center py-2 rounded-lg font-bold text-sm shadow-sm">🏆 GANADOR: #{String(p.ganador_num).padStart(2,'0')} - {p.ganador_nombre}</div>}
+                  {p.finalizado && <div className="mt-3 bg-[#111827] text-[#333] text-center py-2 rounded-lg font-bold text-sm shadow-sm">🏆 GANADOR: #{String(p.ganador_num).padStart(2,'0')} - {p.ganador_nombre}</div>}
                 </div>
               );
             })}
@@ -379,7 +379,7 @@ export default function AdminPage() {
 
           <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="font-black text-lg text-[#1A3C6D]">👥 USUARIOS ({usuarios.length})</h2>
+              <h2 className="font-black text-lg text-[#111827]">👥 USUARIOS ({usuarios.length})</h2>
               <button onClick={() => setShowUsers(!showUsers)} className={`px-4 py-2 rounded-lg font-bold text-sm shadow-sm ${showUsers ? 'bg-red-500 text-white' : 'bg-[#3483FA] text-white'}`}>
                 {showUsers ? '✕ Ocultar' : '📊 Ver usuarios'}
               </button>
@@ -396,7 +396,7 @@ export default function AdminPage() {
                     <div key={u.whatsapp} className="bg-[#F5F5F5] rounded-lg p-4 border border-[#EBEBEB]">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg font-black text-[#1A3C6D]">#{i + 1}</span>
+                          <span className="text-lg font-black text-[#111827]">#{i + 1}</span>
                           <span className="font-bold text-[#333]">{u.nombre || 'Sin nombre'}</span>
                         </div>
                         <span className={`text-xs font-bold px-2 py-1 rounded-full ${u.boletosCount >= 5 ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}`}>
@@ -430,9 +430,9 @@ export default function AdminPage() {
           </div>
 
           <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
-          <h2 className="font-black text-lg mb-3 text-[#1A3C6D]">📋 CÓMO FUNCIONA</h2>
+          <h2 className="font-black text-lg mb-3 text-[#111827]">📋 CÓMO FUNCIONA</h2>
           <div className="space-y-3 text-sm">
-            <div className="flex gap-3 items-start"><span className="text-2xl">🛒</span><div><p className="font-bold text-[#333]">Importar de Mercado Libre</p><p className="text-gray-500">Usa el panel "Importar de Mercado Libre" para buscar productos populares y crear rifas con 1 click. También podés crear manualmente con "+ Nueva Rifa".</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">🛒</span><div><p className="font-bold text-[#333]">Importar productos</p><p className="text-gray-500">Usa el panel "Importar de Mercado Libre" para buscar productos populares y crear rifas con 1 click. También podés crear manualmente con "+ Nueva Rifa".</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">2️⃣</span><div><p className="font-bold text-[#333]">Recibir Reservas</p><p className="text-gray-500">Cuando alguien elige números, aparecen en la "Bandeja de Entrada". Verificá el pago antes de confirmar.</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">3️⃣</span><div><p className="font-bold text-[#333]">Confirmar Pagos</p><p className="text-gray-500">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Se le notifica al comprador por WhatsApp.</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">🀄</span><div><p className="font-bold text-[#333]">Sorteo por Quiniela Nacional Nocturna</p><p className="text-gray-500">Cuando se vendan los 100 números, usa el botón "SORTEO QUINIENA NOCTURNA (21HS)". El ganador se define con las últimas 2 cifras de la cabeza del sorteo Nocturna (21hs) de la Quiniela Nacional. El sorteo debe realizarse después de las 21hs. 100% transparente.</p></div></div>
@@ -443,7 +443,7 @@ export default function AdminPage() {
       <div className="max-w-2xl mx-auto px-4 mb-4">
         <div className="flex gap-2">
           <button onClick={manualRefresh} className="flex-1 bg-white text-[#333] py-2 rounded-lg font-bold text-sm border border-[#EBEBEB] shadow-sm">🔄 Actualizar datos</button>
-          <button onClick={() => setShowDebug(!showDebug)} className={`flex-1 py-2 rounded-lg font-bold text-sm ${showDebug ? 'bg-red-500 text-white' : 'bg-[#1A3C6D] text-white'} shadow-sm`}>🐛 DEBUG {showDebug ? 'OCULTAR' : 'MOSTRAR'}</button>
+          <button onClick={() => setShowDebug(!showDebug)} className={`flex-1 py-2 rounded-lg font-bold text-sm ${showDebug ? 'bg-red-500 text-white' : 'bg-[#78350F] text-white'} shadow-sm`}>🐛 DEBUG {showDebug ? 'OCULTAR' : 'MOSTRAR'}</button>
         </div>
       </div>
 
@@ -512,10 +512,10 @@ export default function AdminPage() {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowSorteoModal(null)}></div>
           <div className="relative w-full max-w-md rounded-lg p-6 text-center bg-white border border-[#EBEBEB] shadow-lg">
             <div className="text-6xl mb-4">🎰</div>
-            <h2 className="text-2xl font-black text-[#1A3C6D]">REALIZAR SORTEO</h2>
+            <h2 className="text-2xl font-black text-[#111827]">REALIZAR SORTEO</h2>
             <p className="text-lg font-bold mt-4 text-[#333]">{showSorteoModal.title || showSorteoModal.nombre}</p>
             <p className="text-[#39B54A] font-black text-xl">${(showSorteoModal.raffle_price || 0).toLocaleString('es-AR')}-</p>
-            <div className="mt-4 p-4 rounded-lg bg-[#FFE600]/10 border border-[#FFE600]/30">
+            <div className="mt-4 p-4 rounded-lg bg-[#111827]/10 border border-[#FFE600]/30">
               <p className="font-bold text-sm text-[#333]">Método de sorteo:</p>
               <p className="text-lg font-black text-[#FFE600]">🀄 QUINIENA NACIONAL NOCTURNA</p>
               <p className="text-xs text-gray-500 mt-1">Se usan las últimas 2 cifras de la cabeza de la Quiniela Nacional Nocturna (sorteo de las 21hs). 100% transparente.</p>
@@ -574,7 +574,7 @@ export default function AdminPage() {
                     setSorteando(false);
                   }}
                   disabled={sorteando}
-                  className="flex-1 py-3 rounded-lg font-bold bg-[#FFE600] text-[#333] shadow-sm disabled:opacity-50 hover:bg-[#f0d800] transition-colors"
+                  className="flex-1 py-3 rounded-lg font-bold bg-[#111827] text-[#333] shadow-sm disabled:opacity-50 hover:bg-[#f0d800] transition-colors"
                 >
                   {sorteando ? '⏳ SORTEANDO...' : '🎰 SORTEAR'}
                 </button>

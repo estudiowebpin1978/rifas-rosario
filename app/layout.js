@@ -1,8 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Mercado Rifas - Los productos que amas, ahora los podes ganar en rifas economicas!',
-  description: 'Los productos que amas, ahora los podes ganar en rifas economicas! Sorteo transparente por Quiniela Nacional. Solo 100 numeros por rifa.',
+  title: 'Eco Rifas - Los productos que amas, ahora los podes ganar en rifas economicas!',
+  description: 'Los productos que amas, ahora los podes ganar en rifas economicas! Sorteo transparente por Quiniela Nacional. Premios increibles.',
   manifest: '/manifest.json',
   icons: {
     icon: '/logo.png',
@@ -11,7 +11,7 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Mercado Rifas',
+    title: 'Eco Rifas',
   },
 }
 

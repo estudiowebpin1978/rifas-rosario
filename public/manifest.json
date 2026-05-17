@@ -1,11 +1,11 @@
 {
-  "name": "Mercado Rifas ",
-  "short_name": "Mercado Rifas ",
-  "description": "Sabias que ahora puedes acceder a eso que mas te gusta por medio de una rifa?",
+  "name": "Eco Rifas",
+  "short_name": "Eco Rifas",
+  "description": "Los productos que amas, ahora los podes ganar en rifas economicas!",
   "start_url": "/app",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#111827",
+  "theme_color": "#111827",
   "orientation": "portrait",
   "icons": [
     {
@@ -18,7 +18,5 @@
       "sizes": "192x192",
       "type": "image/png"
     }
-  ]
-}
   ]
 }

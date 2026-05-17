@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import LogoImg from '../public/logo.png';
 import { supabase } from '@/lib/supabaseClient';
@@ -357,7 +357,7 @@ export default function RifaApp() {
           </a>
 
           <div className={`rounded-3xl p-4 text-center ${theme ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30' : 'bg-gradient-to-r from-pink-100 to-purple-100'}`}>
-            <p className="text-sm font-bold mb-1">💳 PAGÁ CON MERCADO PAGO</p>
+            <p className="text-sm font-bold mb-1">💳 PAGÁ por transferencia</p>
             <div className="flex items-center justify-center gap-2">
               <p className="text-2xl font-black text-pink-500">rifas.rosario.</p>
               <button onClick={copyAlias} className="bg-pink-500 text-white px-2 py-1 rounded-lg text-xs font-bold">📋 Copiar</button>

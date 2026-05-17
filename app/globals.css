@@ -10,22 +10,22 @@
 
 @layer components {
   .btn-ml {
-    @apply relative bg-[#3483FA] text-white font-bold py-4 px-6 rounded-lg shadow-md;
+    @apply relative bg-[#F59E0B] text-black font-bold py-4 px-6 rounded-lg shadow-md;
     transition: all 0.15s ease;
   }
   .btn-ml:hover {
-    background-color: #2d6fd4;
+    background-color: #D97706;
   }
   .btn-ml:active {
     transform: scale(0.97);
   }
 
   .btn-ml-yellow {
-    @apply relative bg-[#FFE600] text-[#333] font-bold py-4 px-6 rounded-lg shadow-md;
+    @apply relative bg-gray-800 text-white font-bold py-4 px-6 rounded-lg shadow-md;
     transition: all 0.15s ease;
   }
   .btn-ml-yellow:hover {
-    background-color: #f0d800;
+    background-color: #1F2937;
   }
   .btn-ml-yellow:active {
     transform: scale(0.97);
@@ -65,15 +65,15 @@
   }
 
   .header-ml {
-    background-color: #FFE600;
-    color: #333;
+    background-color: #111827;
+    color: #F59E0B;
   }
 
   .input-ml {
     @apply w-full rounded-lg border border-[#EBEBEB] p-3.5 text-sm outline-none;
   }
   .input-ml:focus {
-    border-color: #3483FA;
+    border-color: #F59E0B;
   }
 
   .btn-3d-pink {
@@ -181,8 +181,8 @@
 }
 
 @keyframes glow-border {
-  0%, 100% { border-color: rgba(52, 131, 250, 0.3); box-shadow: 0 0 5px rgba(52, 131, 250, 0.1); }
-  50% { border-color: rgba(52, 131, 250, 0.6); box-shadow: 0 0 15px rgba(52, 131, 250, 0.2); }
+  0%, 100% { border-color: rgba(245, 158, 11, 0.3); box-shadow: 0 0 5px rgba(245, 158, 11, 0.1); }
+  50% { border-color: rgba(245, 158, 11, 0.6); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
 }
 
 @keyframes shine {
@@ -207,13 +207,13 @@
 }
 
 .btn-3d-blue {
-  @apply relative bg-gradient-to-r from-[#3483FA] via-blue-500 to-[#1A3C6D] text-white font-black py-4 px-6 rounded-2xl shadow-lg;
-  box-shadow: 0 6px 0 #0d3b6e, 0 8px 20px rgba(52, 131, 250, 0.4);
+  @apply relative bg-gradient-to-r from-[#F59E0B] via-amber-500 to-[#D97706] text-black font-black py-4 px-6 rounded-2xl shadow-lg;
+  box-shadow: 0 6px 0 #B45309, 0 8px 20px rgba(245, 158, 11, 0.4);
   transform: translateY(0);
   transition: all 0.1s ease;
 }
 .btn-3d-blue:active {
-  box-shadow: 0 2px 0 #0d3b6e, 0 4px 10px rgba(52, 131, 250, 0.3);
+  box-shadow: 0 2px 0 #B45309, 0 4px 10px rgba(245, 158, 11, 0.3);
   transform: translateY(4px);
 }
 
@@ -230,8 +230,8 @@
 
 .trust-badge {
   @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold;
-  background: linear-gradient(135deg, rgba(52, 131, 250, 0.1), rgba(57, 181, 74, 0.1));
-  border: 1px solid rgba(52, 131, 250, 0.2);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(57, 181, 74, 0.1));
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 .card-premium {
