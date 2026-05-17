@@ -5,7 +5,6 @@ import LogoImg from '../../public/logo.png';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/lib/supabaseClient';
-import MercadoLibrePanel from '@/components/MercadoLibrePanel';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -375,8 +374,6 @@ export default function AdminPage() {
           </div>
         </div>
 
-          <MercadoLibrePanel categorias={categorias} />
-
           <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
             <div className="flex justify-between items-center mb-3">
               <h2 className="font-black text-lg text-[#111827]">👥 USUARIOS ({usuarios.length})</h2>
@@ -432,7 +429,7 @@ export default function AdminPage() {
           <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
           <h2 className="font-black text-lg mb-3 text-[#111827]">📋 CÓMO FUNCIONA</h2>
           <div className="space-y-3 text-sm">
-            <div className="flex gap-3 items-start"><span className="text-2xl">🛒</span><div><p className="font-bold text-[#333]">Importar productos</p><p className="text-gray-500">Usa el panel "Importar de Mercado Libre" para buscar productos populares y crear rifas con 1 click. También podés crear manualmente con "+ Nueva Rifa".</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">🛒</span><div><p className="font-bold text-[#333]">Crear productos</p><p className="text-gray-500">Usá "+ Nueva Rifa" para crear productos manualmente con título, precio, imagen y cantidad de números.</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">2️⃣</span><div><p className="font-bold text-[#333]">Recibir Reservas</p><p className="text-gray-500">Cuando alguien elige números, aparecen en la "Bandeja de Entrada". Verificá el pago antes de confirmar.</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">3️⃣</span><div><p className="font-bold text-[#333]">Confirmar Pagos</p><p className="text-gray-500">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Se le notifica al comprador por WhatsApp.</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">🀄</span><div><p className="font-bold text-[#333]">Sorteo por Quiniela Nacional Nocturna</p><p className="text-gray-500">Cuando se vendan los 100 números, usa el botón "SORTEO QUINIENA NOCTURNA (21HS)". El ganador se define con las últimas 2 cifras de la cabeza del sorteo Nocturna (21hs) de la Quiniela Nacional. El sorteo debe realizarse después de las 21hs. 100% transparente.</p></div></div>
