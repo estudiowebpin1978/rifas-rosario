@@ -6,7 +6,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { nombre, descripcion, imagen, price, precio, categoria_id, numbers_total } = body;
+    const { nombre, descripcion, imagen, images, price, precio, categoria_id, numbers_total } = body;
 
     if (!nombre || !precio) {
       return Response.json({ error: 'Faltan campos requeridos: nombre, precio' }, { status: 400 });
@@ -19,6 +19,7 @@ export async function POST(request) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const totalNumeros = parseInt(numbers_total) || 100;
+    const imagesJson = Array.isArray(images) ? JSON.stringify(images.filter(Boolean)) : null;
     const precioNum = parseFloat(precio) || 0;
     const precioFormatted = '$ ' + precioNum.toLocaleString('es-AR') + '-';
 
@@ -32,6 +33,7 @@ export async function POST(request) {
         categoria_id: categoria_id ? parseInt(categoria_id) : null,
         telefono: '5493412500029',
         finalizado: false,
+        images: imagesJson,
         title: nombre,
         image: imagen || null,
         price: parseFloat(price) || 0,

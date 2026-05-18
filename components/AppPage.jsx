@@ -35,6 +35,7 @@ export default function AppPage() {
   const [receiptFile, setReceiptFile] = useState(null);
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [sorteoNotification, setSorteoNotification] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const WHATSAPP = '5493412500029';
   const ALIAS = 'eco-rifas';
@@ -579,7 +580,7 @@ export default function AppPage() {
               const prodPorcent = 100 - prodVend;
               const isHot = prodVend >= 50 && !prod.finalizado;
               return (
-                <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-lg overflow-hidden bg-white border transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-sm ${prod.finalizado ? 'opacity-50 border-gray-200' : isHot ? 'border-[#25F4EE]' : 'border-[#EBEBEB]'}`}>
+                <div key={prod.id} onClick={() => { setProductoSeleccionado(prod); setSelectedImageIndex(0); }} className={`cursor-pointer rounded-lg overflow-hidden bg-white border transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-sm ${prod.finalizado ? 'opacity-50 border-gray-200' : isHot ? 'border-[#25F4EE]' : 'border-[#EBEBEB]'}`}>
                   <div className="relative aspect-square">
                     {(prod.image || prod.imagen) ? <img src={prod.image || prod.imagen} alt={prod.title || prod.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><span className="text-5xl">{getCategoryEmoji(prod.categorias?.nombre)}</span></div>}
                     <div className="absolute top-2 left-2 flex gap-1">
@@ -627,17 +628,31 @@ export default function AppPage() {
 
           <div className="rounded-lg overflow-hidden bg-white border border-[#EBEBEB] shadow-sm">
             <div className="relative aspect-video bg-gray-50">
-              {(productoSeleccionado.image || productoSeleccionado.imagen) ? <img src={productoSeleccionado.image || productoSeleccionado.imagen} alt={productoSeleccionado.title || productoSeleccionado.nombre} className="w-full h-full object-contain" /> : <span className="text-7xl">🎁</span>}
+              {(() => {
+                try {
+                  const allImgs = [];
+                  if (productoSeleccionado.image || productoSeleccionado.imagen) allImgs.push(productoSeleccionado.image || productoSeleccionado.imagen);
+                  const extra = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : [];
+                  extra.forEach(u => { if (u && !allImgs.includes(u)) allImgs.push(u); });
+                  const currentImg = allImgs[selectedImageIndex] || allImgs[0];
+                  return <img src={currentImg} alt={productoSeleccionado.title || productoSeleccionado.nombre} className="w-full h-full object-contain" />;
+                } catch(e) { return <span className="text-7xl">🎁</span>; }
+              })()}
               {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
             </div>
             {(() => {
               try {
-                const extraImages = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : [];
-                if (extraImages.length > 1) {
+                const allImgs = [];
+                if (productoSeleccionado.image || productoSeleccionado.imagen) allImgs.push(productoSeleccionado.image || productoSeleccionado.imagen);
+                const extra = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : [];
+                extra.forEach(u => { if (u && !allImgs.includes(u)) allImgs.push(u); });
+                if (allImgs.length > 1) {
                   return (
-                    <div className="flex gap-2 p-2 overflow-x-auto">
-                      {extraImages.slice(1).map((url, i) => (
-                        <img key={i} src={url} alt={`${productoSeleccionado.title || productoSeleccionado.nombre} ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-[#EBEBEB] flex-shrink-0" />
+                    <div className="flex gap-2 p-2 overflow-x-auto scrollbar-hide">
+                      {allImgs.map((url, i) => (
+                        <img key={i} src={url} alt={`${productoSeleccionado.title || productoSeleccionado.nombre} ${i + 1}`}
+                          className={`w-20 h-20 object-cover rounded-lg border-2 flex-shrink-0 cursor-pointer transition-all hover:opacity-90 ${i === selectedImageIndex ? 'border-[#FE2C55] shadow-md' : 'border-[#EBEBEB]'}`}
+                          onClick={() => setSelectedImageIndex(i)} />
                       ))}
                     </div>
                   );

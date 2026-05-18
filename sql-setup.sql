@@ -10,6 +10,9 @@ ALTER TABLE productos ADD COLUMN IF NOT EXISTS winner_num INTEGER;
 ALTER TABLE productos ADD COLUMN IF NOT EXISTS winner_nombre TEXT;
 ALTER TABLE productos ADD COLUMN IF NOT EXISTS finalizado BOOLEAN DEFAULT FALSE;
 
+-- Columna para múltiples imágenes (carrusel)
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]'::jsonb;
+
 -- Actualizar RLS para permitir todas las operaciones
 DROP POLICY IF EXISTS select_productos ON productos;
 DROP POLICY IF EXISTS insert_productos ON productos;
