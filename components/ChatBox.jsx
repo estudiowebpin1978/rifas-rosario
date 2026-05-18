@@ -445,7 +445,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
                 <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp (con codigo de pais)</label>
                 <input
                   type="tel"
-                  placeholder="Ej: 5493416971479"
+                  placeholder="Ej: 5493412500029"
                   value={userWhatsapp}
                   onChange={e => setUserWhatsapp(e.target.value)}
                   className="w-full rounded-xl p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]"

@@ -42,7 +42,7 @@ export default function AppPage() {
   }, []);
 
   const theme = true;
-  const WHATSAPP = '5493416971479';
+  const WHATSAPP = '5493412500029';
   const ALIAS = 'eco-rifas';
   const URL_APP = typeof window !== 'undefined' ? window.location.origin + '/app' : 'https://eco-rifas.vercel.app/app';
 
@@ -796,7 +796,7 @@ export default function AppPage() {
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
-                <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
+                <input placeholder="Ej: 5493412500029" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block">Comprobante de pago (opcional)</label>
@@ -851,7 +851,7 @@ export default function AppPage() {
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
-                <input placeholder="Ej: 5493416971479" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
+                <input placeholder="Ej: 5493412500029" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 mb-1 block">Comprobante de pago (opcional)</label>

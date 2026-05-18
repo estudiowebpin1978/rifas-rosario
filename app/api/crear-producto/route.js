@@ -34,7 +34,7 @@ export async function POST(request) {
         descripcion: description || null,
         imagen: image || null,
         precio: '$ ' + (parseFloat(raffle_price) || 0).toLocaleString('es-AR') + '-',
-        telefono: '5493416971479'
+        telefono: '5493412500029'
       }])
       .select()
       .single();

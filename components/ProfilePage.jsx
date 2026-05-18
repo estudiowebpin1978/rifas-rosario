@@ -5,7 +5,7 @@ import confetti from 'canvas-confetti';
 import Image from 'next/image';
 import LogoImg from '../public/logo.png';
 
-const WHATSAPP = '5493416971479';
+const WHATSAPP = '5493412500029';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -118,7 +118,7 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-bold text-gray-400 mb-1 block">Tu WhatsApp</label>
-                <input type="tel" placeholder="5493416971479" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-xl p-4 font-bold" />
+                <input type="tel" placeholder="5493412500029" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-xl p-4 font-bold" />
               </div>
               <div>
                 <label className="text-sm font-bold text-gray-400 mb-1 block">Tu Nombre</label>

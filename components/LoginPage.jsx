@@ -22,7 +22,7 @@ export default function RifaApp() {
   const [showInstall, setShowInstall] = useState(false);
 
   const LOGO_URL = '/logo.png';
-  const WHATSAPP = '5493416971479';
+  const WHATSAPP = '5493412500029';
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode');
