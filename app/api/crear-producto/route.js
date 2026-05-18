@@ -34,7 +34,6 @@ export async function POST(request) {
         numbers_total: totalNumeros,
         categoria_id: categoria_id ? parseInt(categoria_id) : null,
         nombre: title,
-        descripcion: description || null,
         imagen: firstImage || null,
         precio: '$ ' + (parseFloat(raffle_price) || 0).toLocaleString('es-AR') + '-',
         telefono: '5493412500029'
