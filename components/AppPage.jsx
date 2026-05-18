@@ -679,8 +679,8 @@ export default function AppPage() {
                   <div className="flex gap-2 text-[10px] font-medium">
                     <span><span className="w-3 h-3 inline-block bg-white border border-gray-300 rounded mr-1"></span>Libre</span>
                     <span><span className="w-3 h-3 inline-block bg-[#3483FA] rounded mr-1"></span>Elegido</span>
-                    <span><span className="w-3 h-3 inline-block bg-[#25F4EE] border border-[#25F4EE] rounded mr-1"></span>Reservado</span>
-                    <span><span className="w-3 h-3 inline-block bg-gray-200 rounded mr-1"></span>Vendido</span>
+                    <span><span className="w-3 h-3 inline-block bg-[#25F4EE]/20 border border-[#25F4EE]/60 rounded mr-1"></span>Reservado</span>
+                    <span><span className="w-3 h-3 inline-block bg-gray-100 border border-red-200 rounded mr-1 text-red-400 font-bold flex items-center justify-center text-[8px]">✕</span>Pagado</span>
                   </div>
                 </div>
                 <div className="grid grid-cols-10 gap-1">
@@ -689,9 +689,9 @@ export default function AppPage() {
                     const isReserved = b.estado === 'reservado';
                     const isSold = b.estado === 'vendido';
                     return (
-                      <button key={b.id} disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)} className={`h-9 rounded text-xs font-bold transition-all duration-150 active:scale-90 ${isSold ? 'bg-gray-100 text-gray-300 cursor-not-allowed border border-gray-200' : isReserved ? 'bg-[#25F4EE] text-[#999] border border-[#25F4EE]/60 cursor-not-allowed' : isSelected ? 'bg-[#3483FA] text-white scale-110 ring-2 ring-blue-200 border border-[#3483FA]' : 'bg-white text-[#333] border border-[#EBEBEB] hover:border-[#3483FA] hover:text-[#3483FA]'}`}
+                      <button key={b.id} disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)} className={`h-9 rounded text-xs font-bold ${isSold ? 'bg-gray-100 text-red-400 cursor-not-allowed border border-red-200' : isReserved ? 'bg-[#25F4EE]/20 text-[#666] cursor-not-allowed border border-[#25F4EE]/60' : isSelected ? 'bg-[#3483FA] text-white border border-[#3483FA]' : 'bg-white text-[#333] border border-[#EBEBEB] hover:border-[#3483FA] hover:text-[#3483FA]'}`}
                         title={isSold ? `#${String(b.numero).padStart(2,'0')} - Vendido` : isReserved ? `#${String(b.numero).padStart(2,'0')} - Reservado` : `#${String(b.numero).padStart(2,'0')} - Disponible`}>
-                        {String(b.numero).padStart(2, '0')}
+                        {isSold ? '✕' : isReserved ? '✕' : String(b.numero).padStart(2, '0')}
                       </button>
                     );
                   })}
