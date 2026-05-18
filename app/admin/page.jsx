@@ -483,7 +483,7 @@ export default function AdminPage() {
                       <p className="text-[#39B54A] font-black">${(p.raffle_price || 0).toLocaleString('es-AR')}-</p>
                       <div className="flex items-center gap-3 mt-2 text-xs">
                         <span className="text-[#3483FA] font-bold">✅ {vend}/{p.numbers_total || 100}</span>
-                        {res > 0 && <span className="text-[#25F4EE] font-bold">⏳ {res} reservados</span>}
+                        {res > 0 && <span className="text-amber-500 font-bold">⏳ {res} reservados</span>}
                         <div className="flex-1 h-2 bg-[#EBEBEB] rounded-full overflow-hidden"><div className={`h-full rounded-full ${vend >= 100 ? 'bg-[#39B54A]' : 'bg-[#3483FA]'}`} style={{ width: porcent + '%' }}></div></div>
                       </div>
                     </div>
@@ -596,7 +596,7 @@ export default function AdminPage() {
                 const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
                 return (
                   <div key={prod.id} className="border border-[#EBEBEB] rounded-lg p-2">
-                    <p className="font-bold text-[#25F4EE]">{prod.title || prod.nombre} ({prodBoletos.length} boletos)</p>
+                    <p className="font-bold text-[#111827]">{prod.title || prod.nombre} ({prodBoletos.length} boletos)</p>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {reservados.length > 0 && (
                         <div className="w-full">
