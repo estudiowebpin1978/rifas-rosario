@@ -298,7 +298,7 @@ export default function AdminPage() {
       <div className="min-h-screen flex items-center justify-center p-4 bg-[#F5F5F5]">
         <form onSubmit={handleLogin} className="relative z-10 w-full max-w-sm rounded-lg p-6 shadow-sm bg-white border border-[#EBEBEB]">
           <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-[#FE2C55] rounded-lg flex items-center justify-center text-white font-black text-xl mx-auto mb-4">ER</div>
+            <img src="/logo.png" alt="Eco Rifas" className="w-16 h-16 object-contain mx-auto mb-4" />
             <h1 className="text-2xl font-black text-[#111827]">PANEL ADMIN</h1>
           </div>
           {error && <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm mb-4">{error}</div>}
@@ -318,7 +318,7 @@ export default function AdminPage() {
       <header className="sticky top-0 z-40 bg-[#111827] border-b border-gray-800 px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#FE2C55] rounded-lg flex items-center justify-center text-white font-black text-sm">ER</div>
+            <img src="/logo.png" alt="Eco Rifas" className="w-10 h-10 object-contain" />
             <div>
               <h1 className="text-lg font-black text-[#FE2C55]">ADMIN</h1>
               <p className="text-xs text-gray-400">Panel de control - Eco Rifas</p>
