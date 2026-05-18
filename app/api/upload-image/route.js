@@ -5,7 +5,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 async function uploadToImgbb(base64Image) {
   try {
-    const res = await fetch('https://api.imgbb.com/1/upload?key=ed9d97ae7b0e4710cc59f83b968e9e12', {
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`, {
       method: 'POST',
       body: new URLSearchParams({ image: base64Image }),
     });

@@ -1,7 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import LogoImg from '../public/logo.png';
 import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
@@ -10,7 +8,6 @@ export default function RifaApp() {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
-  const theme = true;
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [authForm, setAuthForm] = useState({ email: '', password: '', nombre: '' });

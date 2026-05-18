@@ -1,10 +1,8 @@
 ﻿'use client';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
-import LogoImg from '../public/logo.png';
 import ChatBox from '@/components/ChatBox';
 
 export default function AppPage() {
@@ -37,11 +35,6 @@ export default function AppPage() {
   const [receiptFile, setReceiptFile] = useState(null);
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
 
-  useEffect(() => {
-    return () => {};
-  }, []);
-
-  const theme = true;
   const WHATSAPP = '5493412500029';
   const ALIAS = 'eco-rifas';
   const URL_APP = typeof window !== 'undefined' ? window.location.origin + '/app' : 'https://eco-rifas.vercel.app/app';
@@ -105,11 +98,6 @@ export default function AppPage() {
     }
     copyToClipboard(url, 'Link copiado para compartir!');
   };
-
-  useEffect(() => {
-    const iv = setInterval(() => setFakeWatching(Math.floor(Math.random() * 30) + 8), 5000);
-    return () => clearInterval(iv);
-  }, []);
 
   useEffect(() => {
     if (supabase) {
@@ -696,7 +684,7 @@ export default function AppPage() {
                 if (extraImages.length > 1) {
                   return (
                     <div className="flex gap-2 p-2 overflow-x-auto">
-                      {extraImages.map((url, i) => (
+                      {extraImages.slice(1).map((url, i) => (
                         <img key={i} src={url} alt={`${productoSeleccionado.title || productoSeleccionado.nombre} ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-[#EBEBEB] flex-shrink-0" />
                       ))}
                     </div>

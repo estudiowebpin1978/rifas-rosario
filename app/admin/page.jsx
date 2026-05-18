@@ -1,7 +1,5 @@
 ﻿'use client';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import LogoImg from '../../public/logo.png';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/lib/supabaseClient';
@@ -25,7 +23,6 @@ export default function AdminPage() {
   const [sorteando, setSorteando] = useState(false);
   const [showSorteoResult, setShowSorteoResult] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const theme = true;
 
   useEffect(() => {
     const saved = localStorage.getItem('admin_token');
@@ -119,10 +116,6 @@ export default function AdminPage() {
     } catch (err) { console.error('Upload error:', err); }
     setUploadingImage(false);
   };
-
-  useEffect(() => {
-    if (localStorage.getItem('admin_logged') === 'true') setIsLoggedIn(true);
-  }, []);
 
   const crearProducto = async (e) => {
     e.preventDefault();
@@ -397,7 +390,7 @@ export default function AdminPage() {
                         onClick={() => setShowSorteoModal(p)}
                         className="w-full bg-[#111827] text-[#333] font-bold py-3 rounded-lg text-sm shadow-sm hover:bg-[#f0d800] transition-colors"
                       >
-                        🎰 SORTEO QUINIENA NOCTURNA (21HS)
+                        🎰 SORTEO QUINIELA NOCTURNA (21HS)
                       </button>
                     </div>
                   )}
@@ -466,7 +459,7 @@ export default function AdminPage() {
             <div className="flex gap-3 items-start"><span className="text-2xl">🛒</span><div><p className="font-bold text-[#333]">Crear productos</p><p className="text-gray-500">Usá "+ Nueva Rifa" para crear productos manualmente con título, precio, imagen y cantidad de números.</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">2️⃣</span><div><p className="font-bold text-[#333]">Recibir Reservas</p><p className="text-gray-500">Cuando alguien elige números, aparecen en la "Bandeja de Entrada". Verificá el pago antes de confirmar.</p></div></div>
             <div className="flex gap-3 items-start"><span className="text-2xl">3️⃣</span><div><p className="font-bold text-[#333]">Confirmar Pagos</p><p className="text-gray-500">Click en "✅ CONFIRMAR PAGO" para marcar como vendido. Se le notifica al comprador por WhatsApp.</p></div></div>
-            <div className="flex gap-3 items-start"><span className="text-2xl">🀄</span><div><p className="font-bold text-[#333]">Sorteo por Quiniela Nacional Nocturna</p><p className="text-gray-500">Cuando se vendan los 100 números, usa el botón "SORTEO QUINIENA NOCTURNA (21HS)". El ganador se define con las últimas 2 cifras de la cabeza del sorteo Nocturna (21hs) de la Quiniela Nacional. El sorteo debe realizarse después de las 21hs. 100% transparente.</p></div></div>
+            <div className="flex gap-3 items-start"><span className="text-2xl">🀄</span><div><p className="font-bold text-[#333]">Sorteo por Quiniela Nacional Nocturna</p><p className="text-gray-500">Cuando se vendan los 100 números, usa el botón "SORTEO QUINIELA NOCTURNA (21HS)". El ganador se define con las últimas 2 cifras de la cabeza del sorteo Nocturna (21hs) de la Quiniela Nacional. El sorteo debe realizarse después de las 21hs. 100% transparente.</p></div></div>
           </div>
         </div>
       </main>
@@ -548,7 +541,7 @@ export default function AdminPage() {
             <p className="text-[#39B54A] font-black text-xl">${(showSorteoModal.raffle_price || 0).toLocaleString('es-AR')}-</p>
             <div className="mt-4 p-4 rounded-lg bg-[#111827]/10 border border-[#FFE600]/30">
               <p className="font-bold text-sm text-[#333]">Método de sorteo:</p>
-              <p className="text-lg font-black text-[#FFE600]">🀄 QUINIENA NACIONAL NOCTURNA</p>
+              <p className="text-lg font-black text-[#FFE600]">🀄 QUINIELA NACIONAL NOCTURNA</p>
               <p className="text-xs text-gray-500 mt-1">Se usan las últimas 2 cifras de la cabeza de la Quiniela Nacional Nocturna (sorteo de las 21hs). 100% transparente.</p>
             </div>
             {showSorteoResult && (

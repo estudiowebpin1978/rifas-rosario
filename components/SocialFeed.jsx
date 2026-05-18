@@ -1,7 +1,6 @@
 ﻿'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import LogoImg from '../public/logo.png';
 
 export default function SocialFeed() {
   const router = useRouter();

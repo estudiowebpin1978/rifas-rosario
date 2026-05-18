@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function ChatBox({ user, productos, allBoletos }) {
