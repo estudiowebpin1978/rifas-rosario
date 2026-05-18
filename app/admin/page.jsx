@@ -23,6 +23,7 @@ export default function AdminPage() {
   const [sorteando, setSorteando] = useState(false);
   const [showSorteoResult, setShowSorteoResult] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showEditForm, setShowEditForm] = useState(null);
   const WHATSAPP = '5493412500029';
 
   useEffect(() => {
@@ -141,6 +142,33 @@ export default function AdminPage() {
         setTimeout(() => { fetchData(); alert('✅ Producto creado con 100 números!'); }, 500);
       }
     } catch (err) { alert('Error al crear: ' + err.message); }
+    setLoading(false);
+  };
+
+  const actualizarProducto = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch('/api/actualizar-producto', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: showEditForm.id,
+          nombre: showEditForm.title,
+          descripcion: showEditForm.description || null,
+          imagen: showEditForm.images.filter(u => u)[0] || null,
+          precio: showEditForm.raffle_price,
+          categoria_id: showEditForm.categoria_id ? parseInt(showEditForm.categoria_id) : null
+        })
+      });
+      const result = await res.json();
+      if (!res.ok) alert('Error: ' + (result.error || 'Error desconocido'));
+      else {
+        setShowEditForm(null);
+        fetchData();
+        alert('✅ Producto actualizado!');
+      }
+    } catch (err) { alert('Error al actualizar: ' + err.message); }
     setLoading(false);
   };
 
@@ -456,7 +484,10 @@ export default function AdminPage() {
                         <div className="flex-1 h-2 bg-[#EBEBEB] rounded-full overflow-hidden"><div className={`h-full rounded-full ${vend >= 100 ? 'bg-[#39B54A]' : 'bg-[#3483FA]'}`} style={{ width: porcent + '%' }}></div></div>
                       </div>
                     </div>
-                    <button onClick={() => eliminarProducto(p.id, p.title || p.nombre)} className="bg-red-500 text-white px-3 py-2 rounded-lg font-bold self-start">🗑️</button>
+                    <div className="flex gap-1 self-start">
+                      <button onClick={() => setShowEditForm({ ...p, title: p.title || p.nombre, description: p.description || p.descripcion, price: p.price || 0, raffle_price: p.raffle_price || 0, categoria_id: p.categoria_id || '', images: [p.image || p.imagen || '', '', ''] })} className="bg-[#3483FA] text-white px-3 py-2 rounded-lg font-bold text-sm">✏️</button>
+                      <button onClick={() => eliminarProducto(p.id, p.title || p.nombre)} className="bg-red-500 text-white px-3 py-2 rounded-lg font-bold">🗑️</button>
+                    </div>
                   </div>
                   {vend >= 100 && !p.finalizado && (
                     <div className="mt-3 space-y-2">
@@ -602,6 +633,72 @@ export default function AdminPage() {
               <button onClick={() => setShowConfirmModal(null)} className="flex-1 py-3 rounded-lg font-bold bg-gray-100 text-[#333] border border-[#EBEBEB]">Cancelar</button>
               <button onClick={() => confirmarVenta(showConfirmModal)} className="flex-1 py-3 rounded-lg font-bold bg-[#39B54A] text-white shadow-sm">Confirmar ✅</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showEditForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowEditForm(null)}></div>
+          <div className="relative w-full max-w-lg rounded-lg p-6 bg-white border border-[#EBEBEB] shadow-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-black text-[#333]">✏️ EDITAR RIFA</h2>
+              <button onClick={() => setShowEditForm(null)} className="text-2xl text-[#333]">✕</button>
+            </div>
+            <form onSubmit={actualizarProducto} className="space-y-3">
+              <input placeholder="Titulo del producto *" required value={showEditForm.title} onChange={e => setShowEditForm({...showEditForm, title: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
+              <div className="grid grid-cols-2 gap-3">
+                <input placeholder="Precio original (ARS)" type="number" value={showEditForm.price} onChange={e => setShowEditForm({...showEditForm, price: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
+                <input placeholder="Precio rifa (ARS) *" type="number" required value={showEditForm.raffle_price} onChange={e => setShowEditForm({...showEditForm, raffle_price: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" />
+              </div>
+              <textarea placeholder="Descripcion del producto (opcional)" value={showEditForm.description || ''} onChange={e => setShowEditForm({...showEditForm, description: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]" rows="2" />
+              <select value={showEditForm.categoria_id} onChange={e => setShowEditForm({...showEditForm, categoria_id: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]">
+                <option value="">Selecciona categoria (opcional)</option>
+                {categorias.map(c => {
+                  const emoji = c.nombre === 'Zapatillas' ? '👟' : c.nombre === 'Celulares' ? '📱' : c.nombre === 'Tecnologia' ? '💻' : c.nombre === 'Electrodomesticos' ? '⚡' : c.nombre === 'Hogar' ? '🏠' : '🎁';
+                  return <option key={c.id} value={c.id}>{emoji} {c.nombre}</option>;
+                })}
+              </select>
+              <div>
+                <label className="text-sm font-bold block mb-2 text-[#333]">Imagen del producto</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[0, 1, 2].map(i => (
+                    <div key={i} className="relative">
+                      {showEditForm.images[i] ? (
+                        <div className="relative">
+                          <img src={showEditForm.images[i]} alt={`Foto ${i + 1}`} className="w-full h-28 object-cover rounded-lg border border-[#EBEBEB]" />
+                          <button type="button" onClick={() => { const newImages = [...showEditForm.images]; newImages[i] = ''; setShowEditForm({...showEditForm, images: newImages}); }} className="absolute top-1 right-1 bg-red-500 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center">✕</button>
+                        </div>
+                      ) : (
+                        <div className="w-full h-28 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-white">
+                          <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
+                            <span className="text-2xl">📷</span>
+                            <span className="text-[10px] text-gray-400 mt-1">Foto {i + 1}</span>
+                            <input type="file" accept="image/*" onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const fd = new FormData();
+                              fd.append('image', file);
+                              const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+                              const data = await res.json();
+                              if (data.url) {
+                                const newImages = [...showEditForm.images];
+                                newImages[i] = data.url;
+                                setShowEditForm({...showEditForm, images: newImages});
+                              }
+                            }} className="hidden" />
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setShowEditForm(null)} className="flex-1 py-3 rounded-lg font-bold bg-gray-100 text-[#333] border border-[#EBEBEB]">Cancelar</button>
+                <button disabled={loading} className="flex-1 py-3 rounded-lg font-bold bg-[#3483FA] text-white shadow-sm disabled:opacity-60">{loading ? '⏳' : '💾 Guardar Cambios'}</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

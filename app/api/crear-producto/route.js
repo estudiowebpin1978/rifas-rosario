@@ -19,6 +19,8 @@ export async function POST(request) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const totalNumeros = parseInt(numbers_total) || 100;
+    const precioNum = parseFloat(precio) || 0;
+    const precioFormatted = '$ ' + precioNum.toLocaleString('es-AR') + '-';
 
     const { data: producto, error: errorProducto } = await supabase
       .from('productos')
@@ -26,21 +28,27 @@ export async function POST(request) {
         nombre,
         descripcion: descripcion || null,
         imagen: imagen || null,
-        precio: '$ ' + (parseFloat(precio) || 0).toLocaleString('es-AR') + '-',
+        precio: precioFormatted,
         categoria_id: categoria_id ? parseInt(categoria_id) : null,
         telefono: '5493412500029',
-        finalizado: false
+        finalizado: false,
+        title: nombre,
+        description: descripcion || null,
+        image: imagen || null,
+        price: precioNum * 100,
+        raffle_price: precioNum,
+        numbers_total: totalNumeros
       }])
-      .select()
+      .select('id')
       .single();
 
     if (errorProducto) {
-      return Response.json({ error: 'Error al crear producto: ' + errorProducto.message, details: errorProducto }, { status: 400 });
+      return Response.json({ error: 'Error al crear producto: ' + errorProducto.message }, { status: 400 });
     }
 
     const boletosInsert = [];
     for (let i = 1; i <= totalNumeros; i++) {
-      boletosInsert.push({ numero: i, producto_id: producto.id, estado: 'disponible' });
+      boletosInsert.push({ numero: i, producto_id: producto?.id, estado: 'disponible' });
     }
 
     const { error: boletosError } = await supabase.from('boletos').insert(boletosInsert);
