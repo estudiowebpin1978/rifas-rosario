@@ -690,6 +690,21 @@ export default function AppPage() {
               {(productoSeleccionado.image || productoSeleccionado.imagen) ? <img src={productoSeleccionado.image || productoSeleccionado.imagen} alt={productoSeleccionado.title || productoSeleccionado.nombre} className="w-full h-full object-contain" /> : <span className="text-7xl">🎁</span>}
               {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
             </div>
+            {(() => {
+              try {
+                const extraImages = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : [];
+                if (extraImages.length > 1) {
+                  return (
+                    <div className="flex gap-2 p-2 overflow-x-auto">
+                      {extraImages.map((url, i) => (
+                        <img key={i} src={url} alt={`${productoSeleccionado.title || productoSeleccionado.nombre} ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-[#EBEBEB] flex-shrink-0" />
+                      ))}
+                    </div>
+                  );
+                }
+              } catch(e) {}
+              return null;
+            })()}
             <div className="p-4">
               <span className="bg-[#3483FA]/10 text-[#3483FA] text-xs font-bold px-2 py-1 rounded">{productoSeleccionado.categorias?.nombre}</span>
               <h2 className="font-black text-xl mt-2 text-[#333]">{productoSeleccionado.title || productoSeleccionado.nombre}</h2>

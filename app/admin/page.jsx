@@ -1,5 +1,5 @@
 ﻿'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import LogoImg from '../../public/logo.png';
 import { useRouter } from 'next/navigation';
@@ -17,7 +17,7 @@ export default function AdminPage() {
   const [productos, setProductos] = useState([]);
   const [boletosData, setBoletosData] = useState({});
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ title: '', price: '', raffle_price: '', image: '', categoria_id: '', description: '', numbers_total: '100' });
+  const [formData, setFormData] = useState({ title: '', price: '', raffle_price: '', images: ['', '', ''], categoria_id: '', description: '', numbers_total: '100' });
   const [notif, setNotif] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(null);
@@ -25,7 +25,6 @@ export default function AdminPage() {
   const [sorteando, setSorteando] = useState(false);
   const [showSorteoResult, setShowSorteoResult] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const fileInputRef = useRef(null);
   const theme = true;
 
   useEffect(() => {
@@ -103,7 +102,7 @@ export default function AdminPage() {
     setPassword('');
   };
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = async (e, index) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingImage(true);
@@ -112,7 +111,11 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/upload-image', { method: 'POST', body: uploadFormData });
       const data = await res.json();
-      if (data.url) setFormData({...formData, image: data.url});
+      if (data.url) {
+        const newImages = [...formData.images];
+        newImages[index] = data.url;
+        setFormData({...formData, images: newImages});
+      }
     } catch (err) { console.error('Upload error:', err); }
     setUploadingImage(false);
   };
@@ -129,7 +132,7 @@ export default function AdminPage() {
       title: formData.title,
       raffle_price: formData.raffle_price,
       price: formData.price || formData.raffle_price,
-      image: formData.image || null,
+      images: formData.images.filter(u => u),
       description: formData.description || null,
       numbers_total: parseInt(formData.numbers_total) || 100,
       categoria_id: formData.categoria_id ? parseInt(formData.categoria_id) : null
@@ -140,7 +143,7 @@ export default function AdminPage() {
       if (!res.ok) alert('Error: ' + (result.error || 'Error desconocido'));
       else {
         setShowForm(false);
-        setFormData({ title: '', price: '', raffle_price: '', image: '', categoria_id: '', description: '', numbers_total: '100' });
+        setFormData({ title: '', price: '', raffle_price: '', images: ['', '', ''], categoria_id: '', description: '', numbers_total: '100' });
         setTimeout(() => { fetchData(); alert('✅ Producto creado con 100 números!'); }, 500);
       }
     } catch (err) { alert('Error al crear: ' + err.message); }
@@ -341,10 +344,27 @@ export default function AdminPage() {
                 })}
               </select>
               <div>
-                <label className="text-sm font-bold block mb-2 text-[#333]">Imagen del producto</label>
-                <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
-                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage} className="w-full bg-[#3483FA] text-white p-3 rounded-lg font-bold shadow-sm">{uploadingImage ? '⏳ Subiendo...' : '📷 Subir imagen'}</button>
-                {formData.image && <div className="relative mt-2"><img src={formData.image} alt="preview" className="w-full h-40 object-cover rounded-lg" /><button type="button" onClick={() => setFormData({...formData, image: ''})} className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">✕</button></div>}
+                <label className="text-sm font-bold block mb-2 text-[#333]">Imágenes del producto (máx 3)</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[0, 1, 2].map(i => (
+                    <div key={i} className="relative">
+                      {formData.images[i] ? (
+                        <div className="relative">
+                          <img src={formData.images[i]} alt={`Foto ${i + 1}`} className="w-full h-28 object-cover rounded-lg border border-[#EBEBEB]" />
+                          <button type="button" onClick={() => { const newImages = [...formData.images]; newImages[i] = ''; setFormData({...formData, images: newImages}); }} className="absolute top-1 right-1 bg-red-500 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center">✕</button>
+                        </div>
+                      ) : (
+                        <div className="w-full h-28 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-white">
+                          <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
+                            <span className="text-2xl">📷</span>
+                            <span className="text-[10px] text-gray-400 mt-1">Foto {i + 1}</span>
+                            <input type="file" accept="image/*" onChange={e => handleImageUpload(e, i)} className="hidden" />
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
               <button disabled={loading} className="w-full bg-[#3483FA] text-white py-3 rounded-lg font-bold shadow-sm hover:bg-[#2d6fd4] transition-colors">{loading ? '⏳ Creando...' : 'CREAR RIFA 🎁'}</button>
             </form>

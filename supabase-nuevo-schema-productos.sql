@@ -28,6 +28,10 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='productos' AND column_name='numbers_total') THEN
     ALTER TABLE productos ADD COLUMN numbers_total INTEGER DEFAULT 100;
   END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='productos' AND column_name='images') THEN
+    ALTER TABLE productos ADD COLUMN images TEXT;
+  END IF;
 END $$;
 
 -- Copiar datos existentes a nuevas columnas (usando COALESCE para columnas que pueden no existir)
