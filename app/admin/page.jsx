@@ -123,13 +123,13 @@ export default function AdminPage() {
     setLoading(true);
     if (!formData.title || !formData.raffle_price) { alert('Completá todos los campos requeridos'); setLoading(false); return; }
     const productoData = {
-      title: formData.title,
-      raffle_price: formData.raffle_price,
-      price: formData.price || formData.raffle_price,
+      nombre: formData.title,
+      descripcion: formData.description || null,
+      imagen: formData.images.filter(u => u)[0] || null,
       images: formData.images.filter(u => u),
-      description: formData.description || null,
-      numbers_total: parseInt(formData.numbers_total) || 100,
-      categoria_id: formData.categoria_id ? parseInt(formData.categoria_id) : null
+      precio: formData.raffle_price,
+      categoria_id: formData.categoria_id ? parseInt(formData.categoria_id) : null,
+      numbers_total: parseInt(formData.numbers_total) || 100
     };
     try {
       const res = await fetch('/api/crear-producto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(productoData) });
