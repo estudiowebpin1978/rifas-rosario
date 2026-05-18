@@ -26,7 +26,7 @@ export async function POST(request) {
       .from('productos')
       .insert([{
         title,
-        description: description || null,
+        descripcion: description || null,
         image: firstImage || null,
         images: imagesJson,
         price: parseFloat(price) || 0,
