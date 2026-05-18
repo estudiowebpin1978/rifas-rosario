@@ -32,7 +32,7 @@ export async function GET(request) {
       description: p.description || p.descripcion,
       image: p.image || p.imagen,
       price: p.price || 0,
-      raffle_price: p.raffle_price || 0,
+      raffle_price: p.raffle_price || parseInt(String(p.precio || '0').replace(/[^0-9]/g,'')) || 0,
       numbers_total: p.numbers_total || 100,
     }));
     
