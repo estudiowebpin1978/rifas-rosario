@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import Image from 'next/image';
-import LogoImg from '../public/logo.png';
 
 const WHATSAPP = '5493412500029';
 
@@ -109,7 +108,7 @@ export default function ProfilePage() {
         
         <div className="relative z-10 w-full max-w-sm">
           <div className="text-center mb-8">
-            <Image src={LogoImg} alt="Eco Rifas" width={80} height={80} className="object-contain rounded-2xl mx-auto mb-4" />
+            <Image src="/logo.svg" alt="Eco Rifas" width={80} height={80} className="object-contain rounded-2xl mx-auto mb-4" />
             <h1 className="text-3xl font-black bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text text-transparent">MI PERFIL</h1>
             <p className="text-gray-400 mt-2">Tu historial de sorteos ganados</p>
           </div>

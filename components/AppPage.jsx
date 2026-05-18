@@ -372,7 +372,7 @@ export default function AppPage() {
                 <p className="font-bold text-sm text-[#333]">🀄 Método de sorteo:</p>
                 <p className="text-lg font-black text-[#FE2C55]">QUINIELA NACIONAL NOCTURNA</p>
               </div>
-              <button onClick={descartarSorteoNotification} className="w-full mt-6 bg-[#3483FA] text-white font-black py-4 rounded-2xl text-lg shadow-sm">
+              <button onClick={descartarSorteoNotification} className="w-full btn-3d-pink">
                 ENTENDIDO! ✅
               </button>
             </div>
@@ -408,7 +408,7 @@ export default function AppPage() {
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-gray-800 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Eco Rifas" className="w-10 h-10 object-contain" />
+            <img src="/logo.svg" alt="Eco Rifas" className="w-10 h-10" />
             <div>
               <h1 className="text-xl font-black text-[#FE2C55]">ECO RIFAS</h1>
               <p className="text-[10px] text-gray-400 font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
@@ -454,7 +454,7 @@ export default function AppPage() {
               <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm text-[#333]">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-500 text-sm">Entre más participen, más chances tienen de ganar. Compartí la rifa con todos!</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm text-[#333]">RECLAMÁ TU PREMIO</p><p className="text-gray-500 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega. Subí tu foto ganadora al chat!</p></div></div>
             </div>
-            <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-black font-black py-4 rounded-lg shadow-lg hover:shadow-xl active:scale-[0.98] transition-all">ENTENDÍ! 💪</button>
+            <button onClick={() => setShowComoFunciona(false)} className="w-full btn-3d-pink">ENTENDÍ! 💪</button>
           </div>
         </div>
       )}
@@ -467,7 +467,7 @@ export default function AppPage() {
           </div>
           <nav className="space-y-4">
             <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">❓ Cómo Funciona?</button>
-            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#FE2C55] text-black font-bold text-lg text-center shadow-sm hover:bg-[#C12045] transition-colors">📤 Compartir App</button>
+            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full btn-3d-pink">📤 Compartir App</button>
             <a href="/admin" className="block p-4 rounded-lg bg-[#111111] text-white font-bold text-lg text-center shadow-sm hover:bg-[#222222] transition-colors">🔐 Panel Admin</a>
             <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
             {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>}
