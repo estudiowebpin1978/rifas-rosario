@@ -36,6 +36,7 @@ export default function AppPage() {
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [sorteoNotification, setSorteoNotification] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [showImageViewer, setShowImageViewer] = useState(null);
 
   const WHATSAPP = '5493412500029';
   const ALIAS = 'eco-rifas';
@@ -635,7 +636,7 @@ export default function AppPage() {
                   const extra = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : [];
                   extra.forEach(u => { if (u && !allImgs.includes(u)) allImgs.push(u); });
                   const currentImg = allImgs[selectedImageIndex] || allImgs[0];
-                  return <img src={currentImg} alt={productoSeleccionado.title || productoSeleccionado.nombre} className="w-full h-full object-contain" />;
+                  return <><img src={currentImg} alt={productoSeleccionado.title || productoSeleccionado.nombre} className="w-full h-full object-contain cursor-pointer" onClick={() => setShowImageViewer(currentImg)} /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-1 rounded-full">🔍</div></>;
                 } catch(e) { return <span className="text-7xl">🎁</span>; }
               })()}
               {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
@@ -834,6 +835,14 @@ export default function AppPage() {
             </form>
             <button onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-black transition-colors">Cancelar</button>
           </div>
+        </div>
+      )}
+
+      {showImageViewer && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95" onClick={() => setShowImageViewer(null)}>
+          <button onClick={() => setShowImageViewer(null)} className="absolute top-4 right-4 text-white text-4xl z-10">✕</button>
+          <img src={showImageViewer} alt="Imagen ampliada" className="max-w-full max-h-full object-contain p-4" onClick={e => e.stopPropagation()} />
+          <div className="absolute bottom-8 text-white/60 text-sm">Tocá cualquier parte para cerrar</div>
         </div>
       )}
 
