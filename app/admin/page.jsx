@@ -298,13 +298,13 @@ export default function AdminPage() {
       <div className="min-h-screen flex items-center justify-center p-4 bg-[#F5F5F5]">
         <form onSubmit={handleLogin} className="relative z-10 w-full max-w-sm rounded-lg p-6 shadow-sm bg-white border border-[#EBEBEB]">
           <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-[#F59E0B] rounded-lg flex items-center justify-center text-white font-black text-xl mx-auto mb-4">ER</div>
+            <div className="w-16 h-16 bg-[#FE2C55] rounded-lg flex items-center justify-center text-white font-black text-xl mx-auto mb-4">ER</div>
             <h1 className="text-2xl font-black text-[#111827]">PANEL ADMIN</h1>
           </div>
           {error && <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm mb-4">{error}</div>}
           <div className="space-y-3">
-            <input type="password" placeholder="Contrasena" value={password} onChange={e => setPassword(e.target.value)} required className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#F59E0B] outline-none text-[#333]" />
-            <button disabled={loading} className="w-full bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black font-bold py-4 rounded-lg shadow-lg">{loading ? '⏳' : 'INGRESAR →'}</button>
+            <input type="password" placeholder="Contrasena" value={password} onChange={e => setPassword(e.target.value)} required className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#FE2C55] outline-none text-[#333]" />
+            <button disabled={loading} className="w-full bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-black font-bold py-4 rounded-lg shadow-lg">{loading ? '⏳' : 'INGRESAR →'}</button>
           </div>
           <button type="button" onClick={() => router.push('/')} className="w-full mt-4 text-sm text-gray-500">← Volver</button>
         </form>
@@ -318,14 +318,14 @@ export default function AdminPage() {
       <header className="sticky top-0 z-40 bg-[#111827] border-b border-gray-800 px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#F59E0B] rounded-lg flex items-center justify-center text-white font-black text-sm">ER</div>
+            <div className="w-10 h-10 bg-[#FE2C55] rounded-lg flex items-center justify-center text-white font-black text-sm">ER</div>
             <div>
-              <h1 className="text-lg font-black text-[#F59E0B]">ADMIN</h1>
+              <h1 className="text-lg font-black text-[#FE2C55]">ADMIN</h1>
               <p className="text-xs text-gray-400">Panel de control - Eco Rifas</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => router.push('/')} className="bg-[#78350F] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[#92400E] transition-colors">Ver App 🎰</button>
+            <button onClick={() => router.push('/')} className="bg-[#111111] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[#222222] transition-colors">Ver App 🎰</button>
             <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm">Salir</button>
           </div>
         </div>
@@ -356,7 +356,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-white border-2 border-[#FFE600] p-4 shadow-sm">
+        <div className="rounded-lg bg-white border-2 border-[#25F4EE] p-4 shadow-sm">
           <h2 className="font-black text-lg mb-3 flex items-center gap-2 text-[#333]">📬 BANDEJA DE ENTRADA - PAGOS PENDIENTES</h2>
           {pendientesPago.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
@@ -371,7 +371,7 @@ export default function AdminPage() {
                 return (
                   <div key={b.id} className="bg-[#F5F5F5] rounded-lg p-4 border border-[#EBEBEB]">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-3xl font-black text-[#FFE600]">#{String(b.numero).padStart(2,'0')}</span>
+                      <span className="text-3xl font-black text-[#25F4EE]">#{String(b.numero).padStart(2,'0')}</span>
                       <span className="text-xs bg-[#111827] text-[#333] px-2 py-1 rounded font-bold">⏳ 10 min</span>
                     </div>
                     <p className="font-bold text-lg text-[#333]">{b.nombre || 'Sin nombre'}</p>
@@ -452,7 +452,7 @@ export default function AdminPage() {
                       <p className="text-[#39B54A] font-black">${(p.raffle_price || 0).toLocaleString('es-AR')}-</p>
                       <div className="flex items-center gap-3 mt-2 text-xs">
                         <span className="text-[#3483FA] font-bold">✅ {vend}/{p.numbers_total || 100}</span>
-                        {res > 0 && <span className="text-[#FFE600] font-bold">⏳ {res} reservados</span>}
+                        {res > 0 && <span className="text-[#25F4EE] font-bold">⏳ {res} reservados</span>}
                         <div className="flex-1 h-2 bg-[#EBEBEB] rounded-full overflow-hidden"><div className={`h-full rounded-full ${vend >= 100 ? 'bg-[#39B54A]' : 'bg-[#3483FA]'}`} style={{ width: porcent + '%' }}></div></div>
                       </div>
                     </div>
@@ -498,7 +498,7 @@ export default function AdminPage() {
                           <span className="text-lg font-black text-[#111827]">#{i + 1}</span>
                           <span className="font-bold text-[#333]">{u.nombre || 'Sin nombre'}</span>
                         </div>
-                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${u.boletosCount >= 5 ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}`}>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${u.boletosCount >= 5 ? 'bg-[#FE2C55]/10 text-[#C12045]' : 'bg-blue-100 text-blue-700'}`}>
                           {u.boletosCount} nums
                         </span>
                       </div>
@@ -542,7 +542,7 @@ export default function AdminPage() {
       <div className="max-w-2xl mx-auto px-4 mb-4">
         <div className="flex gap-2">
           <button onClick={manualRefresh} className="flex-1 bg-white text-[#333] py-2 rounded-lg font-bold text-sm border border-[#EBEBEB] shadow-sm">🔄 Actualizar datos</button>
-          <button onClick={() => setShowDebug(!showDebug)} className={`flex-1 py-2 rounded-lg font-bold text-sm ${showDebug ? 'bg-red-500 text-white' : 'bg-[#78350F] text-white'} shadow-sm`}>🐛 DEBUG {showDebug ? 'OCULTAR' : 'MOSTRAR'}</button>
+          <button onClick={() => setShowDebug(!showDebug)} className={`flex-1 py-2 rounded-lg font-bold text-sm ${showDebug ? 'bg-red-500 text-white' : 'bg-[#111111] text-white'} shadow-sm`}>🐛 DEBUG {showDebug ? 'OCULTAR' : 'MOSTRAR'}</button>
         </div>
       </div>
 
@@ -562,7 +562,7 @@ export default function AdminPage() {
                 const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
                 return (
                   <div key={prod.id} className="border border-[#EBEBEB] rounded-lg p-2">
-                    <p className="font-bold text-[#FFE600]">{prod.title || prod.nombre} ({prodBoletos.length} boletos)</p>
+                    <p className="font-bold text-[#25F4EE]">{prod.title || prod.nombre} ({prodBoletos.length} boletos)</p>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {reservados.length > 0 && (
                         <div className="w-full">
@@ -595,7 +595,7 @@ export default function AdminPage() {
           <div className="relative w-full max-w-sm rounded-lg p-6 text-center bg-white border border-[#EBEBEB] shadow-lg">
             <div className="text-6xl mb-4">✅</div>
             <h2 className="text-2xl font-black text-[#333]">CONFIRMAR PAGO</h2>
-            <p className="text-5xl font-black text-[#FFE600] my-4">#{String(showConfirmModal.numero).padStart(2,'0')}</p>
+            <p className="text-5xl font-black text-[#25F4EE] my-4">#{String(showConfirmModal.numero).padStart(2,'0')}</p>
             <p className="text-xl font-bold text-[#333]">{showConfirmModal.nombre}</p>
             <p className="text-gray-500 mb-6">{showConfirmModal.whatsapp}</p>
             <div className="flex gap-3">
@@ -614,9 +614,9 @@ export default function AdminPage() {
             <h2 className="text-2xl font-black text-[#111827]">REALIZAR SORTEO</h2>
             <p className="text-lg font-bold mt-4 text-[#333]">{showSorteoModal.title || showSorteoModal.nombre}</p>
             <p className="text-[#39B54A] font-black text-xl">${(showSorteoModal.raffle_price || 0).toLocaleString('es-AR')}-</p>
-            <div className="mt-4 p-4 rounded-lg bg-[#111827]/10 border border-[#FFE600]/30">
+            <div className="mt-4 p-4 rounded-lg bg-[#111827]/10 border border-[#25F4EE]/30">
               <p className="font-bold text-sm text-[#333]">Método de sorteo:</p>
-              <p className="text-lg font-black text-[#FFE600]">🀄 QUINIELA NACIONAL NOCTURNA</p>
+              <p className="text-lg font-black text-[#25F4EE]">🀄 QUINIELA NACIONAL NOCTURNA</p>
               <p className="text-xs text-gray-500 mt-1">Se usan las últimas 2 cifras de la cabeza de la Quiniela Nacional Nocturna (sorteo de las 21hs). 100% transparente.</p>
             </div>
             {showSorteoResult && (
@@ -625,7 +625,7 @@ export default function AdminPage() {
                   <>
                     <span className="text-5xl block mb-2 animate-bounce">🎊</span>
                     <p className="text-2xl font-black text-[#39B54A]">GANADOR!</p>
-                    <p className="text-6xl font-black text-[#FFE600] my-2">#{String(showSorteoResult.ganador.numero).padStart(2,'0')}</p>
+                    <p className="text-6xl font-black text-[#25F4EE] my-2">#{String(showSorteoResult.ganador.numero).padStart(2,'0')}</p>
                     <p className="text-xl font-bold text-[#333]">{showSorteoResult.ganador.nombre}</p>
                     {showSorteoResult.quiniela && (
                       <div className="mt-3 text-xs text-gray-500">
@@ -665,7 +665,7 @@ export default function AdminPage() {
                       const result = await res.json();
                       setShowSorteoResult(result);
                       if (result.success) {
-                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFE600', '#3483FA', '#39B54A'] });
+                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#25F4EE', '#3483FA', '#39B54A'] });
                       }
                     } catch (err) {
                       setShowSorteoResult({ success: false, error: 'Error de conexion' });

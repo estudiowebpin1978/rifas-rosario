@@ -64,7 +64,7 @@ export default function SocialFeed() {
       </header>
 
       <main className="max-w-lg mx-auto p-4 space-y-6 relative z-10">
-        <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-2xl p-4 border border-yellow-500/30 text-center">
+        <div className="bg-gradient-to-r from-[#FE2C55]/20 to-[#25F4EE]/20 rounded-2xl p-4 border border-[#FE2C55]/30 text-center">
           <span className="text-4xl animate-bounce inline-block">🎊</span>
           <h2 className="text-xl font-black mt-2">GALERÍA DE CAMPEONES</h2>
           <p className="text-gray-400 text-sm">Mirá quienes ya se llevaron premios!</p>

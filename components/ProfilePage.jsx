@@ -186,7 +186,7 @@ export default function ProfilePage() {
             <p className="text-xs text-gray-400 font-bold">PARTICIPADOS</p>
           </div>
           <div className="bg-gray-900/80 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
-            <p className="text-3xl font-black text-yellow-500">{stats.ganados}</p>
+            <p className="text-3xl font-black text-[#FE2C55]">{stats.ganados}</p>
             <p className="text-xs text-gray-400 font-bold">GANADOS</p>
           </div>
           <div className="bg-gray-900/80 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
@@ -195,7 +195,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-2xl p-4 border border-yellow-500/30">
+        <div className="bg-gradient-to-r from-[#FE2C55]/20 to-[#25F4EE]/20 rounded-2xl p-4 border border-[#FE2C55]/30">
           <h3 className="font-black flex items-center gap-2 mb-3">🏆 MIS PREMIOS GANADOS</h3>
           {wins.length === 0 ? (
             <div className="text-center py-8">
@@ -213,7 +213,7 @@ export default function ProfilePage() {
                     <p className="font-black text-sm">{win.productos?.title || win.productos?.nombre}</p>
                     <p className="text-xs text-pink-400">#{String(win.numero).padStart(2,'0')}</p>
                   </div>
-                  <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full font-bold">GANADOR</span>
+                  <span className="text-xs bg-[#FE2C55]/20 text-[#FE2C55] px-2 py-1 rounded-full font-bold">GANADOR</span>
                 </div>
               ))}
             </div>

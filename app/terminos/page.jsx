@@ -9,7 +9,7 @@ export default function TerminosPage() {
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-gray-800 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <button onClick={() => router.back()} className="p-2 rounded-lg bg-white/10 text-white shadow-sm hover:bg-white/20 transition-colors">←</button>
-          <h1 className="text-xl font-black text-[#F59E0B]">TERMINOS Y CONDICIONES</h1>
+          <h1 className="text-xl font-black text-[#FE2C55]">TERMINOS Y CONDICIONES</h1>
         </div>
       </header>
 
@@ -89,7 +89,7 @@ export default function TerminosPage() {
           </div>
         </div>
 
-        <button onClick={() => router.back()} className="w-full bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black font-black py-4 rounded-2xl shadow-lg">
+        <button onClick={() => router.back()} className="w-full bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-black font-black py-4 rounded-2xl shadow-lg">
           VOLVER
         </button>
       </main>

@@ -216,7 +216,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
         <div className="fixed inset-0 z-[80] flex items-end justify-center" onClick={() => setMinimized(true)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
           <div
-            className="relative w-full max-w-md h-[85vh] bg-white rounded-t-[2rem] shadow-2xl border-t-4 border-[#FFE600] flex flex-col overflow-hidden"
+            className="relative w-full max-w-md h-[85vh] bg-white rounded-t-[2rem] shadow-2xl border-t-4 border-[#25F4EE] flex flex-col overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
@@ -224,7 +224,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-[#39B54A] rounded-full animate-pulse"></div>
                 <div>
-                  <h2 className="font-black text-sm text-[#F59E0B]">
+                  <h2 className="font-black text-sm text-[#FE2C55]">
                     {productoActivo ? (productoActivo.title || productoActivo.nombre) : 'CHAT EN VIVO'}
                   </h2>
                   <p className="text-[10px] text-[#666]">{messages.length} mensajes</p>
@@ -250,7 +250,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
               <div className="absolute top-16 left-4 right-4 z-10 bg-white rounded-xl shadow-2xl border border-[#EBEBEB] p-2 max-h-60 overflow-y-auto">
                 <button
                   onClick={() => { setProductoActivo(null); setShowProductSelector(false); setParticipaEnProducto(false); }}
-                  className={`w-full text-left p-3 rounded-lg text-sm font-bold transition-colors ${!productoActivo ? 'bg-[#FFE600] text-[#333]' : 'hover:bg-[#F5F5F5] text-[#666]'}`}
+                  className={`w-full text-left p-3 rounded-lg text-sm font-bold transition-colors ${!productoActivo ? 'bg-[#25F4EE] text-[#333]' : 'hover:bg-[#F5F5F5] text-[#666]'}`}
                 >
                   💬 Chat General (Todas las rifas)
                 </button>
@@ -258,7 +258,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
                   <button
                     key={p.id}
                     onClick={() => { setProductoActivo(p); setShowProductSelector(false); }}
-                    className={`w-full text-left p-3 rounded-lg text-sm font-bold transition-colors ${productoActivo?.id === p.id ? 'bg-[#FFE600] text-[#333]' : 'hover:bg-[#F5F5F5] text-[#666]'}`}
+                    className={`w-full text-left p-3 rounded-lg text-sm font-bold transition-colors ${productoActivo?.id === p.id ? 'bg-[#25F4EE] text-[#333]' : 'hover:bg-[#F5F5F5] text-[#666]'}`}
                   >
                     🎰 {p.title || p.nombre}
                   </button>
@@ -312,9 +312,9 @@ export default function ChatBox({ user, productos, allBoletos }) {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className={`font-bold text-sm truncate ${isWinner ? 'text-yellow-600' : 'text-[#3483FA]'}`}>
+                              <span className={`font-bold text-sm truncate ${isWinner ? 'text-[#C12045]' : 'text-[#3483FA]'}`}>
                                 {msg.user_name}
-                                {isWinner && <span className="ml-1 text-[10px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full font-bold">GANADOR</span>}
+                                {isWinner && <span className="ml-1 text-[10px] bg-[#FE2C55]/10 text-[#C12045] px-1.5 py-0.5 rounded-full font-bold">GANADOR</span>}
                               </span>
                               <span className="text-[10px] text-gray-400">{formatTime(msg.created_at)}</span>
                             </div>
@@ -356,8 +356,8 @@ export default function ChatBox({ user, productos, allBoletos }) {
             {/* Input */}
             <div className="p-3 border-t border-[#EBEBEB] bg-white">
               {productoActivo && !verifiedWhatsapp && (
-                <div className="mb-2 p-2 rounded-lg bg-yellow-50 border border-yellow-200 text-center">
-                  <p className="text-xs font-bold text-yellow-700">
+                <div className="mb-2 p-2 rounded-lg bg-[#FE2C55]/10 border border-[#FE2C55]/20 text-center">
+                  <p className="text-xs font-bold text-[#C12045]">
                     Identificate con tu WhatsApp para chatear en este producto
                   </p>
                   <button onClick={() => setShowWhatsappModal(true)} className="text-xs font-bold text-[#3483FA] underline mt-1">
@@ -417,7 +417,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
       {showWhatsappModal && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center p-4" onClick={() => setShowWhatsappModal(false)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-sm rounded-2xl p-6 bg-white shadow-2xl border-t-4 border-[#FFE600]" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-sm rounded-2xl p-6 bg-white shadow-2xl border-t-4 border-[#25F4EE]" onClick={e => e.stopPropagation()}>
             <div className="text-center mb-4">
               <span className="text-5xl block mb-3">📱</span>
               <h2 className="text-xl font-black text-[#1A3C6D]">IDENTIFICATE</h2>

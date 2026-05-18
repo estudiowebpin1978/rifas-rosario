@@ -84,9 +84,9 @@ setAuthLoading(false);
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-gray-800">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-[#F59E0B] rounded-lg flex items-center justify-center text-white font-black text-lg">ER</div>
+            <div className="w-12 h-12 bg-[#FE2C55] rounded-lg flex items-center justify-center text-white font-black text-lg">ER</div>
             <div>
-              <h1 className="text-xl font-black text-[#F59E0B]">ECO RIFAS</h1>
+              <h1 className="text-xl font-black text-[#FE2C55]">ECO RIFAS</h1>
               <p className="text-[10px] text-gray-400 font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
             </div>
           </div>
@@ -101,12 +101,12 @@ setAuthLoading(false);
       {showMenu && (
         <div className="fixed inset-0 z-40 bg-[#111827]/95 backdrop-blur-xl p-6">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-black text-[#F59E0B]">Menu</h2>
+            <h2 className="text-2xl font-black text-[#FE2C55]">Menu</h2>
             <button onClick={() => setShowMenu(false)} className="text-3xl text-white">✕</button>
           </div>
           <nav className="space-y-4">
-            <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#F59E0B] text-black font-bold text-lg text-center shadow-sm hover:bg-[#D97706] transition-colors">👤 Mi Cuenta</button>
-            <a href="/admin" className="block p-4 rounded-lg bg-[#78350F] text-white font-bold text-lg text-center shadow-sm hover:bg-[#92400E] transition-colors">🔐 Panel Admin</a>
+            <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#FE2C55] text-black font-bold text-lg text-center shadow-sm hover:bg-[#C12045] transition-colors">👤 Mi Cuenta</button>
+            <a href="/admin" className="block p-4 rounded-lg bg-[#111111] text-white font-bold text-lg text-center shadow-sm hover:bg-[#222222] transition-colors">🔐 Panel Admin</a>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
             {showInstall && <button onClick={async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') setShowInstall(false); setDeferredPrompt(null); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>}
             <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Terminos y Condiciones</a>
@@ -116,19 +116,19 @@ setAuthLoading(false);
 
       <main className="max-w-lg mx-auto p-6 relative z-10">
         <div className="text-center mb-8">
-          <div className="w-32 h-32 mx-auto mb-4 rounded-2xl overflow-hidden shadow-lg bg-[#111827] border-2 border-[#F59E0B]/30 flex items-center justify-center">
-            <div className="w-24 h-24 bg-gradient-to-br from-[#F59E0B] to-[#B45309] rounded-xl flex items-center justify-center text-white font-black text-3xl shadow-lg">ER</div>
+          <div className="w-32 h-32 mx-auto mb-4 rounded-2xl overflow-hidden shadow-lg bg-[#111827] border-2 border-[#FE2C55]/30 flex items-center justify-center">
+            <div className="w-24 h-24 bg-gradient-to-br from-[#FE2C55] to-[#C12045] rounded-xl flex items-center justify-center text-white font-black text-3xl shadow-lg">ER</div>
           </div>
           <h2 className="text-3xl font-black mb-2 text-[#111827]">ECO RIFAS</h2>
           <p className="text-lg font-medium text-[#666]">🛒 Los productos que amas · ahora en rifas economicas!</p>
         </div>
 
         <div className="space-y-4">
-          <button onClick={() => { setShowAuth(true); setAuthMode('login'); }} className="w-full bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black font-black py-5 rounded-2xl text-xl shadow-lg shadow-[#F59E0B]/30 hover:shadow-xl hover:shadow-[#F59E0B]/40 active:scale-[0.98] transition-all">
+          <button onClick={() => { setShowAuth(true); setAuthMode('login'); }} className="w-full bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-black font-black py-5 rounded-2xl text-xl shadow-lg shadow-[#FE2C55]/30 hover:shadow-xl hover:shadow-[#FE2C55]/40 active:scale-[0.98] transition-all">
             🚀 Entrar a Eco Rifas
           </button>
           
-          <button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className="w-full font-bold py-4 rounded-2xl text-lg bg-white border-2 border-[#F59E0B] text-[#333] shadow-md hover:bg-[#F59E0B]/10 hover:shadow-lg transition-all active:scale-[0.98]">
+          <button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className="w-full font-bold py-4 rounded-2xl text-lg bg-white border-2 border-[#FE2C55] text-[#333] shadow-md hover:bg-[#FE2C55]/10 hover:shadow-lg transition-all active:scale-[0.98]">
             ✨ Crear cuenta gratis
           </button>
         </div>
@@ -140,7 +140,7 @@ setAuthLoading(false);
         </div>
 
         <div className="mt-8 text-center">
-          <a href="/app" className="text-[#F59E0B] font-bold text-lg hover:underline">
+          <a href="/app" className="text-[#FE2C55] font-bold text-lg hover:underline">
             Ver rifas disponibles sin cuenta →
           </a>
         </div>
@@ -153,7 +153,7 @@ setAuthLoading(false);
             <button onClick={() => setShowAuth(false)} className="absolute top-4 right-4 text-2xl text-[#333]">✕</button>
             
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#F59E0B] to-[#B45309] rounded-xl flex items-center justify-center text-white font-black text-xl mx-auto mb-3 shadow-lg">ER</div>
+              <div className="w-16 h-16 bg-gradient-to-br from-[#FE2C55] to-[#C12045] rounded-xl flex items-center justify-center text-white font-black text-xl mx-auto mb-3 shadow-lg">ER</div>
               <h2 className="text-2xl font-black text-[#111827]">{authMode === 'login' ? 'ENTRAR' : 'CREAR CUENTA'}</h2>
             </div>
 
@@ -162,17 +162,17 @@ setAuthLoading(false);
 
             <form onSubmit={handleAuth} className="space-y-4">
               {authMode === 'signup' && (
-                <input type="text" placeholder="Tu nombre" required value={authForm.nombre} onChange={e => setAuthForm({...authForm, nombre: e.target.value})} className="w-full rounded-xl p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#F59E0B] outline-none text-[#333]" />
+                <input type="text" placeholder="Tu nombre" required value={authForm.nombre} onChange={e => setAuthForm({...authForm, nombre: e.target.value})} className="w-full rounded-xl p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#FE2C55] outline-none text-[#333]" />
               )}
-              <input type="email" placeholder="Email" required value={authForm.email} onChange={e => setAuthForm({...authForm, email: e.target.value})} className="w-full rounded-xl p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#F59E0B] outline-none text-[#333]" />
-              <input type="password" placeholder="Contrasena" required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} className="w-full rounded-xl p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#F59E0B] outline-none text-[#333]" />
-              <button disabled={authLoading} className="w-full bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black font-black py-4 rounded-xl shadow-lg disabled:opacity-60 active:scale-[0.98] transition-all">
+              <input type="email" placeholder="Email" required value={authForm.email} onChange={e => setAuthForm({...authForm, email: e.target.value})} className="w-full rounded-xl p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#FE2C55] outline-none text-[#333]" />
+              <input type="password" placeholder="Contrasena" required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} className="w-full rounded-xl p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#FE2C55] outline-none text-[#333]" />
+              <button disabled={authLoading} className="w-full bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-black font-black py-4 rounded-xl shadow-lg disabled:opacity-60 active:scale-[0.98] transition-all">
                 {authLoading ? '⏳' : authMode === 'login' ? '🚀 ENTRAR' : '✨ CREAR CUENTA'}
               </button>
             </form>
 
             <div className="mt-4 text-center">
-              <button onClick={() => { setAuthMode(authMode === 'login' ? 'signup' : 'login'); setAuthError(''); setAuthSuccess(''); }} className="text-sm font-bold text-[#F59E0B]">
+              <button onClick={() => { setAuthMode(authMode === 'login' ? 'signup' : 'login'); setAuthError(''); setAuthSuccess(''); }} className="text-sm font-bold text-[#FE2C55]">
                 {authMode === 'login' ? 'No tienes cuenta? Crea una' : 'Ya tienes cuenta? Inicia sesion'}
               </button>
             </div>

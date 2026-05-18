@@ -8,8 +8,8 @@ module.exports = {
     extend: {
       colors: {
         eco: {
-          gold: '#F59E0B',
-          'dark-gold': '#B45309',
+gold: '#FE2C55',
+      'dark-gold': '#C12045',
           black: '#111827',
           'dark-black': '#0F172A',
           green: '#39B54A',

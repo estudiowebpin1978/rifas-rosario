@@ -329,14 +329,14 @@ export default function AppPage() {
                 <p className="mt-6 text-gray-500">Esperando al ganador...</p>
                 <div className="mt-8 flex justify-center gap-2 flex-wrap max-w-xs mx-auto">
                   {boletos.filter(b => b.estado === 'vendido').slice(0, 20).map(b => (
-                    <span key={b.id} className={`px-2 py-1 rounded-lg text-sm font-bold ${ganadorAnimado === b.numero ? 'bg-yellow-500 text-black animate-bounce' : 'bg-gray-100 text-gray-600'}`}>#{String(b.numero).padStart(2,'0')}</span>
+                    <span key={b.id} className={`px-2 py-1 rounded-lg text-sm font-bold ${ganadorAnimado === b.numero ? 'bg-[#FE2C55] text-white animate-bounce' : 'bg-gray-100 text-gray-600'}`}>#{String(b.numero).padStart(2,'0')}</span>
                   ))}
                 </div>
               </>
             ) : (
               <>
                 <div className="animate-bounce mb-6"><span className="text-8xl">🎊</span></div>
-                <p className="text-2xl font-black text-yellow-500 mb-2">GANADOR!</p>
+                <p className="text-2xl font-black text-[#FE2C55] mb-2">GANADOR!</p>
                 <p className="text-8xl font-black bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent animate-pulse">#{String(ganadorAnimado).padStart(2,'0')}</p>
                 <p className="mt-4 text-xl font-bold">{boletos.find(b => b.numero === ganadorAnimado)?.nombre}</p>
                 <p className="mt-2 text-pink-500 font-bold">{productoSeleccionado?.title || productoSeleccionado?.nombre}</p>
@@ -353,7 +353,7 @@ export default function AppPage() {
       {sorteoNotification && (
         <div className="fixed inset-0 z-[90] flex items-end justify-center" onClick={descartarSorteoNotification}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#F59E0B]" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
             <div className="text-center">
               <span className="text-6xl block mb-4 animate-bounce">🎰</span>
@@ -368,9 +368,9 @@ export default function AppPage() {
                   return 'El sorteo se realizará mediante la Quiniela Nacional Nocturna.';
                 })()}
               </p>
-              <div className="mt-4 p-4 rounded-lg bg-[#FFE600]/10 border border-[#FFE600]/30">
+              <div className="mt-4 p-4 rounded-lg bg-[#25F4EE]/10 border border-[#25F4EE]/30">
                 <p className="font-bold text-sm text-[#333]">🀄 Método de sorteo:</p>
-                <p className="text-lg font-black text-[#F59E0B]">QUINIELA NACIONAL NOCTURNA</p>
+                <p className="text-lg font-black text-[#FE2C55]">QUINIELA NACIONAL NOCTURNA</p>
               </div>
               <button onClick={descartarSorteoNotification} className="w-full mt-6 bg-[#3483FA] text-white font-black py-4 rounded-2xl text-lg shadow-sm">
                 ENTENDIDO! ✅
@@ -381,7 +381,7 @@ export default function AppPage() {
       )}
 
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#FFE600]/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#25F4EE]/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[#3483FA]/20 rounded-full blur-3xl"></div>
       </div>
 
@@ -393,7 +393,7 @@ export default function AppPage() {
         const totalNumeros = allProductos.filter(p => !p.finalizado).length * 100;
         const totalPorcent = Math.round((totalVendidos / totalNumeros) * 100);
         return totalPorcent > 0 ? (
-          <div className="bg-[#F59E0B]/10 border-b border-[#F59E0B]/30 px-4 py-2">
+          <div className="bg-[#FE2C55]/10 border-b border-[#FE2C55]/30 px-4 py-2">
             <div className="max-w-lg mx-auto flex items-center gap-3 text-xs">
               <span className="text-[#3483FA] font-black animate-pulse">📊 EN VIVO</span>
               <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
@@ -408,9 +408,9 @@ export default function AppPage() {
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-gray-800 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-[#F59E0B] rounded-lg flex items-center justify-center text-white font-black text-sm">ER</div>
+            <div className="w-10 h-10 bg-[#FE2C55] rounded-lg flex items-center justify-center text-white font-black text-sm">ER</div>
             <div>
-              <h1 className="text-xl font-black text-[#F59E0B]">ECO RIFAS</h1>
+              <h1 className="text-xl font-black text-[#FE2C55]">ECO RIFAS</h1>
               <p className="text-[10px] text-gray-400 font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
             </div>
           </div>
@@ -424,7 +424,7 @@ export default function AppPage() {
       {showShare && (
           <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => setShowShare(false)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#F59E0B]" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
             <h2 className="text-xl font-black text-center mb-6 text-[#111827]">Compartir en...</h2>
             <div className="grid grid-cols-3 gap-4">
@@ -443,7 +443,7 @@ export default function AppPage() {
       {showComoFunciona && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center" onClick={() => setShowComoFunciona(false)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#F59E0B]" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
             <h2 className="text-xl font-black text-center mb-6 text-[#111827]">¿CÓMO FUNCIONAN LAS RIFAS?</h2>
             <div className="space-y-4">
@@ -454,7 +454,7 @@ export default function AppPage() {
               <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm text-[#333]">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-500 text-sm">Entre más participen, más chances tienen de ganar. Compartí la rifa con todos!</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm text-[#333]">RECLAMÁ TU PREMIO</p><p className="text-gray-500 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega. Subí tu foto ganadora al chat!</p></div></div>
             </div>
-            <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black font-black py-4 rounded-lg shadow-lg hover:shadow-xl active:scale-[0.98] transition-all">ENTENDÍ! 💪</button>
+            <button onClick={() => setShowComoFunciona(false)} className="w-full mt-6 bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-black font-black py-4 rounded-lg shadow-lg hover:shadow-xl active:scale-[0.98] transition-all">ENTENDÍ! 💪</button>
           </div>
         </div>
       )}
@@ -462,13 +462,13 @@ export default function AppPage() {
       {showMenu && (
         <div className="fixed inset-0 z-40 bg-[#111827]/95 backdrop-blur-xl p-6">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-black text-[#F59E0B]">Menu</h2>
+            <h2 className="text-2xl font-black text-[#FE2C55]">Menu</h2>
             <button onClick={() => setShowMenu(false)} className="text-3xl text-white">✕</button>
           </div>
           <nav className="space-y-4">
             <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">❓ Cómo Funciona?</button>
-            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#F59E0B] text-black font-bold text-lg text-center shadow-sm hover:bg-[#D97706] transition-colors">📤 Compartir App</button>
-            <a href="/admin" className="block p-4 rounded-lg bg-[#78350F] text-white font-bold text-lg text-center shadow-sm hover:bg-[#92400E] transition-colors">🔐 Panel Admin</a>
+            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#FE2C55] text-black font-bold text-lg text-center shadow-sm hover:bg-[#C12045] transition-colors">📤 Compartir App</button>
+            <a href="/admin" className="block p-4 rounded-lg bg-[#111111] text-white font-bold text-lg text-center shadow-sm hover:bg-[#222222] transition-colors">🔐 Panel Admin</a>
             <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
             {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>}
             <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Terminos y Condiciones</a>
@@ -506,7 +506,7 @@ export default function AppPage() {
                   {(heroProd.image || heroProd.imagen) ? <img src={heroProd.image || heroProd.imagen} alt={heroProd.title || heroProd.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center"><span className="text-8xl">🎁</span></div>}
                   <div className="absolute top-3 left-3 z-10 flex gap-2">
                     <span className="bg-[#3483FA] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">🔥 ACTIVA</span>
-                    <span className="bg-[#FFE600] text-[#333] text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">{getCategoryEmoji(heroProd.categorias?.nombre)} {heroProd.categorias?.nombre}</span>
+                    <span className="bg-[#25F4EE] text-[#333] text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">{getCategoryEmoji(heroProd.categorias?.nombre)} {heroProd.categorias?.nombre}</span>
                   </div>
                   {heroRestantes <= 20 && heroRestantes > 0 && (
                     <div className="absolute top-3 right-3 z-10">
@@ -522,13 +522,13 @@ export default function AppPage() {
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-[#333] text-2xl font-black">{heroProd.title || heroProd.nombre}</h2>
-                    {heroPorcent >= 50 && <span className="bg-[#FFE600] text-[#333] text-xs font-bold px-2 py-0.5 rounded-lg">🔥 TRENDING</span>}
+                    {heroPorcent >= 50 && <span className="bg-[#25F4EE] text-[#333] text-xs font-bold px-2 py-0.5 rounded-lg">🔥 TRENDING</span>}
                   </div>
                   <p className="text-3xl font-black text-[#39B54A]">{formatPrice(heroProd.raffle_price || heroProd.precio)}</p>
                     <div className="mt-3">
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-[#3483FA] font-bold">🎟 {heroVendidos}/100</span>
-                      {heroReservados > 0 && <span className="text-[#FFE600] font-bold">⏳ {heroReservados} reservados</span>}
+                      {heroReservados > 0 && <span className="text-[#25F4EE] font-bold">⏳ {heroReservados} reservados</span>}
                     </div>
                     <div className="h-4 bg-[#EBEBEB] rounded-full overflow-hidden">
                       <div className="h-full bg-[#3483FA] rounded-full transition-all duration-1000" style={{ width: heroPorcent + '%' }}></div>
@@ -579,13 +579,13 @@ export default function AppPage() {
               const prodPorcent = 100 - prodVend;
               const isHot = prodVend >= 50 && !prod.finalizado;
               return (
-                <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-lg overflow-hidden bg-white border transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-sm ${prod.finalizado ? 'opacity-50 border-gray-200' : isHot ? 'border-[#FFE600]' : 'border-[#EBEBEB]'}`}>
+                <div key={prod.id} onClick={() => setProductoSeleccionado(prod)} className={`cursor-pointer rounded-lg overflow-hidden bg-white border transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-sm ${prod.finalizado ? 'opacity-50 border-gray-200' : isHot ? 'border-[#25F4EE]' : 'border-[#EBEBEB]'}`}>
                   <div className="relative aspect-square">
                     {(prod.image || prod.imagen) ? <img src={prod.image || prod.imagen} alt={prod.title || prod.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><span className="text-5xl">{getCategoryEmoji(prod.categorias?.nombre)}</span></div>}
                     <div className="absolute top-2 left-2 flex gap-1">
                       <span className="bg-white/90 text-[#666] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">{getCategoryEmoji(prod.categorias?.nombre)} {prod.categorias?.nombre}</span>
                     </div>
-                    {isHot && <div className="absolute top-2 right-2"><span className="bg-[#FFE600] text-[#333] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">🔥 HOT</span></div>}
+                    {isHot && <div className="absolute top-2 right-2"><span className="bg-[#25F4EE] text-[#333] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">🔥 HOT</span></div>}
                     {prodPorcent <= 10 && !prod.finalizado && <div className="absolute top-2 right-2"><span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded animate-pulse">⚠️ ULTIMOS!</span></div>}
                     {prod.finalizado && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><span className="text-5xl animate-bounce">🏆</span></div>}
                     <button onClick={(e) => { e.stopPropagation(); shareProduct(prod); }} className="absolute bottom-2 left-2 bg-white/80 text-[#333] p-1.5 rounded text-xs shadow-sm hover:bg-white">📤</button>
@@ -664,7 +664,7 @@ export default function AppPage() {
                   <div className="flex gap-2 text-[10px] font-medium">
                     <span><span className="w-3 h-3 inline-block bg-white border border-gray-300 rounded mr-1"></span>Libre</span>
                     <span><span className="w-3 h-3 inline-block bg-[#3483FA] rounded mr-1"></span>Elegido</span>
-                    <span><span className="w-3 h-3 inline-block bg-[#FFE600] border border-yellow-400 rounded mr-1"></span>Reservado</span>
+                    <span><span className="w-3 h-3 inline-block bg-[#25F4EE] border border-[#25F4EE] rounded mr-1"></span>Reservado</span>
                     <span><span className="w-3 h-3 inline-block bg-gray-200 rounded mr-1"></span>Vendido</span>
                   </div>
                 </div>
@@ -674,7 +674,7 @@ export default function AppPage() {
                     const isReserved = b.estado === 'reservado';
                     const isSold = b.estado === 'vendido';
                     return (
-                      <button key={b.id} disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)} className={`h-9 rounded text-xs font-bold transition-all duration-150 active:scale-90 ${isSold ? 'bg-gray-100 text-gray-300 cursor-not-allowed border border-gray-200' : isReserved ? 'bg-[#FFE600] text-[#999] border border-yellow-300 cursor-not-allowed' : isSelected ? 'bg-[#3483FA] text-white scale-110 ring-2 ring-blue-200 border border-[#3483FA]' : 'bg-white text-[#333] border border-[#EBEBEB] hover:border-[#3483FA] hover:text-[#3483FA]'}`}
+                      <button key={b.id} disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)} className={`h-9 rounded text-xs font-bold transition-all duration-150 active:scale-90 ${isSold ? 'bg-gray-100 text-gray-300 cursor-not-allowed border border-gray-200' : isReserved ? 'bg-[#25F4EE] text-[#999] border border-[#25F4EE]/60 cursor-not-allowed' : isSelected ? 'bg-[#3483FA] text-white scale-110 ring-2 ring-blue-200 border border-[#3483FA]' : 'bg-white text-[#333] border border-[#EBEBEB] hover:border-[#3483FA] hover:text-[#3483FA]'}`}
                         title={isSold ? `#${String(b.numero).padStart(2,'0')} - Vendido` : isReserved ? `#${String(b.numero).padStart(2,'0')} - Reservado` : `#${String(b.numero).padStart(2,'0')} - Disponible`}>
                         {String(b.numero).padStart(2, '0')}
                       </button>
@@ -711,9 +711,9 @@ export default function AppPage() {
           )}
 
           {productoSeleccionado.finalizado && productoSeleccionado.ganador_num && (
-            <div className="rounded-lg p-6 text-center bg-white border-2 border-[#FFE600] shadow-sm">
+            <div className="rounded-lg p-6 text-center bg-white border-2 border-[#25F4EE] shadow-sm">
               <span className="text-5xl">🏆</span>
-              <p className="text-2xl font-black mt-2 text-[#FFE600]">GANADOR</p>
+              <p className="text-2xl font-black mt-2 text-[#25F4EE]">GANADOR</p>
               <p className="text-5xl font-black text-[#333]">#{String(productoSeleccionado.ganador_num).padStart(2,'0')}</p>
               <p className="text-lg font-bold mt-2 text-[#333]">{productoSeleccionado.ganador_nombre}</p>
             </div>
@@ -724,7 +724,7 @@ export default function AppPage() {
       {showReserva && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => setShowReserva(false)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#F59E0B]" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
             <div className="text-center mb-4">
               <p className="text-xs font-bold text-gray-500">🎲 TU NÚMERO DE LA SUERTE</p>
@@ -739,10 +739,10 @@ export default function AppPage() {
                 </div>
               </div>
             </div>
-            <div className="text-center p-3 rounded-lg mb-4 bg-[#FFE600]/10 border border-[#FFE600]/30">
+            <div className="text-center p-3 rounded-lg mb-4 bg-[#25F4EE]/10 border border-[#25F4EE]/30">
               <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
               <p className="text-xl font-black text-[#333] tracking-wider">eco-rifas</p>
-              <button onClick={copyAlias} className="bg-[#F59E0B] text-black px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#D97706] transition-colors">📋 COPIAR ALIAS</button>
+              <button onClick={copyAlias} className="bg-[#FE2C55] text-black px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#C12045] transition-colors">📋 COPIAR ALIAS</button>
             </div>
             <form onSubmit={handleReserva} className="space-y-3">
               <div>
@@ -770,7 +770,7 @@ export default function AppPage() {
       {showBulkReserva && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#F59E0B]" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
             <div className="text-center mb-4">
               <p className="text-xs font-bold text-gray-500">TUS NÚMEROS DE LA SUERTE</p>
@@ -794,7 +794,7 @@ export default function AppPage() {
                 </div>
               </div>
             </div>
-            <div className="text-center p-3 rounded-lg mb-4 bg-[#FFE600]/10 border border-[#FFE600]/30">
+            <div className="text-center p-3 rounded-lg mb-4 bg-[#25F4EE]/10 border border-[#25F4EE]/30">
               <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
               <p className="text-sm font-black text-[#333] mt-1">eco-rifas</p>
               <button onClick={() => { navigator.clipboard?.writeText('eco-rifas'); }} className="mt-1 text-xs text-[#3483FA] font-bold">📋 COPIAR</button>
@@ -833,7 +833,7 @@ export default function AppPage() {
           <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
           <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-[#3483FA]"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
           <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
-          {showInstall && <button onClick={installApp} className="flex flex-col items-center gap-1 text-[#FFE600]"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>}
+          {showInstall && <button onClick={installApp} className="flex flex-col items-center gap-1 text-[#25F4EE]"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>}
         </div>
       </nav>
     </div>
