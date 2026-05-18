@@ -18,7 +18,6 @@ export default function RifaApp() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
 
-  const LOGO_URL = '/logo.png';
   const WHATSAPP = '5493412500029';
 
   useEffect(() => {
@@ -105,7 +104,7 @@ setAuthLoading(false);
             <button onClick={() => setShowMenu(false)} className="text-3xl text-white">✕</button>
           </div>
           <nav className="space-y-4">
-            <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-[#FE2C55] text-black font-bold text-lg text-center shadow-sm hover:bg-[#C12045] transition-colors">👤 Mi Cuenta</button>
+            <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full btn-3d-pink">👤 Mi Cuenta</button>
             <a href="/admin" className="block p-4 rounded-lg bg-[#111111] text-white font-bold text-lg text-center shadow-sm hover:bg-[#222222] transition-colors">🔐 Panel Admin</a>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
             {showInstall && <button onClick={async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') setShowInstall(false); setDeferredPrompt(null); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>}
@@ -114,17 +113,21 @@ setAuthLoading(false);
         </div>
       )}
 
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#FE2C55]/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#25F4EE]/20 rounded-full blur-3xl"></div>
+      </div>
       <main className="max-w-lg mx-auto p-6 relative z-10">
         <div className="text-center mb-8">
-          <div className="w-32 h-32 mx-auto mb-4 rounded-2xl overflow-hidden shadow-lg bg-[#111827] border-2 border-[#FE2C55]/30 flex items-center justify-center">
-            <img src="/logo.svg" alt="Eco Rifas" className="w-24 h-24" />
+          <div className="w-36 h-36 mx-auto mb-6 rounded-3xl shadow-2xl bg-gradient-to-br from-[#111827] to-black border-2 border-[#FE2C55]/30 flex items-center justify-center">
+            <img src="/logo.svg" alt="Eco Rifas" className="w-28 h-28" />
           </div>
-          <h2 className="text-3xl font-black mb-2 text-[#111827]">ECO RIFAS</h2>
+          <h2 className="text-4xl font-black mb-2 text-[#111827]">ECO RIFAS</h2>
           <p className="text-lg font-medium text-[#666]">🛒 Los productos que amas · ahora en rifas economicas!</p>
         </div>
 
         <div className="space-y-4">
-          <button onClick={() => { setShowAuth(true); setAuthMode('login'); }} className="w-full bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-black font-black py-5 rounded-2xl text-xl shadow-lg shadow-[#FE2C55]/30 hover:shadow-xl hover:shadow-[#FE2C55]/40 active:scale-[0.98] transition-all">
+          <button onClick={() => { setShowAuth(true); setAuthMode('login'); }} className="w-full btn-3d-pink text-lg">
             🚀 Entrar a Eco Rifas
           </button>
           
@@ -166,7 +169,7 @@ setAuthLoading(false);
               )}
               <input type="email" placeholder="Email" required value={authForm.email} onChange={e => setAuthForm({...authForm, email: e.target.value})} className="w-full rounded-xl p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#FE2C55] outline-none text-[#333]" />
               <input type="password" placeholder="Contrasena" required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} className="w-full rounded-xl p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#FE2C55] outline-none text-[#333]" />
-              <button disabled={authLoading} className="w-full bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-black font-black py-4 rounded-xl shadow-lg disabled:opacity-60 active:scale-[0.98] transition-all">
+              <button disabled={authLoading} className="w-full btn-3d-pink disabled:opacity-60">
                 {authLoading ? '⏳' : authMode === 'login' ? '🚀 ENTRAR' : '✨ CREAR CUENTA'}
               </button>
             </form>
