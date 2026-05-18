@@ -34,6 +34,7 @@ export default function AppPage() {
   const [showInstall, setShowInstall] = useState(false);
   const [receiptFile, setReceiptFile] = useState(null);
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
+  const [sorteoNotification, setSorteoNotification] = useState(null);
 
   const WHATSAPP = '5493412500029';
   const ALIAS = 'eco-rifas';
@@ -140,96 +141,17 @@ export default function AppPage() {
   useEffect(() => { if (productoSeleccionado) fetchBoletos(productoSeleccionado.id); }, [productoSeleccionado]);
 
   useEffect(() => {
-    allProductos.forEach(p => {
-      const prodBoletos = allBoletos.filter(b => b.producto_id === p.id);
-      const vendidos = prodBoletos.filter(b => b.estado === 'vendido').length;
-      if (vendidos === 100 && !p.finalizado && !p.sorteo_notificado && !showSorteo) {
-        notificarSorteoProximo(p, prodBoletos);
+    const pendientes = allProductos.filter(p =>
+      p.sorteo_programado && !p.finalizado && p.sorteo_notificado
+    );
+    pendientes.forEach(p => {
+      if (!sorteoNotification) {
+        setSorteoNotification(p);
       }
     });
-  }, [allProductos, allBoletos, showSorteo]);
+  }, [allProductos]);
 
-  const notificarSorteoProximo = async (producto, prodBoletos) => {
-    try {
-      await supabase.from('productos').update({ sorteo_notificado: true }).eq('id', producto.id);
-    } catch(e) { console.log('Error update'); }
-    
-    const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
-    
-    window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(
-      '🎰 SORTEO PROXIMO: ' + (producto.title || producto.nombre) + ' - Todos los numeros vendidos!\n\n' +
-      'Participantes: ' + vendidos.length + '\n' +
-      'Ver sorteo: ' + URL_APP
-    ), '_blank');
-    
-    setTimeout(() => iniciarSorteoAuto(producto, prodBoletos), 3000);
-  };
-
-  const iniciarSorteoAuto = async (producto, prodBoletos) => {
-    setProductoSeleccionado(producto);
-    setBoletos(prodBoletos);
-    setShowSorteo(true);
-    setShowPremio(false);
-    setGanadorAnimado(null);
-    setSorteoCountdown(30);
-    
-    let confettiInterval = setInterval(() => confetti({ particleCount: 30, spread: 60, origin: { y: 0.6 }, colors: ['#ff0', '#f0f', '#0ff', '#f00', '#0f0'] }), 800);
-    
-    const intervalo = setInterval(() => {
-      setSorteoCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(intervalo);
-          clearInterval(confettiInterval);
-          seleccionarGanadorAuto(producto, prodBoletos);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const seleccionarGanadorAuto = async (producto, prodBoletos) => {
-    const vendidos = prodBoletos.filter(b => b.estado === 'vendido');
-    if (vendidos.length === 0) return;
-    
-    let animIndex = 0;
-    const animInterval = setInterval(() => {
-      setGanadorAnimado(vendidos[Math.floor(Math.random() * vendidos.length)].numero);
-      if (++animIndex > 10) clearInterval(animInterval);
-    }, 150);
-    
-    setTimeout(() => {
-      clearInterval(animInterval);
-      const winner = vendidos[Math.floor(Math.random() * vendidos.length)];
-      setGanadorAnimado(winner.numero);
-      
-      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700', '#FF1493', '#00BFFF'] });
-      setTimeout(() => confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#FFD700', '#FF1493', '#00BFFF'] }), 200);
-      setTimeout(() => confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FFD700', '#FF1493', '#00BFFF'] }), 400);
-      setTimeout(() => confetti({ particleCount: 300, spread: 360, origin: { y: 0.5 } }), 1200);
-      
-      supabase.from('productos').update({ finalizado: true, ganador_num: winner.numero, ganador_nombre: winner.nombre }).eq('id', producto.id);
-      
-      window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(
-        '🏆 GANADOR DEL SORTEO!\n\n' +
-        '🎁 Producto: ' + (producto.title || producto.nombre) + '\n' +
-        '🏆 Numero Ganador: #' + String(winner.numero).padStart(2,'0') + '\n' +
-        '👤 Nombre: ' + winner.nombre + '\n' +
-        '📱 WhatsApp: ' + winner.whatsapp
-      ), '_blank');
-      
-      if (winner.whatsapp) {
-        window.open('https://wa.me/' + winner.whatsapp + '?text=' + encodeURIComponent(
-          '🎉🎉🎉 FELICIDADES! 🎉🎉🎉\n\n' +
-          'Ganaste el SORTEO!\n\n' +
-          '🎁 Producto: ' + (producto.title || producto.nombre) + '\n' +
-          '🏆 Tu numero: #' + String(winner.numero).padStart(2,'0') + '\n\n' +
-          'Contacta al admin para reclamar tu premio!'
-        ), '_blank');
-      }
-      setTimeout(() => setShowPremio(true), 2000);
-    });
-  };
+  const descartarSorteoNotification = () => setSorteoNotification(null);
 
   const fetchCategorias = async () => {
     try {
@@ -424,6 +346,36 @@ export default function AppPage() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {sorteoNotification && (
+        <div className="fixed inset-0 z-[90] flex items-end justify-center" onClick={descartarSorteoNotification}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#F59E0B]" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
+            <div className="text-center">
+              <span className="text-6xl block mb-4 animate-bounce">🎰</span>
+              <h2 className="text-2xl font-black text-[#333]">SORTEO PROGRAMADO</h2>
+              <p className="text-lg font-bold mt-3 text-[#3483FA]">{sorteoNotification.title || sorteoNotification.nombre}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                {(() => {
+                  const fecha = sorteoNotification.sorteo_fecha ? new Date(sorteoNotification.sorteo_fecha) : null;
+                  if (fecha) {
+                    return `El sorteo se realizará el ${fecha.toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })} mediante la Quiniela Nacional Nocturna.`;
+                  }
+                  return 'El sorteo se realizará mediante la Quiniela Nacional Nocturna.';
+                })()}
+              </p>
+              <div className="mt-4 p-4 rounded-lg bg-[#FFE600]/10 border border-[#FFE600]/30">
+                <p className="font-bold text-sm text-[#333]">🀄 Método de sorteo:</p>
+                <p className="text-lg font-black text-[#F59E0B]">QUINIELA NACIONAL NOCTURNA</p>
+              </div>
+              <button onClick={descartarSorteoNotification} className="w-full mt-6 bg-[#3483FA] text-white font-black py-4 rounded-2xl text-lg shadow-sm">
+                ENTENDIDO! ✅
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -23,6 +23,7 @@ export default function AdminPage() {
   const [sorteando, setSorteando] = useState(false);
   const [showSorteoResult, setShowSorteoResult] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const WHATSAPP = '5493412500029';
 
   useEffect(() => {
     const saved = localStorage.getItem('admin_token');
@@ -168,6 +169,80 @@ export default function AdminPage() {
         fetchData();
         const msg = `✅ VENTA CONFIRMADA - Eco Rifas\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
         if (boleto.whatsapp) window.open('https://wa.me/' + boleto.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+
+        if (result.sorteo) {
+          if (result.sorteo.estado === 'completado') {
+            const g = result.sorteo.ganador;
+            setNotif(`🏆 SORTEO COMPLETADO! Ganador: #${String(g.numero).padStart(2,'0')} - ${g.nombre} (Quiniela Nocturna)`);
+            confetti({ particleCount: 200, spread: 80, origin: { y: 0.5 } });
+
+            window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(
+              '🏆 SORTEO REALIZADO AUTOMATICAMENTE!\n\n' +
+              '🎁 Producto sorteado\n' +
+              '🏆 Ganador: #' + String(g.numero).padStart(2,'0') + ' - ' + g.nombre + '\n' +
+              '📱 WhatsApp: ' + g.whatsapp + '\n\n' +
+              '🀄 Método: Quiniela Nacional Nocturna'
+            ), '_blank');
+
+            if (g.whatsapp) {
+              setTimeout(() => {
+                window.open('https://wa.me/' + g.whatsapp + '?text=' + encodeURIComponent(
+                  '🎉🎉🎉 FELICIDADES! 🎉🎉🎉\n\n' +
+                  'Ganaste el SORTEO AUTOMATICO!\n\n' +
+                  '🏆 Tu numero: #' + String(g.numero).padStart(2,'0') + '\n\n' +
+                  'Contacta al admin para reclamar tu premio!'
+                ), '_blank');
+              }, 1000);
+            }
+
+            if (result.sorteo.participantes) {
+              result.sorteo.participantes.forEach((p, i) => {
+                if (p.whatsapp && p.whatsapp !== g.whatsapp) {
+                  setTimeout(() => {
+                    window.open('https://wa.me/' + p.whatsapp + '?text=' + encodeURIComponent(
+                      '🎰 SORTEO REALIZADO - Eco Rifas\n\n' +
+                      'El sorteo ya se realizó mediante la Quiniela Nacional Nocturna.\n\n' +
+                      '🏆 Ganador: #' + String(g.numero).padStart(2,'0') + ' - ' + g.nombre + '\n\n' +
+                      'Gracias por participar! 🍀'
+                    ), '_blank');
+                  }, 2000 + (i * 1500));
+                }
+              });
+            }
+          } else if (result.sorteo.estado === 'programado') {
+            const fecha = result.sorteo.fecha ? new Date(result.sorteo.fecha) : null;
+            const fechaStr = fecha ? fecha.toLocaleDateString('es-AR', {
+              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            }) : 'próximo día hábil';
+
+            setNotif(`📅 Sorteo programado: ${fechaStr} (${result.sorteo.motivo || ''})`);
+
+            window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(
+              '📅 SORTEO PROGRAMADO - Eco Rifas\n\n' +
+              'Todos los números fueron vendidos!\n\n' +
+              `Motivo: ${result.sorteo.motivo || 'Quiniela no disponible hoy'}\n` +
+              `Fecha del sorteo: ${fechaStr}\n\n` +
+              '🀄 Método: Quiniela Nacional Nocturna\n' +
+              'Los participantes serán notificados.'
+            ), '_blank');
+
+            if (result.sorteo.participantes) {
+              result.sorteo.participantes.forEach((p, i) => {
+                if (p.whatsapp) {
+                  setTimeout(() => {
+                    window.open('https://wa.me/' + p.whatsapp + '?text=' + encodeURIComponent(
+                      '📅 SORTEO PROGRAMADO - Eco Rifas\n\n' +
+                      'Todos los números de la rifa fueron vendidos!\n\n' +
+                      `📅 Fecha del sorteo: ${fechaStr}\n` +
+                      '🀄 Método: Quiniela Nacional Nocturna\n\n' +
+                      'Suerte a todos! 🍀'
+                    ), '_blank');
+                  }, 2000 + (i * 1500));
+                }
+              });
+            }
+          }
+        }
       } else {
         alert('Error: ' + (result.error || 'No se pudo confirmar'));
       }
