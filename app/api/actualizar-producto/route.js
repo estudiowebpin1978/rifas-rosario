@@ -6,7 +6,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export async function PATCH(request) {
   try {
     const body = await request.json();
-    const { id, nombre, descripcion, imagen, precio, categoria_id } = body;
+    const { id, nombre, descripcion, imagen, price, precio, categoria_id } = body;
 
     if (!id || !nombre || !precio) {
       return Response.json({ error: 'Faltan campos requeridos: id, nombre, precio' }, { status: 400 });
@@ -17,6 +17,7 @@ export async function PATCH(request) {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const precioNum = parseFloat(precio) || 0;
 
     const { data: producto, error: errorProducto } = await supabase
       .from('productos')
@@ -24,8 +25,12 @@ export async function PATCH(request) {
         nombre,
         descripcion: descripcion || null,
         imagen: imagen || null,
-        precio: '$ ' + (parseFloat(precio) || 0).toLocaleString('es-AR') + '-',
-        categoria_id: categoria_id ? parseInt(categoria_id) : null
+        precio: '$ ' + precioNum.toLocaleString('es-AR') + '-',
+        categoria_id: categoria_id ? parseInt(categoria_id) : null,
+        title: nombre,
+        image: imagen || null,
+        price: parseFloat(price) || 0,
+        raffle_price: precioNum
       })
       .eq('id', parseInt(id))
       .select()

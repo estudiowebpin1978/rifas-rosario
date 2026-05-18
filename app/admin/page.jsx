@@ -127,7 +127,7 @@ export default function AdminPage() {
       nombre: formData.title,
       descripcion: formData.description || null,
       imagen: formData.images.filter(u => u)[0] || null,
-      images: formData.images.filter(u => u),
+      price: parseFloat(formData.price) || 0,
       precio: formData.raffle_price,
       categoria_id: formData.categoria_id ? parseInt(formData.categoria_id) : null,
       numbers_total: parseInt(formData.numbers_total) || 100
@@ -157,6 +157,7 @@ export default function AdminPage() {
           nombre: showEditForm.title,
           descripcion: showEditForm.description || null,
           imagen: showEditForm.images.filter(u => u)[0] || null,
+          price: parseFloat(showEditForm.price) || 0,
           precio: showEditForm.raffle_price,
           categoria_id: showEditForm.categoria_id ? parseInt(showEditForm.categoria_id) : null
         })
