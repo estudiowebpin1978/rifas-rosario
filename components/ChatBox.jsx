@@ -196,26 +196,8 @@ export default function ChatBox({ user, productos, allBoletos }) {
   const productosActivos = (productos || []).filter(p => !p.finalizado);
   const winnerNumbers = getWinnerNumbers();
 
-<div className="fixed bottom-4 right-4 w-80 max-h-[80vh] flex flex-col bg-white rounded-lg shadow-lg border border-gray-200">
-          <div className="flex items-center justify-between p-2 bg-[#3483FA] text-white rounded-t-lg">
-            <h3 className="font-bold text-sm">{productoActivo ? productoActivo.title || productoActivo.nombre : 'Chat General'}</h3>
-            <button onClick={() => setMinimized(true)} className="text-xs">—</button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-2">
-            {messages.map(m => (
-              <div key={m.id} className={`flex ${m.user_id === user?.id ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-xs rounded-lg p-2 text-xs ${m.user_id === user?.id ? 'bg-[#3483FA] text-white' : 'bg-gray-200 text-gray-800'}`}> 
-                  {m.message}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-          <form onSubmit={handleSend} className="p-2 flex gap-1 border-t border-gray-100">
-            <input value={newMessage} onChange={e=>setNewMessage(e.target.value)} className="flex-1 rounded border border-gray-300 p-1 text-xs" placeholder="Escribe un mensaje..." />
-            <button type="submit" disabled={!newMessage.trim()} className="bg-[#3483FA] text-white px-2 rounded">➤</button>
-          </form>
-        </div>
+return (
+    <>
       {/* Floating chat button when minimized */}
       {minimized ? (
         <button
@@ -230,7 +212,6 @@ export default function ChatBox({ user, productos, allBoletos }) {
           )}
         </button>
       ) : (
-        /* Expanded chat panel */
         <div className="fixed inset-0 z-[80] flex items-end justify-center" onClick={() => setMinimized(true)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
           <div
@@ -322,7 +303,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
                       )}
                       <div className="group">
                         <div className="flex items-start gap-2">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black flex-shrink-0 relative ${isWinner ? 'bg-gradient-to-r from-yellow-400 to-orange-500' : 'bg-gradient-to-r from-[#3483FA] to-[#1A3C6D]'}`}>
+                          <div className={'w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black flex-shrink-0 relative ' + (isWinner ? 'bg-gradient-to-r from-yellow-400 to-orange-500' : 'bg-gradient-to-r from-[#3483FA] to-[#1A3C6D]')}>
                             {msg.user_name?.charAt(0).toUpperCase() || '?'}
                             {isWinner && (
                               <span className="absolute -top-1 -right-1 text-xs">🏆</span>
@@ -330,7 +311,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className={`font-bold text-sm truncate ${isWinner ? 'text-[#C12045]' : 'text-[#3483FA]'}`}>
+                              <span className={'font-bold text-sm truncate ' + (isWinner ? 'text-[#C12045]' : 'text-[#3483FA]')}>
                                 {msg.user_name}
                                 {isWinner && <span className="ml-1 text-[10px] bg-[#FE2C55]/10 text-[#C12045] px-1.5 py-0.5 rounded-full font-bold">GANADOR</span>}
                               </span>
@@ -359,36 +340,11 @@ export default function ChatBox({ user, productos, allBoletos }) {
                   );
                 })
               )}
-              <div ref={messagesEndRef} />
             </div>
 
-            {/* Winner info banner */}
-            {productoActivo?.finalizado && productoActivo?.ganador_nombre && (
-              <div className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-center">
-                <p className="text-sm font-black text-white">
-                  🏆 GANADOR: {productoActivo.ganador_nombre} - #{String(productoActivo.ganador_num).padStart(2, '0')}
-                </p>
-              </div>
-            )}
-
-            {/* Input */}
+            {/* Input area */}
             <div className="p-3 border-t border-[#EBEBEB] bg-white">
-              {productoActivo && !verifiedWhatsapp && (
-                <div className="mb-2 p-2 rounded-lg bg-[#FE2C55]/10 border border-[#FE2C55]/20 text-center">
-                  <p className="text-xs font-bold text-[#C12045]">
-                    Identificate con tu WhatsApp para chatear en este producto
-                  </p>
-                  <button onClick={() => setShowWhatsappModal(true)} className="text-xs font-bold text-[#3483FA] underline mt-1">
-                    Identificarme
-                  </button>
-                </div>
-              )}
-              <form onSubmit={handleSend} className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowEmoji(!showEmoji)}
-                  className="w-10 h-10 rounded-xl bg-[#F5F5F5] flex items-center justify-center text-lg hover:bg-[#EBEBEB] flex-shrink-0"
-                >😊</button>
+              <form onSubmit={handleSend} className="flex items-center gap-2">
                 <input
                   type="text"
                   value={newMessage}
@@ -399,33 +355,11 @@ export default function ChatBox({ user, productos, allBoletos }) {
                   disabled={productoActivo && !verifiedWhatsapp}
                 />
                 <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                  className="w-10 h-10 rounded-xl bg-[#F5F5F5] flex items-center justify-center text-lg hover:bg-[#EBEBEB] flex-shrink-0"
-                >{uploading ? '⏳' : '📷'}</button>
-                <button
                   type="submit"
                   disabled={!newMessage.trim() || (productoActivo && !verifiedWhatsapp)}
-                  className="bg-gradient-to-r from-[#3483FA] to-[#1A3C6D] text-white w-10 h-10 rounded-xl font-black flex items-center justify-center disabled:opacity-50 flex-shrink-0 shadow-md"
+                  className="bg-gradient-to-r from-[#3483FA] to-[#1A3C6D] text-white w-10 h-10 rounded-xl font-black flex items-center justify-center disabled:opacity-50 shadow-md"
                 >➤</button>
               </form>
-              {showEmoji && (
-                <div className="flex gap-1 flex-wrap mt-2 p-2 bg-[#F5F5F5] rounded-xl">
-                  {emojis.map(emoji => (
-                    <button
-                      key={emoji}
-                      type="button"
-                      onClick={() => { setNewMessage(prev => prev + emoji); setShowEmoji(false); }}
-                      className="text-xl hover:scale-125 transition-transform p-1"
-                    >{emoji}</button>
-                  ))}
-                </div>
-              )}
-              <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
-              <p className="text-[10px] text-gray-400 text-center mt-1.5">
-                {verifiedWhatsapp ? `✅ ${userName || 'Identificado'}` : 'Todos pueden leer - Identificate para escribir'}
-              </p>
             </div>
           </div>
         </div>
