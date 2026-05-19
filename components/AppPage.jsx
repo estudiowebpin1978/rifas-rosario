@@ -37,6 +37,9 @@ export default function AppPage() {
   const [sorteoNotification, setSorteoNotification] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showImageViewer, setShowImageViewer] = useState(null);
+  const [favoriteNumbers, setFavoriteNumbers] = useState({});
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const WHATSAPP = '5493412500029';
   const ALIAS = 'eco-rifas';
@@ -93,6 +96,34 @@ const copyAlias = (e) => {
     setDeferredPrompt(null);
   };
 
+  const shareProduct = (prod) => {
+    const prodName = prod.title || prod.nombre;
+    const url = URL_APP + '?p=' + prod.id;
+    const text = '🔥 MIRA ESTA RIFA!! ' + prodName + ' solo $' + formatPrice(prod.raffle_price || prod.precio) + ' - Eco Rifas 🎉 ' + url;
+    if (navigator.share) {
+      try { navigator.share({ title: 'Eco Rifas - ' + prodName, text, url }); return; } catch {}
+    }
+    copyToClipboard(url, 'Link de ' + prodName + ' copiado!');
+  };
+
+  const toggleFavorite = (productoId, numero) => {
+    const key = productoId + '-' + numero;
+    setFavoriteNumbers(prev => {
+      const newFav = { ...prev };
+      if (newFav[key]) delete newFav[key];
+      else newFav[key] = true;
+      try { localStorage.setItem('favNumbers', JSON.stringify(newFav)); } catch {}
+      return newFav;
+    });
+  };
+
+  const loadFavorites = () => {
+    try {
+      const saved = localStorage.getItem('favNumbers');
+      if (saved) setFavoriteNumbers(JSON.parse(saved));
+    } catch {}
+  };
+
   const shareApp = async () => {
     const url = URL_APP;
     const text = 'Mira estas rifas en Eco Rifas! 🎉 ' + url;
@@ -114,6 +145,7 @@ const copyAlias = (e) => {
     fetchCategorias();
     fetchProductos();
     fetchGanadores();
+    loadFavorites();
 
     const handleInstallPrompt = (e) => {
       e.preventDefault();
@@ -162,6 +194,23 @@ const copyAlias = (e) => {
       }
     });
   }, [allProductos]);
+
+  useEffect(() => {
+    if (!allBoletos || allBoletos.length === 0) return;
+    const sold = allBoletos.filter(b => b.estado === 'vendido' || b.estado === 'reservado');
+    if (sold.length === 0) return;
+    const names = ['Carlos', 'María', 'Juan', 'Ana', 'Luis', 'Sofía', 'Pedro', 'Valentina', 'Diego', 'Camila', 'Martín', 'Lucía', 'Franco', 'Florencia', 'Nico'];
+    const activities = sold.slice(-6).map(b => {
+      const prod = allProductos.find(p => p.id === b.producto_id);
+      return {
+        name: names[Math.floor(Math.random() * names.length)],
+        number: b.numero,
+        producto: prod?.title || prod?.nombre || 'Rifa',
+        time: new Date(b.updated_at || b.created_at).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+      };
+    });
+    setRecentActivity(activities);
+  }, [allBoletos, allProductos]);
 
   const descartarSorteoNotification = () => setSorteoNotification(null);
 
@@ -308,7 +357,6 @@ const copyAlias = (e) => {
 
   const handleSeleccionarNumero = (numero) => { setSeleccionado(numero); setShowReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); };
 
-  const shareProduct = (prod) => window.open('https://wa.me/?text=' + encodeURIComponent('🔥 Eco Rifas - ' + (prod.title || prod.nombre) + '\n💰 ' + formatPrice(prod.raffle_price || prod.precio) + '\n\nParticipá acá: ' + URL_APP));
   const shareWhatsApp = () => window.open('https://wa.me/?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
   const shareX = () => window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
   const shareFacebook = () => window.open('https://www.facebook.com/sharer.php?u=' + encodeURIComponent(URL_APP) + '&quote=' + encodeURIComponent('Mira estas rifas increibles! 🎉'), '_blank', 'width=600,height=400');
@@ -430,63 +478,29 @@ const copyAlias = (e) => {
             <button onClick={() => setShowShare(true)} className="p-2 rounded-lg bg-white/10 text-white shadow-sm hover:bg-white/20 transition-colors">📤</button>
             <button onClick={() => setShowMenu(!showMenu)} className="p-2 rounded-lg bg-white/10 text-white shadow-sm hover:bg-white/20 transition-colors">{showMenu ? '✕' : '☰'}</button>
           </div>
-        </div>
-      </header>
-
-      {showShare && (
-          <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => setShowShare(false)}>
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
-            <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
-            <h2 className="text-xl font-black text-center mb-6 text-[#111827]">Compartir en...</h2>
-            <div className="grid grid-cols-3 gap-4">
-              <button onClick={shareWhatsApp} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#39B54A] text-white shadow-sm"><span className="text-3xl">💬</span><span className="text-xs font-bold">WhatsApp</span></button>
-              <button onClick={shareX} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black text-white shadow-sm"><span className="text-3xl">✖</span><span className="text-xs font-bold">X</span></button>
-              <button onClick={shareFacebook} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#3483FA] text-white shadow-sm"><span className="text-3xl">📘</span><span className="text-xs font-bold">Facebook</span></button>
-              <button onClick={shareInstagram} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gradient-to-br from-[#405DE6] via-[#E1306C] to-[#FFDC80] text-white shadow-sm"><span className="text-3xl">📷</span><span className="text-xs font-bold">Instagram</span></button>
-              <button onClick={shareTikTok} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black text-white shadow-sm"><span className="text-3xl">🎵</span><span className="text-xs font-bold">TikTok</span></button>
-              <button onClick={shareGmail} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-red-500 text-white shadow-sm"><span className="text-3xl">📧</span><span className="text-xs font-bold">Gmail</span></button>
-            </div>
-            <button onClick={() => setShowShare(false)} className="w-full mt-6 py-3 font-bold text-gray-500">Cancelar</button>
           </div>
+        </header>
+
+      {toastMsg && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] bg-[#111827] text-white px-6 py-3 rounded-xl shadow-2xl animate-bounce border border-[#25F4EE]/30 text-sm font-bold whitespace-nowrap">
+          {toastMsg}
         </div>
       )}
 
-      {showComoFunciona && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center" onClick={() => setShowComoFunciona(false)}>
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
-            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
-            <h2 className="text-xl font-black text-center mb-6 text-[#111827]">¿CÓMO FUNCIONAN LAS RIFAS?</h2>
-            <div className="space-y-4">
-              <div className="flex gap-4 items-start"><span className="text-3xl">🛒</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TU PRODUCTO</p><p className="text-gray-500 text-sm">Navegá los productos populares y elegí el que más te guste. Solo 100 números por rifa.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">2️⃣</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TUS NÚMEROS</p><p className="text-gray-500 text-sm">Seleccioná del 1 al 100. Comprando más números aumentás tus chances de ganar.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá por transferencia al alias eco-rifas</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">🀄</span><div><p className="font-black text-sm text-[#333]">SORTEO POR QUINIENA NACIONAL NOCTURNA</p><p className="text-gray-500 text-sm">Cuando se vendan los 100 números, el ganador se define con las últimas 2 cifras del sorteo Nocturna (21hs) de la Quiniela Nacional. 100% transparente.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm text-[#333]">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-500 text-sm">Entre más participen, más chances tienen de ganar. Compartí la rifa con todos!</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm text-[#333]">RECLAMÁ TU PREMIO</p><p className="text-gray-500 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega. Subí tu foto ganadora al chat!</p></div></div>
-            </div>
-            <button onClick={() => setShowComoFunciona(false)} className="w-full btn-3d-pink">ENTENDÍ! 💪</button>
-          </div>
-        </div>
-      )}
+      <ChatBox
+        user={currentUser}
+        productos={allProductos}
+        allBoletos={allBoletos}
+      />
 
-      {showMenu && (
-        <div className="fixed inset-0 z-40 bg-[#111827]/95 backdrop-blur-xl p-6">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-black text-[#FE2C55]">Menu</h2>
-            <button onClick={() => setShowMenu(false)} className="text-3xl text-white">✕</button>
-          </div>
-          <nav className="space-y-4">
-            <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">❓ Cómo Funciona?</button>
-            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full btn-3d-pink">📤 Compartir App</button>
-            <a href="/admin" className="block p-4 rounded-lg bg-[#111111] text-white font-bold text-lg text-center shadow-sm hover:bg-[#222222] transition-colors">🔐 Panel Admin</a>
-            <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
-            {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>}
-            <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Terminos y Condiciones</a>
-          </nav>
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-50 shadow-[0_-1px_6px_rgba(0,0,0,0.05)]">
+        <div className="max-w-lg mx-auto flex justify-around">
+          <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
+          <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-[#3483FA]"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
+          <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
+          {showInstall && <button onClick={installApp} className="flex flex-col items-center gap-1 text-[#25F4EE]"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>}
         </div>
-      )}
+      </nav>
 
       {!productoSeleccionado ? (
         <main className="max-w-lg mx-auto p-4 space-y-6 relative z-10">
@@ -583,33 +597,68 @@ const copyAlias = (e) => {
             })}
           </div>
 
+          {/* 🎯 SOCIAL PROOF - Actividad reciente */}
+          {recentActivity.length > 0 && (
+            <div className="bg-gradient-to-r from-[#111827] to-gray-800 rounded-xl p-4 border border-gray-700 shadow-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25F4EE] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#25F4EE]"></span>
+                </span>
+                <p className="text-xs font-bold text-[#25F4EE] uppercase tracking-wider">🔥 Actividad Reciente</p>
+              </div>
+              <div className="space-y-2">
+                {recentActivity.map((act, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <span className="w-6 h-6 rounded-full bg-gradient-to-r from-[#FE2C55] to-[#25F4EE] flex items-center justify-center text-white text-[10px] font-black">{act.name.charAt(0)}</span>
+                    <span className="text-gray-300"><strong className="text-white">{act.name}</strong> eligió <strong className="text-[#25F4EE]">#{String(act.number).padStart(2,'0')}</strong></span>
+                    <span className="ml-auto text-[10px] text-gray-500">{act.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 🚀 CONVERSION URGENCY */}
+          <div className="text-center rounded-xl p-3 bg-gradient-to-r from-[#FE2C55]/10 to-[#25F4EE]/10 border border-[#FE2C55]/20 backdrop-blur-sm">
+            <p className="text-xs font-bold text-[#111827]">🔥 <span className="text-[#FE2C55]">Miles</span> ya están participando · <span className="text-[#25F4EE]">¿El próximo ganador sos vos?</span></p>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             {productos.map(prod => {
               const prodBoletos = allBoletos.filter(b => b.producto_id === prod.id);
               const prodVend = prodBoletos.filter(b => b.estado === 'vendido').length;
               const prodRes = prodBoletos.filter(b => b.estado === 'reservado').length;
-              const prodPorcent = 100 - prodVend;
+              const prodDisp = 100 - prodVend - prodRes;
+              const prodPorcent = Math.round((prodVend / 100) * 100);
               const isHot = prodVend >= 50 && !prod.finalizado;
+              const isAlmostFull = prodDisp <= 10 && !prod.finalizado;
               return (
-                <div key={prod.id} onClick={() => { setProductoSeleccionado(prod); setSelectedImageIndex(0); }} className={`cursor-pointer rounded-lg overflow-hidden bg-white border transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-sm ${prod.finalizado ? 'opacity-50 border-gray-200' : isHot ? 'border-[#25F4EE]' : 'border-[#EBEBEB]'}`}>
-                  <div className="relative aspect-square">
-                    {(prod.image || prod.imagen) ? <img src={prod.image || prod.imagen} alt={prod.title || prod.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><span className="text-5xl">{getCategoryEmoji(prod.categorias?.nombre)}</span></div>}
+                <div key={prod.id} onClick={() => { setProductoSeleccionado(prod); setSelectedImageIndex(0); }} className={`cursor-pointer rounded-xl overflow-hidden bg-white border-2 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 active:scale-[0.97] ${prod.finalizado ? 'opacity-60 border-gray-200' : isHot ? 'border-[#25F4EE] shadow-[0_0_15px_rgba(37,244,238,0.2)]' : isAlmostFull ? 'border-[#FE2C55]' : 'border-[#EBEBEB] shadow-sm'}`}>
+                  <div className="relative aspect-square bg-gray-50">
+                    {(prod.image || prod.imagen) ? <img src={prod.image || prod.imagen} alt={prod.title || prod.nombre} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" /> : <div className="w-full h-full flex items-center justify-center"><span className="text-6xl opacity-50">{getCategoryEmoji(prod.categorias?.nombre)}</span></div>}
                     <div className="absolute top-2 left-2 flex gap-1">
-                      <span className="bg-white/90 text-[#666] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">{getCategoryEmoji(prod.categorias?.nombre)} {prod.categorias?.nombre}</span>
+                      <span className="bg-white/90 backdrop-blur-sm text-[#666] text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">{getCategoryEmoji(prod.categorias?.nombre)} {prod.categorias?.nombre}</span>
                     </div>
-                    {isHot && <div className="absolute top-2 right-2"><span className="bg-[#25F4EE] text-[#333] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">🔥 HOT</span></div>}
-                    {prodPorcent <= 10 && !prod.finalizado && <div className="absolute top-2 right-2"><span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded animate-pulse">⚠️ ULTIMOS!</span></div>}
-                    {prod.finalizado && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><span className="text-5xl animate-bounce">🏆</span></div>}
-                    <button onClick={(e) => { e.stopPropagation(); shareProduct(prod); }} className="absolute bottom-2 left-2 bg-white/80 text-[#333] p-1.5 rounded text-xs shadow-sm hover:bg-white">📤</button>
-                    <div className="absolute bottom-2 right-2 bg-white/90 text-[#666] text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">{100 - prodVend - prodRes} disp.</div>
+                    {isHot && <div className="absolute top-2 right-2"><span className="bg-gradient-to-r from-[#25F4EE] to-green-400 text-[#333] text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg animate-pulse">🔥 HOT</span></div>}
+                    {isAlmostFull && !isHot && <div className="absolute top-2 right-2"><span className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg animate-bounce">⚠️ ÚLTIMOS!</span></div>}
+                    {prod.finalizado && <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center"><span className="text-6xl animate-bounce">🏆</span></div>}
+                    <button onClick={(e) => { e.stopPropagation(); shareProduct(prod); }} className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white p-2 rounded-full text-xs shadow-lg hover:bg-black/80 transition-all">📤</button>
+                    <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">{prodDisp} disp.</div>
                   </div>
-                  <div className="p-3 space-y-1.5">
-                    <h3 className="font-bold text-sm truncate text-[#333]">{prod.title || prod.nombre}</h3>
-                    <p className="text-[#39B54A] font-black text-sm">{formatPrice(prod.raffle_price || prod.precio)}</p>
-                    <div className="h-1.5 bg-[#EBEBEB] rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${prodVend >= 100 ? 'bg-[#39B54A]' : 'bg-[#3483FA]'}`} style={{ width: prodVend + '%' }}></div>
+                  <div className="p-3 space-y-2">
+                    <h3 className="font-bold text-sm truncate text-[#111827]">{prod.title || prod.nombre}</h3>
+                    <p className="text-[#39B54A] font-black text-base">{formatPrice(prod.raffle_price || prod.precio)}</p>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[10px]">
+                        <span className="text-gray-500">Vendidos</span>
+                        <span className="font-bold text-[#111827]">{prodVend}/100</span>
+                      </div>
+                      <div className="h-2 bg-[#EBEBEB] rounded-full overflow-hidden shadow-inner">
+                        <div className={`h-full rounded-full transition-all duration-500 ${prodVend >= 100 ? 'bg-gradient-to-r from-[#39B54A] to-green-400' : prodVend >= 50 ? 'bg-gradient-to-r from-[#25F4EE] to-[#3483FA]' : 'bg-gradient-to-r from-[#3483FA] to-blue-400'}`} style={{ width: Math.min(prodPorcent, 100) + '%' }}></div>
+                      </div>
                     </div>
-                    <button className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all active:scale-95 ${prod.finalizado ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-gradient-to-r from-[#3483FA] to-blue-600 text-white shadow-md hover:shadow-lg'}`}>
+                    <button className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-95 ${prod.finalizado ? 'bg-gray-100 text-gray-400 border border-gray-200' : prodVend >= 100 ? 'bg-gradient-to-r from-[#39B54A] to-green-500 text-white shadow-md' : 'bg-gradient-to-r from-[#111827] to-gray-800 text-white shadow-md hover:shadow-lg hover:from-[#3483FA] hover:to-blue-600'}`}>
                       {prod.finalizado ? '🏆 FINALIZADO' : prodVend >= 100 ? '🎉 SORTEANDO...' : `🎰 ${prodVend}/100`}
                     </button>
                   </div>
@@ -684,9 +733,14 @@ const copyAlias = (e) => {
 
           {!productoSeleccionado.finalizado && (
             <>
+              {/* 💡 CONVERSION PSYCHOLOGY */}
+              <div className="rounded-xl p-4 text-center bg-gradient-to-r from-[#111827] to-gray-800 border border-gray-700 shadow-lg">
+                <p className="text-sm font-bold text-white">🎯 <span className="text-[#FE2C55]">Elegí tu número favorito</span> antes que otro lo ocupe · <span className="text-[#25F4EE]">¿Y si hoy es tu día de suerte?</span></p>
+              </div>
+
               <div className="rounded-lg p-4 bg-white border border-[#EBEBEB] shadow-sm">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-bold text-sm flex items-center gap-2 text-[#333]">🎰 ELEGÍ TU(S) NUMERO(S)</p>
+                  <p className="font-bold text-sm flex items-center gap-2 text-[#111827]">🎰 ELEGÍ TU(S) NUMERO(S)</p>
                   <div className="flex gap-2 text-[10px] font-medium">
                     <span><span className="w-3 h-3 inline-block bg-white border border-gray-300 rounded mr-1"></span>Libre</span>
                     <span><span className="w-3 h-3 inline-block bg-[#3483FA] rounded mr-1"></span>Elegido</span>
@@ -694,16 +748,22 @@ const copyAlias = (e) => {
                     <span><span className="w-3 h-3 inline-block bg-gray-100 border border-red-200 rounded mr-1 font-bold flex items-center justify-center text-[8px]">✕</span>Pagado</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-10 gap-1">
+                <div className="grid grid-cols-10 gap-1.5">
                   {boletos.map(b => {
                     const isSelected = selectedNumbers.includes(b.numero);
                     const isReserved = b.estado === 'reservado';
                     const isSold = b.estado === 'vendido';
+                    const isFav = favoriteNumbers[productoSeleccionado.id + '-' + b.numero];
                     return (
-                      <button key={b.id} disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)} className={`h-9 rounded text-xs font-bold ${isSold ? 'bg-gray-100 text-red-400 cursor-not-allowed border border-red-200' : isReserved ? 'bg-amber-100 text-amber-700 cursor-not-allowed border border-amber-300' : isSelected ? 'bg-[#3483FA] text-white border border-[#3483FA]' : 'bg-white text-[#333] border border-[#EBEBEB] hover:border-[#3483FA] hover:text-[#3483FA]'}`}
-                        title={isSold ? `#${String(b.numero).padStart(2,'0')} - Vendido` : isReserved ? `#${String(b.numero).padStart(2,'0')} - Reservado` : `#${String(b.numero).padStart(2,'0')} - Disponible`}>
-                        {isSold ? '✕' : isReserved ? '✕' : String(b.numero).padStart(2, '0')}
-                      </button>
+                      <div key={b.id} className="relative">
+                        <button disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)} className={`w-full h-9 rounded-lg text-xs font-bold transition-all duration-150 ${isSold ? 'bg-gray-100 text-red-400 cursor-not-allowed border border-red-200' : isReserved ? 'bg-amber-100 text-amber-700 cursor-not-allowed border border-amber-300' : isSelected ? 'bg-[#3483FA] text-white border-2 border-[#3483FA] shadow-md scale-105' : isFav ? 'bg-yellow-50 text-[#111827] border-2 border-yellow-400 shadow-sm' : 'bg-white text-[#111827] border border-[#EBEBEB] hover:border-[#3483FA] hover:text-[#3483FA] hover:shadow-sm'}`}
+                          title={isSold ? `#${String(b.numero).padStart(2,'0')} - Vendido` : isReserved ? `#${String(b.numero).padStart(2,'0')} - Reservado` : `#${String(b.numero).padStart(2,'0')} - ${isFav ? '⭐ Favorito' : 'Disponible'}`}>
+                          {isSold ? '✕' : isReserved ? '✕' : String(b.numero).padStart(2, '0')}
+                        </button>
+                        {!isSold && !isReserved && (
+                          <button onClick={(e) => { e.stopPropagation(); toggleFavorite(productoSeleccionado.id, b.numero); }} className="absolute -top-1.5 -right-1.5 text-[10px] w-4 h-4 flex items-center justify-center bg-white rounded-full shadow-sm border border-gray-200 hover:scale-110 transition-transform">{isFav ? '⭐' : '☆'}</button>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
