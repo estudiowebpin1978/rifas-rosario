@@ -196,8 +196,26 @@ export default function ChatBox({ user, productos, allBoletos }) {
   const productosActivos = (productos || []).filter(p => !p.finalizado);
   const winnerNumbers = getWinnerNumbers();
 
-  return (
-    <>
+<div className="fixed bottom-4 right-4 w-80 max-h-[80vh] flex flex-col bg-white rounded-lg shadow-lg border border-gray-200">
+          <div className="flex items-center justify-between p-2 bg-[#3483FA] text-white rounded-t-lg">
+            <h3 className="font-bold text-sm">{productoActivo ? productoActivo.title || productoActivo.nombre : 'Chat General'}</h3>
+            <button onClick={() => setMinimized(true)} className="text-xs">—</button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-2 space-y-2">
+            {messages.map(m => (
+              <div key={m.id} className={`flex ${m.user_id === user?.id ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-xs rounded-lg p-2 text-xs ${m.user_id === user?.id ? 'bg-[#3483FA] text-white' : 'bg-gray-200 text-gray-800'}`}> 
+                  {m.message}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          <form onSubmit={handleSend} className="p-2 flex gap-1 border-t border-gray-100">
+            <input value={newMessage} onChange={e=>setNewMessage(e.target.value)} className="flex-1 rounded border border-gray-300 p-1 text-xs" placeholder="Escribe un mensaje..." />
+            <button type="submit" disabled={!newMessage.trim()} className="bg-[#3483FA] text-white px-2 rounded">➤</button>
+          </form>
+        </div>
       {/* Floating chat button when minimized */}
       {minimized ? (
         <button
