@@ -77,10 +77,13 @@ export default function AppPage() {
       alert(msg || 'Copiado!');
     }
   };
+const [toastMsg, setToastMsg] = useState(null);
 
-  const copyAlias = () => {
-    copyToClipboard(ALIAS, 'Alias copiado!');
-  };
+const copyAlias = (e) => {
+  e?.preventDefault && e.preventDefault();
+  copyToClipboard(ALIAS, 'Alias copiado!');
+  setToastMsg('Alias copiado al portapapeles');
+};
 
   const installApp = async () => {
     if (!deferredPrompt) return;
@@ -143,25 +146,11 @@ export default function AppPage() {
   useEffect(() => { if (productoSeleccionado) fetchBoletos(productoSeleccionado.id); }, [productoSeleccionado]);
 
   useEffect(() => {
-    if (!productoSeleccionado) return;
-    try {
-      const extra = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : [];
-      const totalImgs = 1 + extra.filter(u => u && u !== (productoSeleccionado.image || productoSeleccionado.imagen)).length;
-      if (totalImgs <= 1) return;
-    } catch(e) { return; }
-    const interval = setInterval(() => {
-      setSelectedImageIndex(prev => {
-        try {
-          const allImgs = [];
-          if (productoSeleccionado.image || productoSeleccionado.imagen) allImgs.push(productoSeleccionado.image || productoSeleccionado.imagen);
-          const extra = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : [];
-          extra.forEach(u => { if (u && !allImgs.includes(u)) allImgs.push(u); });
-          return (prev + 1) % allImgs.length;
-        } catch(e) { return 0; }
-      });
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [productoSeleccionado]);
+    if (toastMsg) {
+      const t = setTimeout(() => setToastMsg(null), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [toastMsg]);
 
   useEffect(() => {
     const pendientes = allProductos.filter(p =>
@@ -878,7 +867,11 @@ export default function AppPage() {
           <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
           <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-[#3483FA]"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
           <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
-          {showInstall && <button onClick={installApp} className="flex flex-col items-center gap-1 text-[#25F4EE]"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>}
+          {toastMsg && (
+        <div className="fixed top-4 right-4 bg-[#3483FA] text-white px-4 py-2 rounded shadow-lg animate-bounce">
+          {toastMsg}
+        </div>
+      )}
         </div>
       </nav>
     </div>
