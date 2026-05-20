@@ -105,7 +105,7 @@ setAuthLoading(false);
           </div>
           <nav className="space-y-4">
             <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full btn-3d-pink">👤 Mi Cuenta</button>
-            <a href="/admin" className="block p-4 rounded-lg bg-[#111111] text-white font-bold text-lg text-center shadow-sm hover:bg-[#222222] transition-colors">🔐 Panel Admin</a>
+            <button onClick={() => { router.push('/app'); setShowMenu(false); }} className="w-full btn-3d-cyan">🎰 Ver Rifas</button>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
             {showInstall && <button onClick={async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') setShowInstall(false); setDeferredPrompt(null); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>}
             <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Terminos y Condiciones</a>
