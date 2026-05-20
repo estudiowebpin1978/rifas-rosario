@@ -202,11 +202,12 @@ const copyAlias = (e) => {
     const names = ['Carlos', 'María', 'Juan', 'Ana', 'Luis', 'Sofía', 'Pedro', 'Valentina', 'Diego', 'Camila', 'Martín', 'Lucía', 'Franco', 'Florencia', 'Nico'];
     const activities = sold.slice(-6).map(b => {
       const prod = allProductos.find(p => p.id === b.producto_id);
+      const ts = b.updated_at || b.created_at;
       return {
         name: names[Math.floor(Math.random() * names.length)],
         number: b.numero,
         producto: prod?.title || prod?.nombre || 'Rifa',
-        time: new Date(b.updated_at || b.created_at).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+        time: ts ? new Date(ts).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : 'ahora'
       };
     });
     setRecentActivity(activities);

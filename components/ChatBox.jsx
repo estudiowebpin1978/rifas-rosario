@@ -55,7 +55,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
       })
       .subscribe();
 
-    return () => { if (channelRef.current) supabase.removeChannel(channelRef.current); };
+    return () => { if (channelRef.current && supabase) supabase.removeChannel(channelRef.current); };
   }, []);
 
   useEffect(() => {
