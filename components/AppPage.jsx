@@ -503,6 +503,64 @@ const copyAlias = (e) => {
         </div>
       </nav>
 
+      {/* Menu modal */}
+      {showMenu && (
+        <div className="fixed inset-0 z-40 bg-[#111827]/95 backdrop-blur-xl p-6">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-black text-[#FE2C55]">Menú</h2>
+            <button onClick={() => setShowMenu(false)} className="text-3xl text-white">✕</button>
+          </div>
+          <nav className="space-y-4">
+            <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">❓ Cómo Funciona?</button>
+            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full btn-3d-pink">📤 Compartir App</button>
+            <button onClick={() => { setShowShare(true); setShowMenu(false); }} className="w-full btn-3d-cyan">📲 Compartir en Redes</button>
+            <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
+            {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>}
+            <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Términos y Condiciones</a>
+          </nav>
+        </div>
+      )}
+
+      {/* Cómo funciona modal */}
+      {showComoFunciona && (
+        <div className="fixed inset-0 z-[70] flex items-end justify-center" onClick={() => setShowComoFunciona(false)}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <h2 className="text-xl font-black text-center mb-6 text-[#111827]">¿CÓMO FUNCIONAN LAS RIFAS?</h2>
+            <div className="space-y-4">
+              <div className="flex gap-4 items-start"><span className="text-3xl">🛒</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TU PRODUCTO</p><p className="text-gray-500 text-sm">Navegá los productos populares y elegí el que más te guste. Solo 100 números por rifa.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">2️⃣</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TUS NÚMEROS</p><p className="text-gray-500 text-sm">Seleccioná del 1 al 100. Comprando más números aumentás tus chances de ganar.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá por transferencia al alias eco-rifas</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">🀄</span><div><p className="font-black text-sm text-[#333]">SORTEO POR QUINIENA NACIONAL NOCTURNA</p><p className="text-gray-500 text-sm">Cuando se vendan los 100 números, el ganador se define con las últimas 2 cifras del sorteo Nocturna (21hs) de la Quiniela Nacional. 100% transparente.</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm text-[#333]">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-500 text-sm">Entre más participen, más chances tienen de ganar. Compartí la rifa con todos!</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm text-[#333]">RECLAMÁ TU PREMIO</p><p className="text-gray-500 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega. Subí tu foto ganadora al chat!</p></div></div>
+            </div>
+            <button onClick={() => setShowComoFunciona(false)} className="w-full btn-3d-pink">ENTENDÍ! 💪</button>
+          </div>
+        </div>
+      )}
+
+      {/* Share social modal */}
+      {showShare && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={() => setShowShare(false)}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
+            <h2 className="text-xl font-black text-center mb-6 text-[#111827]">Compartir en...</h2>
+            <div className="grid grid-cols-4 gap-3">
+              <button onClick={() => { shareWhatsApp(); setShowShare(false); }} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#39B54A] text-white shadow-sm hover:scale-105 transition-transform"><span className="text-3xl">💬</span><span className="text-xs font-bold">WhatsApp</span></button>
+              <button onClick={() => { shareX(); setShowShare(false); }} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black text-white shadow-sm hover:scale-105 transition-transform"><span className="text-3xl">𝕏</span><span className="text-xs font-bold">X</span></button>
+              <button onClick={() => { shareFacebook(); setShowShare(false); }} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#3483FA] text-white shadow-sm hover:scale-105 transition-transform"><span className="text-3xl">📘</span><span className="text-xs font-bold">Facebook</span></button>
+              <button onClick={() => { shareInstagram(); setShowShare(false); }} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 text-white shadow-sm hover:scale-105 transition-transform"><span className="text-3xl">📷</span><span className="text-xs font-bold">Instagram</span></button>
+              <button onClick={() => { shareTikTok(); setShowShare(false); }} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black text-white shadow-sm hover:scale-105 transition-transform"><span className="text-3xl">🎵</span><span className="text-xs font-bold">TikTok</span></button>
+              <button onClick={() => { shareGmail(); setShowShare(false); }} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#EA4335] text-white shadow-sm hover:scale-105 transition-transform"><span className="text-3xl">📧</span><span className="text-xs font-bold">Gmail</span></button>
+              <button onClick={() => { shareApp(); setShowShare(false); }} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#111827] text-white shadow-sm hover:scale-105 transition-transform"><span className="text-3xl">🔗</span><span className="text-xs font-bold">Copiar Link</span></button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {!productoSeleccionado ? (
         <main className="max-w-lg mx-auto p-4 space-y-6 relative z-10">
           {ganadores.length > 0 && (
