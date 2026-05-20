@@ -89,11 +89,15 @@ const copyAlias = (e) => {
 };
 
   const installApp = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') setShowInstall(false);
-    setDeferredPrompt(null);
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') setShowInstall(false);
+      setDeferredPrompt(null);
+    } else {
+      // Fallback: copy install instructions
+      copyToClipboard('https://eco-rifas.vercel.app', 'Abrí eco-rifas.vercel.app desde tu navegador y seguí las instrucciones para instalar');
+    }
   };
 
   const shareProduct = (prod) => {
@@ -499,7 +503,7 @@ const copyAlias = (e) => {
           <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
           <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-[#3483FA]"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
           <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
-          {showInstall && <button onClick={installApp} className="flex flex-col items-center gap-1 text-[#25F4EE]"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>}
+          <button onClick={() => { if (deferredPrompt) installApp(); else router.push('/profile'); }} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#25F4EE] transition-colors"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>
         </div>
       </nav>
 
@@ -515,7 +519,7 @@ const copyAlias = (e) => {
             <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full btn-3d-pink">📤 Compartir App</button>
             <button onClick={() => { setShowShare(true); setShowMenu(false); }} className="w-full btn-3d-cyan">📲 Compartir en Redes</button>
             <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
-            {showInstall && <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>}
+            <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>
             <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Términos y Condiciones</a>
             <button onClick={async () => { if (supabase) { await supabase.auth.signOut(); } setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-red-500/20 text-red-400 font-bold text-lg text-center border border-red-500/30 shadow-sm hover:bg-red-500/30 transition-colors">🚪 Cerrar Sesión</button>
           </nav>
