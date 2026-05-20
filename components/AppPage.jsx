@@ -31,7 +31,6 @@ export default function AppPage() {
   const [hotProducts, setHotProducts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstall, setShowInstall] = useState(false);
   const [receiptFile, setReceiptFile] = useState(null);
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [sorteoNotification, setSorteoNotification] = useState(null);
@@ -40,6 +39,7 @@ export default function AppPage() {
   const [favoriteNumbers, setFavoriteNumbers] = useState({});
   const [recentActivity, setRecentActivity] = useState([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
 
   const WHATSAPP = '5493412500029';
   const ALIAS = 'eco-rifas';
@@ -92,11 +92,14 @@ const copyAlias = (e) => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') setShowInstall(false);
-      setDeferredPrompt(null);
+      if (outcome === 'accepted') setDeferredPrompt(null);
     } else {
-      // Fallback: copy install instructions
-      copyToClipboard('https://eco-rifas.vercel.app', 'Abrí eco-rifas.vercel.app desde tu navegador y seguí las instrucciones para instalar');
+      try {
+        await navigator.clipboard.writeText('https://eco-rifas.vercel.app');
+        setToastMsg('📲 Abrí eco-rifas.vercel.app desde tu navegador y agregala a la pantalla de inicio');
+      } catch {
+        window.open('https://eco-rifas.vercel.app', '_blank');
+      }
     }
   };
 
@@ -151,12 +154,7 @@ const copyAlias = (e) => {
     fetchGanadores();
     loadFavorites();
 
-    const handleInstallPrompt = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstall(true);
-    };
-    window.addEventListener('beforeinstallprompt', handleInstallPrompt);
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); setDeferredPrompt(e); });
 
     if (supabase) {
       try {
@@ -168,18 +166,17 @@ const copyAlias = (e) => {
           fetchProductos();
           fetchGanadores();
         }).subscribe();
-        return () => { supabase.removeChannel(sub); window.removeEventListener('beforeinstallprompt', handleInstallPrompt); };
+        return () => { supabase.removeChannel(sub); };
       } catch (e) { 
         console.log('Realtime no disponible, usando polling');
         const iv2 = setInterval(() => { fetchProductos(); fetchCategorias(); fetchGanadores(); }, 8000);
-        return () => { clearInterval(iv2); window.removeEventListener('beforeinstallprompt', handleInstallPrompt); };
+        return () => { clearInterval(iv2); };
       }
     }
-    return () => window.removeEventListener('beforeinstallprompt', handleInstallPrompt);
   }, []);
 
   useEffect(() => { fetchProductos(); }, [categoriaActiva]);
-  useEffect(() => { if (productoSeleccionado) fetchBoletos(productoSeleccionado.id); }, [productoSeleccionado]);
+  useEffect(() => { if (productoSeleccionado) { fetchBoletos(productoSeleccionado.id); window.scrollTo({ top: 0, behavior: 'smooth' }); } }, [productoSeleccionado]);
 
   useEffect(() => {
     if (toastMsg) {
@@ -236,14 +233,25 @@ const copyAlias = (e) => {
       if (result.productos) {
         setProductos(categoriaActiva ? result.productos.filter(p => p.categoria_id === categoriaActiva) : result.productos.filter(p => !p.finalizado));
       }
-    } catch (err) { console.error('Error:', err); setProductos([]); }
+      setDataLoading(false);
+    } catch (err) { console.error('Error:', err); setProductos([]); setDataLoading(false); }
   };
 
   const fetchBoletos = async (productoId) => {
     try {
       const res = await fetch('/api/productos');
       const result = await res.json();
-      if (result.boletos) setBoletos(result.boletos.filter(b => b.producto_id === productoId));
+      if (result.boletos) {
+        const filtered = result.boletos.filter(b => b.producto_id === productoId);
+        if (filtered.length === 0 && productoSeleccionado) {
+          // Auto-generate 100 boletos if none exist
+          const nums = [];
+          for (let i = 1; i <= 100; i++) nums.push({ id: -i, numero: i, producto_id: productoId, estado: 'disponible' });
+          setBoletos(nums);
+        } else {
+          setBoletos(filtered);
+        }
+      }
     } catch (err) { console.error('Error:', err); }
   };
 
@@ -503,7 +511,7 @@ const copyAlias = (e) => {
           <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
           <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-[#3483FA]"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
           <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
-          <button onClick={() => { if (deferredPrompt) installApp(); else router.push('/profile'); }} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#25F4EE] transition-colors"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>
+          <button onClick={() => installApp()} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#25F4EE] transition-colors"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>
         </div>
       </nav>
 
@@ -522,6 +530,7 @@ const copyAlias = (e) => {
             <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>
             <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Términos y Condiciones</a>
             <button onClick={async () => { if (supabase) { await supabase.auth.signOut(); } setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-red-500/20 text-red-400 font-bold text-lg text-center border border-red-500/30 shadow-sm hover:bg-red-500/30 transition-colors">🚪 Cerrar Sesión</button>
+            <a href="/admin" className="block p-4 rounded-lg bg-white/5 text-gray-600 font-bold text-lg text-center border border-gray-800 shadow-sm hover:bg-white/10 transition-colors text-xs">🔐 Admin</a>
           </nav>
         </div>
       )}
@@ -618,7 +627,7 @@ const copyAlias = (e) => {
                     <div className="mt-3">
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-[#3483FA] font-bold">🎟 {heroVendidos}/100</span>
-                      {heroReservados > 0 && <span className="text-[#25F4EE] font-bold">⏳ {heroReservados} reservados</span>}
+                      {heroReservados > 0 && <span className="text-amber-500 font-bold">⏳ {heroReservados} reservados</span>}
                     </div>
                     <div className="h-4 bg-[#EBEBEB] rounded-full overflow-hidden">
                       <div className="h-full bg-[#3483FA] rounded-full transition-all duration-1000" style={{ width: heroPorcent + '%' }}></div>
@@ -685,7 +694,7 @@ const copyAlias = (e) => {
 
           {/* 🚀 CONVERSION URGENCY */}
           <div className="text-center rounded-xl p-3 bg-gradient-to-r from-[#FE2C55]/10 to-[#25F4EE]/10 border border-[#FE2C55]/20 backdrop-blur-sm">
-            <p className="text-xs font-bold text-[#111827]">🔥 <span className="text-[#FE2C55]">Miles</span> ya están participando · <span className="text-[#25F4EE]">¿El próximo ganador sos vos?</span></p>
+            <p className="text-xs font-bold text-[#111827]">🔥 <span className="text-[#FE2C55]">Muchos</span> ya participan · <span className="text-[#3483FA]">¿Y si el próximo ganador sos vos?</span></p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -731,7 +740,12 @@ const copyAlias = (e) => {
             })}
           </div>
 
-          {productos.length === 0 && (
+          {dataLoading ? (
+            <div className="text-center py-16">
+              <div className="inline-block w-12 h-12 border-4 border-[#25F4EE]/30 border-t-[#25F4EE] rounded-full animate-spin"></div>
+              <p className="mt-4 text-gray-500 font-bold">Cargando rifas...</p>
+            </div>
+          ) : productos.length === 0 && (
             <div className="text-center py-16 rounded-lg bg-white border border-[#EBEBEB] shadow-sm">
               <span className="text-6xl mb-4 block">🎰</span>
               <p className="text-xl font-black text-[#333]">Proximamente</p>
@@ -739,11 +753,9 @@ const copyAlias = (e) => {
             </div>
           )}
 
-          {showInstall && (
-            <button onClick={installApp} className="w-full bg-[#3483FA] text-white font-bold py-4 rounded-lg shadow-sm animate-bounce text-lg">
-              📲 INSTALAR APP EN TU CELULAR
-            </button>
-          )}
+          <button onClick={installApp} className="w-full bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-white font-bold py-4 rounded-xl shadow-lg text-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+            📲 INSTALAR APP EN TU CELULAR
+          </button>
         </main>
       ) : (
         <main className="max-w-lg mx-auto p-4 space-y-4 relative z-10">
@@ -802,14 +814,14 @@ const copyAlias = (e) => {
                 <p className="text-sm font-bold text-white">🎯 <span className="text-[#FE2C55]">Elegí tu número favorito</span> antes que otro lo ocupe · <span className="text-[#25F4EE]">¿Y si hoy es tu día de suerte?</span></p>
               </div>
 
-              <div className="rounded-lg p-4 bg-white border border-[#EBEBEB] shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="font-bold text-sm flex items-center gap-2 text-[#111827]">🎰 ELEGÍ TU(S) NUMERO(S)</p>
-                  <div className="flex gap-2 text-[10px] font-medium">
-                    <span><span className="w-3 h-3 inline-block bg-white border border-gray-300 rounded mr-1"></span>Libre</span>
-                    <span><span className="w-3 h-3 inline-block bg-[#3483FA] rounded mr-1"></span>Elegido</span>
-                    <span><span className="w-3 h-3 inline-block bg-amber-400 rounded mr-1"></span>Reservado</span>
-                    <span><span className="w-3 h-3 inline-block bg-gray-100 border border-red-200 rounded mr-1 font-bold flex items-center justify-center text-[8px]">✕</span>Pagado</span>
+              <div className="rounded-2xl p-5 bg-gradient-to-br from-[#111827] to-gray-900 border border-gray-700 shadow-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="font-black text-sm text-white flex items-center gap-2">🎰 <span className="bg-gradient-to-r from-[#FE2C55] to-[#25F4EE] bg-clip-text text-transparent">ELEGÍ TU(S) NUMERO(S)</span></p>
+                  <div className="flex gap-2 text-[9px] font-bold">
+                    <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-white to-gray-300 border border-gray-500 mr-0.5 shadow-sm"></span>Libre</span>
+                    <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-[#FE2C55] to-[#C12045] mr-0.5 shadow-sm"></span>Selected</span>
+                    <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-amber-400 to-orange-500 mr-0.5 shadow-sm"></span>Reserv</span>
+                    <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-gray-600 to-gray-700 mr-0.5 shadow-sm"></span>Pagado</span>
                   </div>
                 </div>
                 <div className="grid grid-cols-10 gap-1.5">
@@ -818,14 +830,34 @@ const copyAlias = (e) => {
                     const isReserved = b.estado === 'reservado';
                     const isSold = b.estado === 'vendido';
                     const isFav = favoriteNumbers[productoSeleccionado.id + '-' + b.numero];
+                    let btnClass = '';
+                    let btnContent = String(b.numero).padStart(2, '0');
+                    if (isSold) {
+                      btnClass = 'bg-gradient-to-br from-gray-700 to-gray-800 text-gray-500 cursor-not-allowed border border-gray-600 shadow-inner';
+                      btnContent = '✕';
+                    } else if (isReserved) {
+                      btnClass = 'bg-gradient-to-br from-amber-600 to-orange-700 text-amber-200 cursor-not-allowed border border-amber-500/50 shadow-inner';
+                      btnContent = '✕';
+                    } else if (isSelected) {
+                      btnClass = 'bg-gradient-to-br from-[#FE2C55] to-[#C12045] text-white border-0 shadow-[0_4px_0_#8a1530,0_6px_12px_rgba(254,44,85,0.4)] scale-105 z-10';
+                    } else if (isFav) {
+                      btnClass = 'bg-gradient-to-br from-yellow-400 to-amber-500 text-[#111827] border-0 shadow-[0_3px_0_#b45309,0_4px_8px_rgba(251,191,36,0.3)]';
+                    } else {
+                      btnClass = 'bg-gradient-to-br from-gray-800 to-gray-900 text-gray-300 border border-gray-600 hover:border-[#FE2C55] hover:text-white hover:shadow-[0_4px_0_#8a1530,0_6px_12px_rgba(254,44,85,0.3)] hover:-translate-y-0.5 active:translate-y-0.5';
+                    }
                     return (
                       <div key={b.id} className="relative">
-                        <button disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)} className={`w-full h-9 rounded-lg text-xs font-bold transition-all duration-150 ${isSold ? 'bg-gray-100 text-red-400 cursor-not-allowed border border-red-200' : isReserved ? 'bg-amber-100 text-amber-700 cursor-not-allowed border border-amber-300' : isSelected ? 'bg-[#3483FA] text-white border-2 border-[#3483FA] shadow-md scale-105' : isFav ? 'bg-yellow-50 text-[#111827] border-2 border-yellow-400 shadow-sm' : 'bg-white text-[#111827] border border-[#EBEBEB] hover:border-[#3483FA] hover:text-[#3483FA] hover:shadow-sm'}`}
+                        <button disabled={isSold || isReserved} onClick={() => toggleNumberSelection(b.numero)}
+                          className={`w-full h-9 rounded-lg text-xs font-black transition-all duration-200 ${btnClass}`}
                           title={isSold ? `#${String(b.numero).padStart(2,'0')} - Vendido` : isReserved ? `#${String(b.numero).padStart(2,'0')} - Reservado` : `#${String(b.numero).padStart(2,'0')} - ${isFav ? '⭐ Favorito' : 'Disponible'}`}>
-                          {isSold ? '✕' : isReserved ? '✕' : String(b.numero).padStart(2, '0')}
+                          {btnContent}
                         </button>
                         {!isSold && !isReserved && (
-                          <button onClick={(e) => { e.stopPropagation(); toggleFavorite(productoSeleccionado.id, b.numero); }} className="absolute -top-1.5 -right-1.5 text-[10px] w-4 h-4 flex items-center justify-center bg-white rounded-full shadow-sm border border-gray-200 hover:scale-110 transition-transform">{isFav ? '⭐' : '☆'}</button>
+                          <button onClick={(e) => { e.stopPropagation(); toggleFavorite(productoSeleccionado.id, b.numero); }}
+                            className="absolute -top-2 -right-2 text-[11px] w-5 h-5 flex items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:scale-125 hover:rotate-12"
+                            style={{ background: isFav ? 'linear-gradient(135deg, #FBBF24, #F59E0B)' : '#1F2937', border: isFav ? '2px solid #F59E0B' : '2px solid #4B5563', color: isFav ? '#111827' : '#9CA3AF' }}>
+                            {isFav ? '⭐' : '☆'}
+                          </button>
                         )}
                       </div>
                     );
@@ -833,12 +865,19 @@ const copyAlias = (e) => {
                 </div>
                 {selectedNumbers.length > 0 && (
                   <div className="mt-4 text-center">
-                    <div className="bg-[#F5F5F5] rounded-lg p-3 mb-3 border border-[#EBEBEB]">
-                      <p className="font-bold text-lg text-[#333]">{selectedNumbers.length} {selectedNumbers.length === 1 ? 'número seleccionado' : 'números seleccionados'}</p>
-                      <p className="text-xs text-gray-500">Seleccionados: {selectedNumbers.map(n => `#${String(n).padStart(2,'0')}`).join(', ')}</p>
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-4 mb-3 border border-gray-600 shadow-lg">
+                      <p className="font-black text-xl text-white">{selectedNumbers.length} {selectedNumbers.length === 1 ? 'número seleccionado' : 'números seleccionados'}</p>
+                      <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+                        {selectedNumbers.map(n => (
+                          <span key={n} className="inline-block px-2 py-1 rounded-lg text-xs font-black bg-gradient-to-br from-[#FE2C55] to-[#C12045] text-white shadow-[0_2px_0_#8a1530]">
+                            #{String(n).padStart(2,'0')}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <button onClick={openBulkReserva} className="w-full btn-3d-gold text-lg">
-                      🎟️ RESERVAR {selectedNumbers.length} {selectedNumbers.length === 1 ? 'NÚMERO' : 'NÚMEROS'}
+                    <button onClick={openBulkReserva} className="w-full btn-3d-gold text-lg relative overflow-hidden group">
+                      <span className="relative z-10">🎟️ RESERVAR {selectedNumbers.length} {selectedNumbers.length === 1 ? 'NÚMERO' : 'NÚMEROS'}</span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                     </button>
                   </div>
                 )}
@@ -863,7 +902,7 @@ const copyAlias = (e) => {
           {productoSeleccionado.finalizado && productoSeleccionado.ganador_num && (
             <div className="rounded-lg p-6 text-center bg-white border-2 border-[#25F4EE] shadow-sm">
               <span className="text-5xl">🏆</span>
-              <p className="text-2xl font-black mt-2 text-[#25F4EE]">GANADOR</p>
+              <p className="text-2xl font-black mt-2 text-[#111827]">🏆 GANADOR</p>
               <p className="text-5xl font-black text-[#333]">#{String(productoSeleccionado.ganador_num).padStart(2,'0')}</p>
               <p className="text-lg font-bold mt-2 text-[#333]">{productoSeleccionado.ganador_nombre}</p>
             </div>
@@ -980,24 +1019,6 @@ const copyAlias = (e) => {
         </div>
       )}
 
-      <ChatBox
-        user={currentUser}
-        productos={allProductos}
-        allBoletos={allBoletos}
-      />
-
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-50 shadow-[0_-1px_6px_rgba(0,0,0,0.05)]">
-        <div className="max-w-lg mx-auto flex justify-around">
-          <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
-          <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-[#3483FA]"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
-          <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
-          {toastMsg && (
-        <div className="fixed top-4 right-4 bg-[#3483FA] text-white px-4 py-2 rounded shadow-lg animate-bounce">
-          {toastMsg}
-        </div>
-      )}
-        </div>
-      </nav>
     </div>
   );
 }

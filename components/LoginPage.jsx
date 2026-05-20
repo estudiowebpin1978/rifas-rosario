@@ -16,7 +16,6 @@ export default function RifaApp() {
   const [authSuccess, setAuthSuccess] = useState('');
   const [user, setUser] = useState(null);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstall, setShowInstall] = useState(false);
 
   const WHATSAPP = '5493412500029';
 
@@ -35,14 +34,9 @@ export default function RifaApp() {
       setUser(session?.user || null);
     });
 
-    const handleInstallPrompt = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstall(true);
-    };
-    window.addEventListener('beforeinstallprompt', handleInstallPrompt);
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); setDeferredPrompt(e); });
 
-    return () => { subscription.unsubscribe(); window.removeEventListener('beforeinstallprompt', handleInstallPrompt); };
+    return () => { subscription.unsubscribe(); };
   }, []);
 
   const handleAuth = async (e) => {
@@ -64,14 +58,19 @@ export default function RifaApp() {
         setTimeout(() => setShowAuth(false), 2000);
       }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: authForm.email,
         password: authForm.password
       });
       if (error) setAuthError('Email o contrasena incorrectos');
       else {
         setShowAuth(false);
-        router.push('/app');
+        // If admin email, redirect to admin panel
+        if (authForm.email === 'estudiowebpin@gmail.com') {
+          router.push('/admin');
+        } else {
+          router.push('/app');
+        }
       }
     }
 setAuthLoading(false);
@@ -107,7 +106,7 @@ setAuthLoading(false);
             <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full btn-3d-pink">👤 Mi Cuenta</button>
             <button onClick={() => { router.push('/app'); setShowMenu(false); }} className="w-full btn-3d-cyan">🎰 Ver Rifas</button>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
-            {showInstall && <button onClick={async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') setShowInstall(false); setDeferredPrompt(null); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>}
+            <button onClick={async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') setDeferredPrompt(null); } else { try { await navigator.clipboard.writeText('https://eco-rifas.vercel.app'); alert('📲 Abrí eco-rifas.vercel.app desde tu navegador y agregala a la pantalla de inicio'); } catch { alert('📲 Abrí eco-rifas.vercel.app desde tu navegador'); } } setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>
             <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Terminos y Condiciones</a>
           </nav>
         </div>
@@ -142,10 +141,15 @@ setAuthLoading(false);
           <span className="trust-badge">✅ 100% Confiable</span>
         </div>
 
-        <div className="mt-8 text-center">
-          <a href="/app" className="text-[#FE2C55] font-bold text-lg hover:underline">
+        <div className="mt-8 text-center space-y-2">
+          <a href="/app" className="block text-[#FE2C55] font-bold text-lg hover:underline">
             Ver rifas disponibles sin cuenta →
           </a>
+          <div className="mt-4">
+            <a href="/admin" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+              🔐 Admin
+            </a>
+          </div>
         </div>
       </main>
 

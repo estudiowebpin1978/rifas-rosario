@@ -27,9 +27,25 @@ export default function AdminPage() {
   const [showEditForm, setShowEditForm] = useState(null);
   const WHATSAPP = '5493412500029';
 
+  const [checkingSession, setCheckingSession] = useState(true);
+
   useEffect(() => {
     const saved = localStorage.getItem('admin_token');
-    if (saved === 'true') setIsLoggedIn(true);
+    if (saved === 'true') {
+      setIsLoggedIn(true);
+      setCheckingSession(false);
+    } else if (supabase) {
+      supabase.auth.getSession().then(({ data }) => {
+        const user = data.session?.user;
+        if (user && user.email === 'estudiowebpin@gmail.com') {
+          localStorage.setItem('admin_token', 'true');
+          setIsLoggedIn(true);
+        }
+        setCheckingSession(false);
+      }).catch(() => setCheckingSession(false));
+    } else {
+      setCheckingSession(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -324,6 +340,17 @@ export default function AdminPage() {
     productosComprados: u.productosComprados.size,
     boletosCount: u.boletos.length
   })).sort((a, b) => b.boletosCount - a.boletosCount);
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[#F5F5F5]">
+        <div className="text-center">
+          <div className="inline-block w-12 h-12 border-4 border-[#25F4EE]/30 border-t-[#25F4EE] rounded-full animate-spin"></div>
+          <p className="mt-4 text-gray-500 font-bold">Verificando acceso...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
     return (
