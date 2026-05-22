@@ -203,6 +203,24 @@ export default function AdminPage() {
     } catch (err) { alert('Error'); }
   };
 
+  const regenerarBoletos = async (productoId, nombre) => {
+    if (!confirm(`¿Regenerar números para "${nombre}"?\n\nSolo se crearán si el producto no tiene números.`)) return;
+    try {
+      const res = await fetch('/api/generar-boletos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ producto_id: productoId })
+      });
+      const result = await res.json();
+      if (result.success) {
+        setNotif(`✅ ${result.message}`);
+        fetchData();
+      } else {
+        alert('Error: ' + (result.error || 'Error desconocido'));
+      }
+    } catch (err) { alert('Error'); }
+  };
+
   const confirmarVenta = async (boleto) => {
     try {
       const res = await fetch('/api/confirmar-pago', {
@@ -504,6 +522,9 @@ export default function AdminPage() {
                     <div className="flex gap-1 self-start">
                       <button onClick={() => setShowEditForm({ ...p, title: p.title || p.nombre, description: p.description || p.descripcion, price: p.price || 0, raffle_price: p.raffle_price || 0, categoria_id: p.categoria_id || '', images: [p.image || p.imagen || '', '', ''] })} className="bg-[#3483FA] text-white px-3 py-2 rounded-lg font-bold text-sm">✏️</button>
                       <button onClick={() => eliminarProducto(p.id, p.title || p.nombre)} className="bg-red-500 text-white px-3 py-2 rounded-lg font-bold">🗑️</button>
+                      {(boletosData[p.id] || []).length === 0 && (
+                        <button onClick={() => regenerarBoletos(p.id, p.title || p.nombre)} className="bg-amber-500 text-white px-3 py-2 rounded-lg font-bold text-sm">🔁</button>
+                      )}
                     </div>
                   </div>
                   {vend >= 100 && !p.finalizado && (

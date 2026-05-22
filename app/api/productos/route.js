@@ -28,15 +28,17 @@ export async function GET(request) {
     // Auto-generate boletos for products missing them
     if (boletos) {
       for (const p of productos) {
-        const hasBoletos = boletos.some(b => b.producto_id === p.id);
+        const hasBoletos = boletos.some(b => b.producto_id == p.id);
         if (!hasBoletos) {
           const totalNums = p.numbers_total || 100;
           const toInsert = [];
           for (let i = 1; i <= totalNums; i++) {
             toInsert.push({ numero: i, producto_id: p.id, estado: 'disponible' });
           }
-          const { data: newBoletos } = await supabase.from('boletos').insert(toInsert).select();
-          if (newBoletos) boletos = [...boletos, ...newBoletos];
+          const { error: bolError } = await supabase.from('boletos').insert(toInsert);
+          if (!bolError) {
+            boletos = [...boletos, ...toInsert];
+          }
         }
       }
     }
