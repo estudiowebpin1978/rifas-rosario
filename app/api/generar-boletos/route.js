@@ -21,19 +21,14 @@ export async function POST(request) {
         return Response.json({ error: 'Producto no encontrado' }, { status: 404 });
       }
 
-      const { data: existentes, error: checkError } = await supabase
+      const { data: existentes } = await supabase
         .from('boletos')
-        .select('id, producto_id')
+        .select('id')
         .eq('producto_id', producto_id)
-        .range(0, 100);
+        .limit(1);
 
       if (existentes && existentes.length > 0) {
-        return Response.json({
-          success: true,
-          message: `El producto ya tiene ${existentes.length} boletos (IDs: ${existentes.map(e => e.id).join(',')}, prod_ids: ${existentes.map(e => e.producto_id).join(',')})`,
-          count: 0,
-          debug: { existentes, checkError: checkError?.message }
-        });
+        return Response.json({ success: true, message: 'El producto ya tiene boletos', count: 0 });
       }
 
       const totalNums = producto.numbers_total || 100;
@@ -48,7 +43,7 @@ export async function POST(request) {
         return Response.json({ error: 'Error al generar boletos: ' + insertError.message }, { status: 400 });
       }
 
-      return Response.json({ success: true, message: `Se generaron ${totalNums} boletos para producto ${producto.id} "${producto.title || producto.nombre}"`, count: totalNums });
+      return Response.json({ success: true, message: `Se generaron ${totalNums} boletos`, count: totalNums });
     }
 
     const { data: productos } = await supabase
@@ -56,10 +51,20 @@ export async function POST(request) {
       .select('id, numbers_total, title, nombre')
       .order('id', { ascending: false });
 
-    const { data: todosBoletos } = await supabase
-      .from('boletos')
-      .select('producto_id')
-      .range(0, 1000000);
+    // Fetch all boletos with pagination
+    let todosBoletos = [];
+    let page = 0;
+    const PAGE_SIZE = 1000;
+    while (true) {
+      const { data: pageData, error: pageError } = await supabase
+        .from('boletos')
+        .select('producto_id')
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+      if (pageError || !pageData || pageData.length === 0) break;
+      todosBoletos = [...todosBoletos, ...pageData];
+      if (pageData.length < PAGE_SIZE) break;
+      page++;
+    }
 
     let generados = 0;
     const resultados = [];

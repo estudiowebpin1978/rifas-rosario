@@ -21,10 +21,20 @@ export async function GET(request) {
       .select('*')
       .order('nombre', { ascending: true });
     
-    let { data: boletos } = await supabase
-      .from('boletos')
-      .select('*')
-      .range(0, 1000000);
+    // Fetch boletos with pagination to avoid PostgREST 1000 default limit
+    let boletos = [];
+    let page = 0;
+    const PAGE_SIZE = 1000;
+    while (true) {
+      const { data: pageData, error: pageError } = await supabase
+        .from('boletos')
+        .select('*')
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+      if (pageError || !pageData || pageData.length === 0) break;
+      boletos = [...boletos, ...pageData];
+      if (pageData.length < PAGE_SIZE) break;
+      page++;
+    }
     
     // Auto-generate boletos for products missing them
     if (boletos) {
