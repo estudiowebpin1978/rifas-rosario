@@ -1,5 +1,5 @@
 ﻿'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
@@ -40,6 +40,7 @@ export default function AppPage() {
   const [recentActivity, setRecentActivity] = useState([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
+  const touchStartX = useRef(null);
 
   const WHATSAPP = '5493412500029';
   const ALIAS = 'eco-rifas';
@@ -771,7 +772,7 @@ const copyAlias = (e) => {
                   const extra = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : [];
                   extra.forEach(u => { if (u && !allImgs.includes(u)) allImgs.push(u); });
                   const currentImg = allImgs[selectedImageIndex] || allImgs[0];
-                  return <><img src={currentImg} alt={productoSeleccionado.title || productoSeleccionado.nombre} className="w-full h-full object-contain cursor-pointer" onClick={() => setShowImageViewer(currentImg)} /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-1 rounded-full">🔍</div></>;
+                  return <><img src={currentImg} alt={productoSeleccionado.title || productoSeleccionado.nombre} className="w-full h-full object-contain cursor-pointer" onClick={() => setShowImageViewer(selectedImageIndex)} /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-1 rounded-full">🔍</div></>;
                 } catch(e) { return <span className="text-7xl">🎁</span>; }
               })()}
               {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
@@ -1011,13 +1012,48 @@ const copyAlias = (e) => {
         </div>
       )}
 
-      {showImageViewer && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95" onClick={() => setShowImageViewer(null)}>
-          <button onClick={() => setShowImageViewer(null)} className="absolute top-4 right-4 text-white text-4xl z-10">✕</button>
-          <img src={showImageViewer} alt="Imagen ampliada" className="max-w-full max-h-full object-contain p-4" onClick={e => e.stopPropagation()} />
-          <div className="absolute bottom-8 text-white/60 text-sm">Tocá cualquier parte para cerrar</div>
-        </div>
-      )}
+      {showImageViewer !== null && productoSeleccionado && (() => {
+        const allImgs = [];
+        if (productoSeleccionado.image || productoSeleccionado.imagen) allImgs.push(productoSeleccionado.image || productoSeleccionado.imagen);
+        try { const extra = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : []; extra.forEach(u => { if (u && !allImgs.includes(u)) allImgs.push(u); }); } catch(e) {}
+        const currentIdx = showImageViewer;
+        const total = allImgs.length;
+        const prevIdx = currentIdx > 0 ? currentIdx - 1 : total - 1;
+        const nextIdx = currentIdx < total - 1 ? currentIdx + 1 : 0;
+        const handleTouchStart = (e) => { touchStartX.current = e.changedTouches[0].clientX; };
+        const handleTouchEnd = (e) => {
+          if (touchStartX.current === null) return;
+          const dx = e.changedTouches[0].clientX - touchStartX.current;
+          touchStartX.current = null;
+          if (Math.abs(dx) > 50) { setShowImageViewer(dx > 0 ? prevIdx : nextIdx); }
+        };
+        return (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 select-none"
+            onClick={() => setShowImageViewer(null)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}>
+            <button onClick={e => { e.stopPropagation(); setShowImageViewer(null); }} className="absolute top-4 right-4 text-white text-4xl z-20 hover:scale-110 transition-transform">✕</button>
+            {total > 1 && (
+              <>
+                <button onClick={e => { e.stopPropagation(); setShowImageViewer(prevIdx); }} className="absolute left-2 top-1/2 -translate-y-1/2 text-white text-4xl z-20 p-4 hover:scale-125 transition-transform opacity-60 hover:opacity-100">‹</button>
+                <button onClick={e => { e.stopPropagation(); setShowImageViewer(nextIdx); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-white text-4xl z-20 p-4 hover:scale-125 transition-transform opacity-60 hover:opacity-100">›</button>
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full">
+                  {allImgs.map((_, i) => (
+                    <button key={i} onClick={e => { e.stopPropagation(); setShowImageViewer(i); }}
+                      className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${i === currentIdx ? 'bg-white scale-125 w-4' : 'bg-white/40 hover:bg-white/70'}`} />
+                  ))}
+                </div>
+                <div className="absolute top-4 left-4 z-20 text-white/80 text-sm font-bold bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full">{currentIdx + 1} / {total}</div>
+              </>
+            )}
+            <img src={allImgs[currentIdx]} alt={productoSeleccionado.title || productoSeleccionado.nombre}
+              className="max-w-full max-h-full object-contain p-4 cursor-pointer"
+              onClick={e => { e.stopPropagation(); setShowImageViewer(null); }}
+              draggable="false"
+              style={{ userSelect: 'none', WebkitUserSelect: 'none' }} />
+          </div>
+        );
+      })()}
 
     </div>
   );
