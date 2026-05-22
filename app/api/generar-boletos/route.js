@@ -21,14 +21,19 @@ export async function POST(request) {
         return Response.json({ error: 'Producto no encontrado' }, { status: 404 });
       }
 
-      const { data: existentes } = await supabase
+      const { data: existentes, error: checkError } = await supabase
         .from('boletos')
-        .select('id')
+        .select('id, producto_id')
         .eq('producto_id', producto_id)
-        .limit(1);
+        .limit(3);
 
       if (existentes && existentes.length > 0) {
-        return Response.json({ success: true, message: 'El producto ya tiene boletos', count: 0 });
+        return Response.json({
+          success: true,
+          message: `El producto ya tiene ${existentes.length} boletos (IDs: ${existentes.map(e => e.id).join(',')}, prod_ids: ${existentes.map(e => e.producto_id).join(',')})`,
+          count: 0,
+          debug: { existentes, checkError: checkError?.message }
+        });
       }
 
       const totalNums = producto.numbers_total || 100;
@@ -43,7 +48,7 @@ export async function POST(request) {
         return Response.json({ error: 'Error al generar boletos: ' + insertError.message }, { status: 400 });
       }
 
-      return Response.json({ success: true, message: `Se generaron ${totalNums} boletos`, count: totalNums });
+      return Response.json({ success: true, message: `Se generaron ${totalNums} boletos para producto ${producto.id} "${producto.title || producto.nombre}"`, count: totalNums });
     }
 
     const { data: productos } = await supabase
