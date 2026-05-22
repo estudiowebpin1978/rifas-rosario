@@ -23,7 +23,8 @@ export async function GET(request) {
     
     let { data: boletos } = await supabase
       .from('boletos')
-      .select('*');
+      .select('*')
+      .limit(1000000);
     
     // Auto-generate boletos for products missing them
     if (boletos) {

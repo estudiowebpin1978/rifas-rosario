@@ -53,7 +53,8 @@ export async function POST(request) {
 
     const { data: todosBoletos } = await supabase
       .from('boletos')
-      .select('producto_id');
+      .select('producto_id')
+      .limit(1000000);
 
     let generados = 0;
     const resultados = [];
