@@ -25,7 +25,7 @@ export async function POST(request) {
         .from('boletos')
         .select('id, producto_id')
         .eq('producto_id', producto_id)
-        .limit(3);
+        .range(0, 100);
 
       if (existentes && existentes.length > 0) {
         return Response.json({
@@ -59,7 +59,7 @@ export async function POST(request) {
     const { data: todosBoletos } = await supabase
       .from('boletos')
       .select('producto_id')
-      .limit(1000000);
+      .range(0, 1000000);
 
     let generados = 0;
     const resultados = [];
