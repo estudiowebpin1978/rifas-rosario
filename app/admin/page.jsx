@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/lib/supabaseClient';
+import { generarMensajeGanador, generarMensajeNoGanador, generarMensajeAdmin, generarMensajeSorteoProgramado, abrirWhatsAppAdmin, abrirWhatsAppNumero } from '@/lib/notificaciones';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function AdminPage() {
   const [showSorteoModal, setShowSorteoModal] = useState(null);
   const [sorteando, setSorteando] = useState(false);
   const [showSorteoResult, setShowSorteoResult] = useState(null);
+  const [showNotifModal, setShowNotifModal] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showEditForm, setShowEditForm] = useState(null);
   const WHATSAPP = '5493412500029';
@@ -215,8 +217,10 @@ export default function AdminPage() {
         setNotif(`✅ Venta confirmada! #${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}`);
         setShowConfirmModal(null);
         fetchData();
-        const msg = `✅ VENTA CONFIRMADA - Eco Rifas\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
-        if (boleto.whatsapp) window.open('https://wa.me/' + boleto.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+
+        const producto = productos?.find(p => p.id === boleto.producto_id);
+        const msgCompra = `✅ VENTA CONFIRMADA - Eco Rifas\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
+        if (boleto.whatsapp) window.open('https://wa.me/' + boleto.whatsapp + '?text=' + encodeURIComponent(msgCompra), '_blank');
 
         if (result.sorteo) {
           if (result.sorteo.estado === 'completado') {
@@ -224,40 +228,30 @@ export default function AdminPage() {
             setNotif(`🏆 SORTEO COMPLETADO! Ganador: #${String(g.numero).padStart(2,'0')} - ${g.nombre} (Quiniela Nocturna)`);
             confetti({ particleCount: 200, spread: 80, origin: { y: 0.5 } });
 
-            window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(
-              '🏆 SORTEO REALIZADO AUTOMATICAMENTE!\n\n' +
-              '🎁 Producto sorteado\n' +
-              '🏆 Ganador: #' + String(g.numero).padStart(2,'0') + ' - ' + g.nombre + '\n' +
-              '📱 WhatsApp: ' + g.whatsapp + '\n\n' +
-              '🀄 Método: Quiniela Nacional Nocturna'
-            ), '_blank');
+            // 1. Abrir WhatsApp Admin con resumen completo + lista de participantes
+            abrirWhatsAppAdmin(generarMensajeAdmin(producto, g, result.sorteo.participantes));
 
-            if (g.whatsapp) {
-              setTimeout(() => {
-                window.open('https://wa.me/' + g.whatsapp + '?text=' + encodeURIComponent(
-                  '🎉🎉🎉 FELICIDADES! 🎉🎉🎉\n\n' +
-                  'Ganaste el SORTEO AUTOMATICO!\n\n' +
-                  '🏆 Tu numero: #' + String(g.numero).padStart(2,'0') + '\n\n' +
-                  'Contacta al admin para reclamar tu premio!'
-                ), '_blank');
-              }, 1000);
-            }
+            // 2. Abrir WhatsApp Ganador con coordinación + CTA seguír participando
+            setTimeout(() => {
+              if (g.whatsapp) {
+                abrirWhatsAppNumero(g.whatsapp, generarMensajeGanador(g, producto));
+              }
+            }, 1500);
 
-            if (result.sorteo.participantes) {
-              result.sorteo.participantes.forEach((p, i) => {
-                if (p.whatsapp && p.whatsapp !== g.whatsapp) {
-                  setTimeout(() => {
-                    window.open('https://wa.me/' + p.whatsapp + '?text=' + encodeURIComponent(
-                      '🎰 SORTEO REALIZADO - Eco Rifas\n\n' +
-                      'El sorteo ya se realizó mediante la Quiniela Nacional Nocturna.\n\n' +
-                      '🏆 Ganador: #' + String(g.numero).padStart(2,'0') + ' - ' + g.nombre + '\n\n' +
-                      'Gracias por participar! 🍀'
-                    ), '_blank');
-                  }, 2000 + (i * 1500));
-                }
+            // 3. Modal con CTA "Seguir participando" + mensaje copiable para no-ganadores
+            if (result.sorteo.participantes && result.sorteo.participantes.length > 1) {
+              const activos = productos.filter(p => !p.finalizado && p.id !== producto?.id);
+              setShowNotifModal({
+                ganador: g,
+                producto: producto,
+                participantes: result.sorteo.participantes.filter(p => p.whatsapp && p.whatsapp !== g.whatsapp),
+                productosActivos: activos
               });
             }
           } else if (result.sorteo.estado === 'programado') {
+            const { admin: msgAdmin, participantes } = generarMensajeSorteoProgramado(
+              producto, result.sorteo.fecha, result.sorteo.motivo, result.sorteo.participantes
+            );
             const fecha = result.sorteo.fecha ? new Date(result.sorteo.fecha) : null;
             const fechaStr = fecha ? fecha.toLocaleDateString('es-AR', {
               weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -265,29 +259,19 @@ export default function AdminPage() {
 
             setNotif(`📅 Sorteo programado: ${fechaStr} (${result.sorteo.motivo || ''})`);
 
-            window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(
-              '📅 SORTEO PROGRAMADO - Eco Rifas\n\n' +
-              'Todos los números fueron vendidos!\n\n' +
-              `Motivo: ${result.sorteo.motivo || 'Quiniela no disponible hoy'}\n` +
-              `Fecha del sorteo: ${fechaStr}\n\n` +
-              '🀄 Método: Quiniela Nacional Nocturna\n' +
-              'Los participantes serán notificados.'
-            ), '_blank');
+            // Admin notification
+            abrirWhatsAppAdmin(msgAdmin);
 
-            if (result.sorteo.participantes) {
-              result.sorteo.participantes.forEach((p, i) => {
-                if (p.whatsapp) {
-                  setTimeout(() => {
-                    window.open('https://wa.me/' + p.whatsapp + '?text=' + encodeURIComponent(
-                      '📅 SORTEO PROGRAMADO - Eco Rifas\n\n' +
-                      'Todos los números de la rifa fueron vendidos!\n\n' +
-                      `📅 Fecha del sorteo: ${fechaStr}\n` +
-                      '🀄 Método: Quiniela Nacional Nocturna\n\n' +
-                      'Suerte a todos! 🍀'
-                    ), '_blank');
-                  }, 2000 + (i * 1500));
-                }
-              });
+            // Notificar participantes programados (solo abrimos 1 o 2 para evitar bloqueos)
+            if (participantes.length > 0) {
+              setTimeout(() => {
+                abrirWhatsAppNumero(participantes[0].whatsapp, participantes[0].msg);
+              }, 1500);
+              if (participantes.length > 1) {
+                setTimeout(() => {
+                  abrirWhatsAppNumero(participantes[1].whatsapp, participantes[1].msg);
+                }, 3000);
+              }
             }
           }
         }
@@ -809,6 +793,95 @@ export default function AdminPage() {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showNotifModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowNotifModal(null)}></div>
+          <div className="relative w-full max-w-md rounded-lg p-6 bg-white border border-[#EBEBEB] shadow-lg max-h-[90vh] overflow-y-auto">
+            <div className="text-center">
+              <span className="text-5xl block mb-2 animate-bounce">🏆</span>
+              <h2 className="text-2xl font-black text-[#111827]">SORTEO COMPLETADO</h2>
+              <p className="text-5xl font-black text-[#25F4EE] my-2">#{String(showNotifModal.ganador.numero).padStart(2,'0')}</p>
+              <p className="text-xl font-bold text-[#333]">{showNotifModal.ganador.nombre}</p>
+              <p className="text-sm text-gray-500 mt-1">🎁 {showNotifModal.producto?.title || showNotifModal.producto?.nombre}</p>
+            </div>
+
+            {showNotifModal.productosActivos?.length > 0 && (
+              <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-[#FE2C55]/10 to-[#25F4EE]/10 border border-[#FE2C55]/30">
+                <h3 className="font-black text-[#FE2C55] mb-2">🔥 SEGUÍ PARTICIPANDO</h3>
+                <p className="text-sm text-gray-600 mb-3">No ganaste esta vez, pero seguís teniendo chances en otras rifas:</p>
+                <div className="space-y-2">
+                  {showNotifModal.productosActivos.map(p => (
+                    <a key={p.id}
+                      href={`${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/app?producto=${p.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block p-3 rounded-lg bg-white border border-[#EBEBEB] hover:border-[#FE2C55] transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        {p.images?.[0] && <img src={p.images[0]} alt="" className="w-10 h-10 rounded object-cover" />}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-sm text-[#333] truncate">{p.title || p.nombre}</p>
+                          <p className="text-[#FE2C55] font-black text-xs">${(p.raffle_price || 0).toLocaleString('es-AR')}- por número</p>
+                        </div>
+                        <span className="text-[#25F4EE] text-xl">→</span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4 p-4 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
+              <h3 className="font-bold text-sm text-[#333] mb-2">📋 Notificar a los que no ganaron</h3>
+              <textarea readOnly rows="4"
+                className="w-full text-xs p-3 rounded border border-[#EBEBEB] bg-white text-[#333] font-mono resize-none"
+                value={
+                  showNotifModal.participantes.length > 0
+                    ? showNotifModal.participantes.map(p =>
+                      `📱 wa.me/${p.whatsapp}?text=${encodeURIComponent(
+                        `🎰 SORTEO REALIZADO - Eco Rifas\n\nEl sorteo ya se realizó mediante la Quiniela Nacional Nocturna.\n\n🏆 Ganador: #${String(showNotifModal.ganador.numero).padStart(2,'0')} - ${showNotifModal.ganador.nombre}\n\n😢 No fue tu número... ¡PERO SEGUÍ PARTICIPANDO!\n\n${showNotifModal.productosActivos?.length > 0 ? '🔥 Hay otras rifas activas esperando por vos: ' + (process.env.NEXT_PUBLIC_BASE_URL || window.location.origin) + '/app\n\n' : ''}🍀 Suerte la próxima!`
+                      )}`
+                    ).join('\n\n')
+                    : 'No hay participantes con WhatsApp para notificar.'
+                }
+              />
+              <button
+                onClick={() => {
+                  const texto = showNotifModal.participantes.map(p =>
+                    `wa.me/${p.whatsapp}?text=${encodeURIComponent(
+                      `🎰 SORTEO REALIZADO - Eco Rifas\n\nEl sorteo ya se realizó mediante la Quiniela Nacional Nocturna.\n\n🏆 Ganador: #${String(showNotifModal.ganador.numero).padStart(2,'0')} - ${showNotifModal.ganador.nombre}\n\n😢 No fue tu número... ¡PERO SEGUÍ PARTICIPANDO!\n\n${showNotifModal.productosActivos?.length > 0 ? '🔥 Hay otras rifas activas esperando por vos: ' + (process.env.NEXT_PUBLIC_BASE_URL || window.location.origin) + '/app\n\n' : ''}🍀 Suerte la próxima!`
+                    )}`
+                  ).join('\n\n');
+                  navigator.clipboard.writeText(texto);
+                  setNotif('✅ Links copiados! Pegalos en WhatsApp');
+                }}
+                className="mt-2 w-full py-2 rounded-lg font-bold text-sm bg-[#111827] text-white shadow-sm hover:bg-[#333] transition-colors"
+              >
+                📋 COPIAR LINKS PARA NO GANADORES
+              </button>
+            </div>
+
+            {showNotifModal.ganador.whatsapp && (
+              <button
+                onClick={() => abrirWhatsAppNumero(showNotifModal.ganador.whatsapp,
+                  generarMensajeGanador(showNotifModal.ganador, showNotifModal.producto)
+                )}
+                className="mt-3 w-full py-3 rounded-lg font-bold bg-[#39B54A] text-white shadow-sm hover:bg-[#2d9e3d] transition-colors"
+              >
+                📲 CONTACTAR GANADOR
+              </button>
+            )}
+
+            <button
+              onClick={() => { setShowNotifModal(null); fetchData(); }}
+              className="mt-3 w-full py-3 rounded-lg font-bold bg-gray-100 text-[#333] border border-[#EBEBEB] hover:bg-gray-200 transition-colors"
+            >
+              CERRAR ✅
+            </button>
           </div>
         </div>
       )}

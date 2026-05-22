@@ -595,6 +595,14 @@ const copyAlias = (e) => {
                   </div>
                 ))}
               </div>
+              {productos.filter(p => !p.finalizado).length > 0 && (
+                <button
+                  onClick={() => { setProductoSeleccionado(null); }}
+                  className="mt-3 w-full py-2 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#FE2C55] to-[#25F4EE] shadow-md"
+                >
+                  🔥 SEGUÍ PARTICIPANDO - {productos.filter(p => !p.finalizado).length} RIFAS ACTIVAS
+                </button>
+              )}
             </div>
           )}
 
@@ -936,6 +944,12 @@ const copyAlias = (e) => {
                   <span className="px-4 py-2 rounded-full bg-white/10 text-white text-sm font-bold border border-white/20">🎰 Quiniela Nacional</span>
                   <span className="px-4 py-2 rounded-full bg-white/10 text-[#25F4EE] text-sm font-bold border border-[#25F4EE]/30">🀄 Nocturna</span>
                 </div>
+                <button
+                  onClick={verOtrosProductos}
+                  className="mt-6 w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-[#FE2C55] to-[#25F4EE] shadow-lg hover:shadow-xl transition-all animate-pulse-soft"
+                >
+                  🔥 SEGUÍ PARTICIPANDO EN OTRAS RIFAS
+                </button>
               </div>
             </div>
           )}
