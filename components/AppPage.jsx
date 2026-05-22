@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
 import ChatBox from '@/components/ChatBox';
+import { playClick, playCoin, playCelebration, playError, playSelect } from '@/lib/sounds';
+import { HeroSectionSkeleton } from '@/components/SkeletonLoader';
 
 export default function AppPage() {
   const router = useRouter();
@@ -40,7 +42,13 @@ export default function AppPage() {
   const [recentActivity, setRecentActivity] = useState([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
+  const [timeNow, setTimeNow] = useState(Date.now());
   const touchStartX = useRef(null);
+
+  useEffect(() => {
+    const iv = setInterval(() => setTimeNow(Date.now()), 1000);
+    return () => clearInterval(iv);
+  }, []);
 
   const WHATSAPP = '5493412500029';
   const ALIAS = 'eco-rifas';
@@ -187,6 +195,10 @@ const copyAlias = (e) => {
   }, [toastMsg]);
 
   useEffect(() => {
+    if (productoSeleccionado?.finalizado) playCelebration();
+  }, [productoSeleccionado?.finalizado]);
+
+  useEffect(() => {
     const pendientes = allProductos.filter(p =>
       p.sorteo_programado && !p.finalizado && p.sorteo_notificado
     );
@@ -257,6 +269,7 @@ const copyAlias = (e) => {
   const toggleNumberSelection = (numero) => {
     if (boletos.find(b => b.numero === numero && b.estado !== 'disponible')) return;
     setSelectedNumbers(prev => prev.includes(numero) ? prev.filter(n => n !== numero) : [...prev, numero]);
+    playSelect();
   };
 
   const openBulkReserva = () => { if (selectedNumbers.length > 0) { setShowBulkReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); } };
@@ -300,6 +313,7 @@ const copyAlias = (e) => {
     }
     
     if (successful > 0) {
+      playCoin();
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
       const numsStr = selectedNumbers.map(n => '#' + String(n).padStart(2,'0')).join(', ');
       const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
@@ -345,6 +359,7 @@ const copyAlias = (e) => {
       const result = await res.json();
       
       if (result.success) {
+        playCoin();
         confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
         const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: eco-rifas\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago y reservo tu numero!\n\n') + '⏳ Tu numero queda RESERVADO por 10 minutos.';
         window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
@@ -735,10 +750,7 @@ const copyAlias = (e) => {
           </div>
 
           {dataLoading ? (
-            <div className="text-center py-16">
-              <div className="inline-block w-12 h-12 border-4 border-[#25F4EE]/30 border-t-[#25F4EE] rounded-full animate-spin"></div>
-              <p className="mt-4 text-gray-500 font-bold">Cargando rifas...</p>
-            </div>
+            <HeroSectionSkeleton />
           ) : productos.length === 0 && (
             <div className="text-center py-16 rounded-lg bg-white border border-[#EBEBEB] shadow-sm">
               <span className="text-6xl mb-4 block">🎰</span>
@@ -830,8 +842,12 @@ const copyAlias = (e) => {
                       btnClass = 'bg-gradient-to-br from-gray-700 to-gray-800 text-gray-500 cursor-not-allowed border border-gray-600 shadow-inner';
                       btnContent = '✕';
                     } else if (isReserved) {
+                      const expiresAt = new Date(b.updated_at || b.created_at).getTime() + 10 * 60 * 1000;
+                      const remaining = Math.max(0, Math.floor((expiresAt - timeNow) / 1000));
+                      const mins = Math.floor(remaining / 60);
+                      const secs = remaining % 60;
                       btnClass = 'bg-gradient-to-br from-amber-600 to-orange-700 text-amber-200 cursor-not-allowed border border-amber-500/50 shadow-inner';
-                      btnContent = '✕';
+                      btnContent = <span className="text-[9px] leading-tight">{String(b.numero).padStart(2,'0')}<br/><span className="text-[7px] opacity-70">{mins}:{String(secs).padStart(2,'0')}</span></span>;
                     } else if (isSelected) {
                       btnClass = 'bg-gradient-to-br from-[#FE2C55] to-[#C12045] text-white border-0 shadow-[0_4px_0_#8a1530,0_6px_12px_rgba(254,44,85,0.4)] scale-105 z-10';
                     } else if (isFav) {
@@ -894,11 +910,33 @@ const copyAlias = (e) => {
           )}
 
           {productoSeleccionado.finalizado && productoSeleccionado.ganador_num && (
-            <div className="rounded-lg p-6 text-center bg-white border-2 border-[#25F4EE] shadow-sm">
-              <span className="text-5xl">🏆</span>
-              <p className="text-2xl font-black mt-2 text-[#111827]">🏆 GANADOR</p>
-              <p className="text-5xl font-black text-[#333]">#{String(productoSeleccionado.ganador_num).padStart(2,'0')}</p>
-              <p className="text-lg font-bold mt-2 text-[#333]">{productoSeleccionado.ganador_nombre}</p>
+            <div className="relative rounded-2xl p-8 text-center overflow-hidden bg-gradient-to-br from-[#111827] via-gray-900 to-[#1a1a2e] border-2 border-[#FE2C55]/50 shadow-[0_0_30px_rgba(254,44,85,0.2)]">
+              <div className="absolute inset-0 opacity-20" style={{
+                backgroundImage: 'radial-gradient(circle at 20% 50%, #FE2C55 0%, transparent 50%), radial-gradient(circle at 80% 50%, #25F4EE 0%, transparent 50%)'
+              }}></div>
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                {Array.from({ length: 20 }).map((_, i) => (
+                  <span key={i} className="absolute text-lg animate-float" style={{
+                    left: Math.random() * 100 + '%',
+                    top: Math.random() * 100 + '%',
+                    animationDelay: Math.random() * 3 + 's',
+                    animationDuration: (2 + Math.random() * 3) + 's',
+                    opacity: 0.6
+                  }}>{['🎉', '🎊', '✨', '🔥', '🏆', '💎', '⭐', '🎰'][Math.floor(Math.random() * 8)]}</span>
+                ))}
+              </div>
+              <div className="relative z-10 animate-bounce-in">
+                <span className="text-7xl block mb-4 animate-[spin_3s_linear_infinite]">🏆</span>
+                <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FE2C55] to-[#25F4EE]">¡GANADOR!</p>
+                <p className="text-7xl font-black text-white my-4 drop-shadow-[0_0_20px_rgba(254,44,85,0.5)] animate-pulse-soft">
+                  #{String(productoSeleccionado.ganador_num).padStart(2,'0')}
+                </p>
+                <p className="text-xl font-bold text-[#25F4EE]">{productoSeleccionado.ganador_nombre}</p>
+                <div className="mt-6 flex gap-3 justify-center">
+                  <span className="px-4 py-2 rounded-full bg-white/10 text-white text-sm font-bold border border-white/20">🎰 Quiniela Nacional</span>
+                  <span className="px-4 py-2 rounded-full bg-white/10 text-[#25F4EE] text-sm font-bold border border-[#25F4EE]/30">🀄 Nocturna</span>
+                </div>
+              </div>
             </div>
           )}
         </main>
