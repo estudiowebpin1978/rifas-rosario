@@ -242,17 +242,7 @@ const copyAlias = (e) => {
     try {
       const res = await fetch('/api/productos');
       const result = await res.json();
-      if (result.boletos) {
-        const filtered = result.boletos.filter(b => b.producto_id === productoId);
-        if (filtered.length === 0 && productoSeleccionado) {
-          // Auto-generate 100 boletos if none exist
-          const nums = [];
-          for (let i = 1; i <= 100; i++) nums.push({ id: -i, numero: i, producto_id: productoId, estado: 'disponible' });
-          setBoletos(nums);
-        } else {
-          setBoletos(filtered);
-        }
-      }
+      if (result.boletos) setBoletos(result.boletos.filter(b => b.producto_id === productoId));
     } catch (err) { console.error('Error:', err); }
   };
 
@@ -312,7 +302,7 @@ const copyAlias = (e) => {
     if (successful > 0) {
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
       const numsStr = selectedNumbers.map(n => '#' + String(n).padStart(2,'0')).join(', ');
-      const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio).replace(/[^\d.,]/g,'').replace(',','.'));
+      const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
       const total = formatPrice((precioUnit * selectedNumbers.length).toString());
       const p = productoSeleccionado;
       const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: eco-rifas\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago y reservo tus numeros!\n\n') + '⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
@@ -464,8 +454,8 @@ const copyAlias = (e) => {
           const prodBoletos = allBoletos.filter(b => b.producto_id === p.id);
           return sum + prodBoletos.filter(b => b.estado === 'vendido').length;
         }, 0);
-        const totalNumeros = allProductos.filter(p => !p.finalizado).length * 100;
-        const totalPorcent = Math.round((totalVendidos / totalNumeros) * 100);
+        const totalNumeros = allProductos.filter(p => !p.finalizado).reduce((sum, p) => sum + (p.numbers_total || 100), 0);
+        const totalPorcent = totalNumeros > 0 ? Math.round((totalVendidos / totalNumeros) * 100) : 0;
         return totalPorcent > 0 ? (
           <div className="bg-[#FE2C55]/10 border-b border-[#FE2C55]/30 px-4 py-2">
             <div className="max-w-lg mx-auto flex items-center gap-3 text-xs">
@@ -595,12 +585,14 @@ const copyAlias = (e) => {
 
           {(() => {
             const heroProd = productos.find(p => !p.finalizado);
-            const heroBoletos = allBoletos.filter(b => b.producto_id === heroProd?.id);
+            if (!heroProd) return null;
+            const heroBoletos = allBoletos.filter(b => b.producto_id === heroProd.id);
             const heroVendidos = heroBoletos.filter(b => b.estado === 'vendido').length;
-            const heroRestantes = 100 - heroVendidos;
+            const heroTotal = heroProd.numbers_total || 100;
+            const heroRestantes = heroTotal - heroVendidos;
             const heroReservados = heroBoletos.filter(b => b.estado === 'reservado').length;
-            const heroPorcent = Math.round((heroVendidos / 100) * 100);
-            return heroProd ? (
+            const heroPorcent = heroTotal > 0 ? Math.round((heroVendidos / heroTotal) * 100) : 0;
+            return (
               <div onClick={() => setProductoSeleccionado(heroProd)} className="cursor-pointer rounded-lg overflow-hidden bg-white border border-[#EBEBEB] shadow-sm relative group">
                 <div className="relative aspect-[4/3]">
                   {(heroProd.image || heroProd.imagen) ? <img src={heroProd.image || heroProd.imagen} alt={heroProd.title || heroProd.nombre} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center"><span className="text-8xl">🎁</span></div>}
@@ -627,7 +619,7 @@ const copyAlias = (e) => {
                   <p className="text-3xl font-black text-[#39B54A]">{formatPrice(heroProd.raffle_price || heroProd.precio)}</p>
                     <div className="mt-3">
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-[#3483FA] font-bold">🎟 {heroVendidos}/100</span>
+                      <span className="text-[#3483FA] font-bold">🎟 {heroVendidos}/{heroTotal}</span>
                       {heroReservados > 0 && <span className="text-amber-500 font-bold">⏳ {heroReservados} reservados</span>}
                     </div>
                     <div className="h-4 bg-[#EBEBEB] rounded-full overflow-hidden">
@@ -641,7 +633,7 @@ const copyAlias = (e) => {
                   {(heroProd.description || heroProd.descripcion) && <p className="text-gray-400 text-xs mt-2 line-clamp-1">{heroProd.description || heroProd.descripcion}</p>}
                 </div>
               </div>
-            ) : null;
+            );
           })()}
 
           <div className="flex gap-2">
@@ -703,8 +695,9 @@ const copyAlias = (e) => {
               const prodBoletos = allBoletos.filter(b => b.producto_id === prod.id);
               const prodVend = prodBoletos.filter(b => b.estado === 'vendido').length;
               const prodRes = prodBoletos.filter(b => b.estado === 'reservado').length;
-              const prodDisp = 100 - prodVend - prodRes;
-              const prodPorcent = Math.round((prodVend / 100) * 100);
+              const prodTotal = prod.numbers_total || 100;
+              const prodDisp = prodTotal - prodVend - prodRes;
+              const prodPorcent = prodTotal > 0 ? Math.round((prodVend / prodTotal) * 100) : 0;
               const isHot = prodVend >= 50 && !prod.finalizado;
               const isAlmostFull = prodDisp <= 10 && !prod.finalizado;
               return (
@@ -726,14 +719,14 @@ const copyAlias = (e) => {
                     <div className="space-y-1">
                       <div className="flex justify-between text-[10px]">
                         <span className="text-gray-500">Vendidos</span>
-                        <span className="font-bold text-[#111827]">{prodVend}/100</span>
+                        <span className="font-bold text-[#111827]">{prodVend}/{prodTotal}</span>
                       </div>
                       <div className="h-2 bg-[#EBEBEB] rounded-full overflow-hidden shadow-inner">
-                        <div className={`h-full rounded-full transition-all duration-500 ${prodVend >= 100 ? 'bg-gradient-to-r from-[#39B54A] to-green-400' : prodVend >= 50 ? 'bg-gradient-to-r from-[#25F4EE] to-[#3483FA]' : 'bg-gradient-to-r from-[#3483FA] to-blue-400'}`} style={{ width: Math.min(prodPorcent, 100) + '%' }}></div>
+                        <div className={`h-full rounded-full transition-all duration-500 ${prodVend >= prodTotal ? 'bg-gradient-to-r from-[#39B54A] to-green-400' : prodVend >= 50 ? 'bg-gradient-to-r from-[#25F4EE] to-[#3483FA]' : 'bg-gradient-to-r from-[#3483FA] to-blue-400'}`} style={{ width: Math.min(prodPorcent, 100) + '%' }}></div>
                       </div>
                     </div>
-                    <button className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-95 ${prod.finalizado ? 'bg-gray-100 text-gray-400 border border-gray-200' : prodVend >= 100 ? 'bg-gradient-to-r from-[#39B54A] to-green-500 text-white shadow-md' : 'bg-gradient-to-r from-[#111827] to-gray-800 text-white shadow-md hover:shadow-lg hover:from-[#3483FA] hover:to-blue-600'}`}>
-                      {prod.finalizado ? '🏆 FINALIZADO' : prodVend >= 100 ? '🎉 SORTEANDO...' : `🎰 ${prodVend}/100`}
+                    <button className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-95 ${prod.finalizado ? 'bg-gray-100 text-gray-400 border border-gray-200' : prodVend >= prodTotal ? 'bg-gradient-to-r from-[#39B54A] to-green-500 text-white shadow-md' : 'bg-gradient-to-r from-[#111827] to-gray-800 text-white shadow-md hover:shadow-lg hover:from-[#3483FA] hover:to-blue-600'}`}>
+                      {prod.finalizado ? '🏆 FINALIZADO' : prodVend >= prodTotal ? '🎉 SORTEANDO...' : `🎰 ${prodVend}/${prodTotal}`}
                     </button>
                   </div>
                 </div>
@@ -802,9 +795,9 @@ const copyAlias = (e) => {
               <h2 className="font-black text-xl mt-2 text-[#333]">{productoSeleccionado.title || productoSeleccionado.nombre}</h2>
               <p className="text-3xl font-black text-[#39B54A] mt-1">{formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio)}</p>
               {(productoSeleccionado.description || productoSeleccionado.descripcion) && <p className="mt-3 text-gray-500 text-sm">{productoSeleccionado.description || productoSeleccionado.descripcion}</p>}
-              <div className="mt-3 flex justify-between text-sm"><span className="text-gray-500">{vendidosCount}/100 vendidos</span><span className="font-bold text-[#333]">{porcentaje}%</span></div>
+              <div className="mt-3 flex justify-between text-sm"><span className="text-gray-500">{vendidosCount}/{(productoSeleccionado.numbers_total || 100)} vendidos</span><span className="font-bold text-[#333]">{porcentaje}%</span></div>
               <div className="h-3 rounded-full mt-2 bg-[#EBEBEB]"><div className="h-full bg-[#3483FA] rounded-full" style={{ width: porcentaje + '%' }}></div></div>
-              {vendidosCount === 100 && <p className="mt-2 text-center font-black text-[#39B54A] animate-pulse">🎉 TODOS LOS NUMEROS VENDIDOS!</p>}
+              {vendidosCount >= (productoSeleccionado.numbers_total || 100) && <p className="mt-2 text-center font-black text-[#39B54A] animate-pulse">🎉 TODOS LOS NUMEROS VENDIDOS!</p>}
             </div>
           </div>
 

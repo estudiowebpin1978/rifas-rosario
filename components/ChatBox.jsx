@@ -26,6 +26,8 @@ export default function ChatBox({ user, productos, allBoletos }) {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const channelRef = useRef(null);
+  const minimizedRef = useRef(minimized);
+  useEffect(() => { minimizedRef.current = minimized; }, [minimized]);
 
   const scrollToBottom = () => {
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
@@ -48,7 +50,7 @@ export default function ChatBox({ user, productos, allBoletos }) {
           if (prev.some(m => m.id === payload.new.id)) return prev;
           const newMsgs = [...prev, payload.new];
           if (newMsgs.length > 100) newMsgs.splice(0, newMsgs.length - 100);
-          if (minimized) setUnreadCount(c => c + 1);
+          if (minimizedRef.current) setUnreadCount(c => c + 1);
           else scrollToBottom();
           return newMsgs;
         });

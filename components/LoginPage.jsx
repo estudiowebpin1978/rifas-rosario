@@ -41,39 +41,42 @@ export default function RifaApp() {
 
   const handleAuth = async (e) => {
     e.preventDefault();
-    if (!supabase) return;
+    if (!supabase) { setAuthLoading(false); return; }
     setAuthLoading(true);
     setAuthError('');
     setAuthSuccess('');
 
-    if (authMode === 'signup') {
-      const { error } = await supabase.auth.signUp({
-        email: authForm.email,
-        password: authForm.password,
-        options: { data: { nombre: authForm.nombre } }
-      });
-      if (error) setAuthError(error.message);
-      else {
-        setAuthSuccess('Cuenta creada! Ahora podes participar.');
-        setTimeout(() => setShowAuth(false), 2000);
-      }
-    } else {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: authForm.email,
-        password: authForm.password
-      });
-      if (error) setAuthError('Email o contrasena incorrectos');
-      else {
-        setShowAuth(false);
-        // If admin email, redirect to admin panel
-        if (authForm.email === 'estudiowebpin@gmail.com') {
-          router.push('/admin');
-        } else {
-          router.push('/app');
+    try {
+      if (authMode === 'signup') {
+        const { error } = await supabase.auth.signUp({
+          email: authForm.email,
+          password: authForm.password,
+          options: { data: { nombre: authForm.nombre } }
+        });
+        if (error) setAuthError(error.message);
+        else {
+          setAuthSuccess('Cuenta creada! Ahora podes participar.');
+          setTimeout(() => setShowAuth(false), 2000);
+        }
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: authForm.email,
+          password: authForm.password
+        });
+        if (error) setAuthError('Email o contrasena incorrectos');
+        else {
+          setShowAuth(false);
+          if (authForm.email === 'estudiowebpin@gmail.com') {
+            router.push('/admin');
+          } else {
+            router.push('/app');
+          }
         }
       }
+    } catch (err) {
+      setAuthError('Error de conexion. Intentá de nuevo.');
     }
-setAuthLoading(false);
+    setAuthLoading(false);
   };
 
   return (

@@ -23,12 +23,17 @@ export default function ProfilePage() {
   useEffect(() => {
     const saved = localStorage.getItem('rifa_user');
     if (saved) {
-      const userData = JSON.parse(saved);
-      setUser(userData);
-      setNombre(userData.nombre || '');
-      setWhatsapp(userData.whatsapp || '');
-      setFotoUrl(userData.foto_url || '');
-      fetchWins(userData.whatsapp);
+      try {
+        const userData = JSON.parse(saved);
+        setUser(userData);
+        setNombre(userData.nombre || '');
+        setWhatsapp(userData.whatsapp || '');
+        setFotoUrl(userData.foto_url || '');
+        fetchWins(userData.whatsapp);
+      } catch (e) {
+        localStorage.removeItem('rifa_user');
+        setShowAuth(true);
+      }
     } else {
       setShowAuth(true);
     }

@@ -45,7 +45,8 @@ export async function POST(request) {
     let ganador = null;
 
     if (metodo === 'quiniela' || producto.metodo_sorteo === 'quiniela') {
-      const quinielaRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin}/api/quiniela`);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(request.url).origin;
+      const quinielaRes = await fetch(`${baseUrl}/api/quiniela`);
 
       if (quinielaRes.ok) {
         const quinielaData = await quinielaRes.json();

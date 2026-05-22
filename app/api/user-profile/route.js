@@ -13,7 +13,7 @@ export async function GET(request) {
     if (whatsapp) {
       const { data } = await supabase
         .from('boletos')
-        .select('numero, nombre, whatsapp, productos(nombre, imagen, precio, categoria_id)')
+        .select('numero, nombre, whatsapp, productos(nombre, imagen, precio, categoria_id, finalizado)')
         .eq('whatsapp', whatsapp)
         .eq('estado', 'vendido');
       

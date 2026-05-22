@@ -502,7 +502,8 @@ export default function AdminPage() {
             {productos.map(p => {
               const vend = (boletosData[p.id] || []).filter(b => b.estado === 'vendido').length;
               const res = (boletosData[p.id] || []).filter(b => b.estado === 'reservado').length;
-              const porcent = Math.round((vend / 100) * 100);
+              const totalNums = p.numbers_total || 100;
+              const porcent = totalNums > 0 ? Math.round((vend / totalNums) * 100) : 0;
               return (
                 <div key={p.id} className={`p-4 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB] ${p.finalizado ? 'opacity-60' : ''}`}>
                   <div className="flex gap-3">
@@ -525,8 +526,8 @@ export default function AdminPage() {
                     <div className="mt-3 space-y-2">
                       <div className="bg-[#39B54A] text-white text-center py-2 rounded-lg font-bold text-sm shadow-sm animate-pulse">🎉 TODOS VENDIDOS - LISTO PARA SORTEAR</div>
                       <button
-                        onClick={() => setShowSorteoModal(p)}
-                        className="w-full bg-[#111827] text-[#333] font-bold py-3 rounded-lg text-sm shadow-sm hover:bg-[#f0d800] transition-colors"
+                      onClick={() => setShowSorteoModal(p)}
+                         className="w-full bg-[#111827] text-white font-bold py-3 rounded-lg text-sm shadow-sm hover:bg-[#f0d800] hover:text-[#333] transition-colors"
                       >
                         🎰 SORTEO QUINIELA NOCTURNA (21HS)
                       </button>
