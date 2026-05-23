@@ -46,12 +46,15 @@ export default function AppPage() {
   const touchStartX = useRef(null);
 
   useEffect(() => {
+    if (!aliasUsado) setAliasUsado(pickAlias());
     const iv = setInterval(() => setTimeNow(Date.now()), 1000);
     return () => clearInterval(iv);
   }, []);
 
   const WHATSAPP = '5493412500029';
-  const ALIAS = 'eco-rifas';
+  const ALIASES = ['eco.rifa', 'ecorifas', 'ecorifas.app'];
+  const [aliasUsado, setAliasUsado] = useState('');
+  const pickAlias = () => ALIASES[Math.floor(Math.random() * ALIASES.length)];
   const URL_APP = typeof window !== 'undefined' ? window.location.origin + '/app' : 'https://eco-rifas.vercel.app/app';
 
     const formatPrice = (precio) => {
@@ -93,7 +96,7 @@ const [toastMsg, setToastMsg] = useState(null);
 
 const copyAlias = (e) => {
   e?.preventDefault && e.preventDefault();
-  copyToClipboard(ALIAS, 'Alias copiado!');
+  copyToClipboard(aliasUsado || pickAlias(), 'Alias copiado!');
   setToastMsg('Alias copiado al portapapeles');
 };
 
@@ -272,7 +275,7 @@ const copyAlias = (e) => {
     playSelect();
   };
 
-  const openBulkReserva = () => { if (selectedNumbers.length > 0) { setShowBulkReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); } };
+  const openBulkReserva = () => { if (selectedNumbers.length > 0) { setShowBulkReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); setAliasUsado(pickAlias()); } };
 
   const handleBulkReserva = async (e) => {
     e.preventDefault();
@@ -319,7 +322,7 @@ const copyAlias = (e) => {
       const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
       const total = formatPrice((precioUnit * selectedNumbers.length).toString());
       const p = productoSeleccionado;
-      const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: eco-rifas\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago y reservo tus numeros!\n\n') + '⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
+      const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: ' + aliasUsado + '\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago a ' + aliasUsado + ' y reservo tus numeros!\n\n') + '⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
       window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
       setTimeout(() => { setShowBulkReserva(false); setSelectedNumbers([]); fetchBoletos(productoSeleccionado.id); }, 2000);
     } else {
@@ -361,7 +364,7 @@ const copyAlias = (e) => {
       if (result.success) {
         playCoin();
         confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
-        const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: eco-rifas\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago y reservo tu numero!\n\n') + '⏳ Tu numero queda RESERVADO por 10 minutos.';
+        const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: ' + aliasUsado + '\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago a ' + aliasUsado + ' y reservo tu numero!\n\n') + '⏳ Tu numero queda RESERVADO por 10 minutos.';
         window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
         setTimeout(() => { setShowReserva(false); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
       } else {
@@ -374,7 +377,7 @@ const copyAlias = (e) => {
     setLoading(false);
   };
 
-  const handleSeleccionarNumero = (numero) => { setSeleccionado(numero); setShowReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); };
+  const handleSeleccionarNumero = (numero) => { setSeleccionado(numero); setShowReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); setAliasUsado(pickAlias()); confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); };
 
   const shareWhatsApp = () => window.open('https://wa.me/?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
   const shareX = () => window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
@@ -551,7 +554,7 @@ const copyAlias = (e) => {
             <div className="space-y-4">
               <div className="flex gap-4 items-start"><span className="text-3xl">🛒</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TU PRODUCTO</p><p className="text-gray-500 text-sm">Navegá los productos populares y elegí el que más te guste. Solo 100 números por rifa.</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">2️⃣</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TUS NÚMEROS</p><p className="text-gray-500 text-sm">Seleccioná del 1 al 100. Comprando más números aumentás tus chances de ganar.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá por transferencia al alias eco-rifas</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá por transferencia a uno de estos alias: {ALIASES.join(', ')}</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">🀄</span><div><p className="font-black text-sm text-[#333]">SORTEO POR QUINIENA NACIONAL NOCTURNA</p><p className="text-gray-500 text-sm">Cuando se vendan los 100 números, el ganador se define con las últimas 2 cifras del sorteo Nocturna (21hs) de la Quiniela Nacional. 100% transparente.</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm text-[#333]">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-500 text-sm">Entre más participen, más chances tienen de ganar. Compartí la rifa con todos!</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm text-[#333]">RECLAMÁ TU PREMIO</p><p className="text-gray-500 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega. Subí tu foto ganadora al chat!</p></div></div>
@@ -907,7 +910,7 @@ const copyAlias = (e) => {
                   <p className="font-bold text-sm text-[#333]">PAGÁ CON TRANSFERENCIA</p>
                 </div>
                 <div className="flex items-center justify-center gap-3 bg-[#F5F5F5] rounded-lg p-3">
-                  <p className="text-2xl font-black text-[#333] tracking-wider">eco-rifas</p>
+                  <p className="text-2xl font-black text-[#333] tracking-wider">{aliasUsado || 'ecorifas'}</p>
                   <button onClick={copyAlias} className="bg-[#3483FA] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-[#2d6fd4] transition-colors">
                     📋 COPIAR
                   </button>
@@ -974,10 +977,10 @@ const copyAlias = (e) => {
                 </div>
               </div>
             </div>
-            <div className="text-center p-3 rounded-lg mb-4 bg-[#25F4EE]/10 border border-[#25F4EE]/30">
+            <div className="text-center p-3 rounded-lg mb-4 bg-gradient-to-r from-[#25F4EE]/10 to-[#FE2C55]/10 border border-[#25F4EE]/30">
               <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
-              <p className="text-xl font-black text-[#333] tracking-wider">eco-rifas</p>
-              <button onClick={copyAlias} className="bg-[#FE2C55] text-black px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#C12045] transition-colors">📋 COPIAR ALIAS</button>
+              <p className="text-xl font-black text-[#333] tracking-wider">{aliasUsado}</p>
+              <button onClick={copyAlias} className="bg-[#FE2C55] text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#C12045] transition-colors">📋 COPIAR ALIAS</button>
             </div>
             <form onSubmit={handleReserva} className="space-y-3">
               <div>
@@ -1029,10 +1032,10 @@ const copyAlias = (e) => {
                 </div>
               </div>
             </div>
-            <div className="text-center p-3 rounded-lg mb-4 bg-[#25F4EE]/10 border border-[#25F4EE]/30">
+            <div className="text-center p-3 rounded-lg mb-4 bg-gradient-to-r from-[#25F4EE]/10 to-[#FE2C55]/10 border border-[#25F4EE]/30">
               <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
-              <p className="text-sm font-black text-[#333] mt-1">eco-rifas</p>
-              <button onClick={() => { navigator.clipboard?.writeText('eco-rifas'); }} className="mt-1 text-xs text-[#3483FA] font-bold">📋 COPIAR</button>
+              <p className="text-sm font-black text-[#333] mt-1">{aliasUsado}</p>
+              <button onClick={copyAlias} className="mt-1 text-xs text-[#FE2C55] font-bold">📋 COPIAR</button>
             </div>
             <form onSubmit={handleBulkReserva} className="space-y-3">
               <div>
