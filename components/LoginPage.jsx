@@ -85,7 +85,7 @@ export default function RifaApp() {
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-gray-800">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="Eco Rifas" className="w-12 h-12" />
+            <img src="/logo.png" alt="Eco Rifas" className="w-12 h-12" />
             <div>
               <h1 className="text-xl font-black text-[#FE2C55]">ECO RIFAS</h1>
               <p className="text-[10px] text-gray-400 font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
@@ -122,7 +122,7 @@ export default function RifaApp() {
       <main className="max-w-lg mx-auto p-6 relative z-10">
         <div className="text-center mb-8">
           <div className="w-36 h-36 mx-auto mb-6 rounded-3xl shadow-2xl bg-gradient-to-br from-[#111827] to-black border-2 border-[#FE2C55]/30 flex items-center justify-center">
-            <img src="/logo.svg" alt="Eco Rifas" className="w-28 h-28" />
+            <img src="/logo.png" alt="Eco Rifas" className="w-28 h-28" />
           </div>
           <h2 className="text-4xl font-black mb-2 text-[#111827]">ECO RIFAS</h2>
           <p className="text-lg font-medium text-[#666]">🛒 Los productos que amas · ahora en rifas economicas!</p>
@@ -163,7 +163,7 @@ export default function RifaApp() {
             <button onClick={() => setShowAuth(false)} className="absolute top-4 right-4 text-2xl text-[#333]">✕</button>
             
             <div className="text-center mb-6">
-              <img src="/logo.svg" alt="Eco Rifas" className="w-16 h-16 mx-auto mb-3" />
+              <img src="/logo.png" alt="Eco Rifas" className="w-16 h-16 mx-auto mb-3" />
               <h2 className="text-2xl font-black text-[#111827]">{authMode === 'login' ? 'ENTRAR' : 'CREAR CUENTA'}</h2>
             </div>
 
