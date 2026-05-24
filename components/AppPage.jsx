@@ -32,7 +32,7 @@ export default function AppPage() {
   const [showMiniAssistant, setShowMiniAssistant] = useState(false);
   const [aiPromptTrigger, setAiPromptTrigger] = useState(0);
   useEffect(() => {
-    const t = setTimeout(() => setShowMiniAssistant(true), 3000);
+    const t = setTimeout(() => setShowMiniAssistant(true), 15000);
     return () => clearTimeout(t);
   }, []);
   const parseImages = (prod) => {
