@@ -563,7 +563,7 @@ const copyAlias = (e) => {
           className="fixed bottom-24 left-4 z-[70] bg-gradient-to-r from-[#1a1a2e] to-[#16213e] text-white px-3 py-2 rounded-full shadow-2xl flex items-center gap-2 border border-white/10 hover:scale-105 transition-transform"
           style={{ animation: 'slideUp 0.5s ease-out' }}
         >
-          <img src="/asistentevirtual.svg" alt="Asistente" className="w-7 h-7 rounded-full" />
+          <img src="/asistentevirtual.png" alt="Asistente" className="w-7 h-7 rounded-full" />
           <span className="text-sm font-bold whitespace-nowrap">¿Te ayudo?</span>
         </button>
       )}
