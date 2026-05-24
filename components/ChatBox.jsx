@@ -11,7 +11,7 @@ function getUserColor(name) {
   return COLORS[Math.abs(hash) % COLORS.length];
 }
 
-export default function ChatBox({ user, productos, allBoletos }) {
+export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,6 +31,14 @@ export default function ChatBox({ user, productos, allBoletos }) {
   const channelRef = useRef(null);
   const minimizedRef = useRef(minimized);
   useEffect(() => { minimizedRef.current = minimized; }, [minimized]);
+
+  useEffect(() => {
+    if (aiPromptTrigger) {
+      setAiMode(true);
+      setMinimized(false);
+      setUnreadCount(0);
+    }
+  }, [aiPromptTrigger]);
 
   const scrollToBottom = () => {
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);

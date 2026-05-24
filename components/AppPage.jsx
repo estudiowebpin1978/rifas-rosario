@@ -29,6 +29,12 @@ export default function AppPage() {
   const [showPremio, setShowPremio] = useState(false);
   const [showComoFunciona, setShowComoFunciona] = useState(false);
   const productoRef = useRef(null);
+  const [showMiniAssistant, setShowMiniAssistant] = useState(false);
+  const [aiPromptTrigger, setAiPromptTrigger] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => setShowMiniAssistant(true), 3000);
+    return () => clearTimeout(t);
+  }, []);
   const parseImages = (prod) => {
     if (!prod) return [];
     const imgs = [];
@@ -547,10 +553,21 @@ const copyAlias = (e) => {
         </div>
       )}
 
+      {showMiniAssistant && (
+        <button onClick={() => { setAiPromptTrigger(n => n + 1); setShowMiniAssistant(false); }}
+          className="fixed bottom-24 left-4 z-[70] bg-gradient-to-r from-[#1a1a2e] to-[#16213e] text-white px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 animate-slideUp border border-white/10 hover:scale-105 transition-transform"
+          style={{ animation: 'slideUp 0.5s ease-out' }}
+        >
+          <span className="text-lg">🤖</span>
+          <span className="text-sm font-bold whitespace-nowrap">¿Te ayudo?</span>
+        </button>
+      )}
+
       <ChatBox
         user={currentUser}
         productos={allProductos}
         allBoletos={allBoletos}
+        aiPromptTrigger={aiPromptTrigger}
       />
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-50 shadow-[0_-1px_6px_rgba(0,0,0,0.05)]">
