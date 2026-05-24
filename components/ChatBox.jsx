@@ -146,6 +146,11 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#1a1a2e] to-[#16213e] text-white flex-shrink-0">
               <div className="flex items-center gap-2 min-w-0">
+                <button onClick={() => { window.location.href = '/app'; }} className="p-1.5 hover:bg-white/20 rounded-lg transition-colors mr-1" title="Volver a inicio">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
                 <img src="/asistentevirtual.png" alt="Asistente" className="w-12 h-12 rounded-full flex-shrink-0" />
                 <div className="min-w-0">
                   <h2 className="font-bold text-lg leading-tight truncate">Asistente IA</h2>
@@ -177,7 +182,13 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
                           <span className="text-[10px] font-bold text-gray-400">Asistente IA</span>
                         </div>
                         <div className="rounded-lg px-3 py-2 text-sm leading-relaxed break-words bg-[#1e293b] text-gray-100 rounded-bl-sm shadow-md border border-white/5">
-                          {msg.message.split('\n').map((line, j) => <p key={j} className={line.startsWith('•') ? 'ml-2' : ''}>{line}</p>)}
+                          {msg.message.split('\n').map((line, j) =>
+                            <p key={j} className={line.startsWith('•') ? 'ml-2' : ''}>
+                              {line.split(/(https?:\/\/[^\s]+)/g).map((part, k) =>
+                                part.match(/^https?:\/\//) ? <a key={k} href={part} target="_blank" rel="noopener noreferrer" className="text-cyan-300 underline hover:text-cyan-200" onClick={e => e.stopPropagation()}>{part}</a> : part
+                              )}
+                            </p>
+                          )}
                           <p className="text-[10px] mt-1 text-gray-600 text-right">{formatTime(msg.created_at)}</p>
                         </div>
                         <div className="mt-1 flex gap-1">
