@@ -536,11 +536,20 @@ const copyAlias = (e) => {
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-gray-800 px-4 py-3">
         <div className="max-w-lg md:max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Eco Rifas" className="w-10 h-10" />
-            <div>
-              <h1 className="text-xl font-black text-[#FE2C55]">ECO RIFAS</h1>
-              <p className="text-[10px] text-gray-400 font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
-            </div>
+            {productoSeleccionado ? (
+              <button onClick={() => { setProductoSeleccionado(null); setSeleccionado(null); }} className="flex items-center gap-1.5 p-1.5 pr-3 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="text-sm font-bold">Volver</span>
+              </button>
+            ) : (
+              <><img src="/logo.png" alt="Eco Rifas" className="w-10 h-10" />
+              <div>
+                <h1 className="text-xl font-black text-[#FE2C55]">ECO RIFAS</h1>
+                <p className="text-[10px] text-gray-400 font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
+              </div></>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setShowShare(true)} className="p-2 rounded-lg bg-white/10 text-white shadow-sm hover:bg-white/20 transition-colors">📤</button>
