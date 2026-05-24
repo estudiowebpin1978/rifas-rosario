@@ -78,10 +78,9 @@ export default function AppPage() {
 
   const getCategoryEmoji = (catName) => {
     const map = {
-      'Tecnologia': '💻', 'Celulares': '📱', 'Zapatillas': '👟',
-      'Hogar': '🏠', 'Electrodomesticos': '⚡', 'Herramientas': '🔧',
-      'Deportes': '⚽', 'Indumentaria': '👕', 'Juegos': '🎮',
-      'Belleza': '💄', 'Servicios': '🎯', 'Bazar': '🎪'
+      'Tecnologia': '💻', 'Tecnología': '💻',
+      'Indumentaria': '👕',
+      'Hogar': '🏠'
     };
     for (const [key, emoji] of Object.entries(map)) {
       if (catName?.toLowerCase().includes(key.toLowerCase())) return emoji;

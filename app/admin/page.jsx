@@ -31,6 +31,8 @@ export default function AdminPage() {
   const [showPagosSection, setShowPagosSection] = useState(false);
   const [pagosFiltro, setPagosFiltro] = useState('todos');
   const [showPagoDetail, setShowPagoDetail] = useState(null);
+  const [productoSearch, setProductoSearch] = useState('');
+  const [filterEstado, setFilterEstado] = useState('todos');
   const WHATSAPP = '5493412500029';
 
   const [checkingSession, setCheckingSession] = useState(true);
@@ -530,10 +532,19 @@ export default function AdminPage() {
           )}
         </div>
 
-        <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
+          <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="font-black text-[#333]">🎁 MIS RIFAS</h2>
+            <h2 className="font-black text-[#333]">🎁 MIS RIFAS ({productos.length})</h2>
             <button onClick={() => setShowForm(!showForm)} className="bg-[#3483FA] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[#2d6fd4] transition-colors">{showForm ? '✕ Cancelar' : '+ Nueva Rifa'}</button>
+          </div>
+
+          <div className="flex gap-2 mb-4">
+            <input type="text" placeholder="🔍 Buscar rifa por nombre..." value={productoSearch} onChange={e => setProductoSearch(e.target.value)} className="flex-1 rounded-lg p-3 font-bold bg-[#F5F5F5] border border-[#EBEBEB] text-[#333] text-sm" />
+            <select value={filterEstado} onChange={e => setFilterEstado(e.target.value)} className="rounded-lg p-3 font-bold bg-[#F5F5F5] border border-[#EBEBEB] text-[#333] text-sm">
+              <option value="todos">Todos</option>
+              <option value="activos">Activos</option>
+              <option value="finalizados">Finalizados</option>
+            </select>
           </div>
 
           {showForm && (
@@ -548,7 +559,7 @@ export default function AdminPage() {
               <select value={formData.categoria_id} onChange={e => setFormData({...formData, categoria_id: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]">
                 <option value="">Selecciona categoria (opcional)</option>
                 {categorias.map(c => {
-                  const emoji = c.nombre === 'Zapatillas' ? '👟' : c.nombre === 'Celulares' ? '📱' : c.nombre === 'Tecnologia' ? '💻' : c.nombre === 'Electrodomesticos' ? '⚡' : c.nombre === 'Hogar' ? '🏠' : '🎁';
+                  const emoji = c.nombre === 'Tecnología' || c.nombre === 'Tecnologia' ? '💻' : c.nombre === 'Indumentaria' ? '👕' : c.nombre === 'Hogar' ? '🏠' : '🎁';
                   return <option key={c.id} value={c.id}>{emoji} {c.nombre}</option>;
                 })}
               </select>
@@ -580,7 +591,11 @@ export default function AdminPage() {
           )}
 
           <div className="space-y-3">
-            {productos.map(p => {
+            {productos.filter(p => {
+              const matchSearch = !productoSearch || (p.title || p.nombre || '').toLowerCase().includes(productoSearch.toLowerCase());
+              const matchEstado = filterEstado === 'todos' || (filterEstado === 'activos' && !p.finalizado) || (filterEstado === 'finalizados' && p.finalizado);
+              return matchSearch && matchEstado;
+            }).map(p => {
               const vend = (boletosData[p.id] || []).filter(b => b.estado === 'vendido').length;
               const res = (boletosData[p.id] || []).filter(b => b.estado === 'reservado').length;
               const totalNums = p.numbers_total || 100;
@@ -772,7 +787,7 @@ export default function AdminPage() {
               <select value={showEditForm.categoria_id} onChange={e => setShowEditForm({...showEditForm, categoria_id: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]">
                 <option value="">Selecciona categoria (opcional)</option>
                 {categorias.map(c => {
-                  const emoji = c.nombre === 'Zapatillas' ? '👟' : c.nombre === 'Celulares' ? '📱' : c.nombre === 'Tecnologia' ? '💻' : c.nombre === 'Electrodomesticos' ? '⚡' : c.nombre === 'Hogar' ? '🏠' : '🎁';
+                  const emoji = c.nombre === 'Tecnología' || c.nombre === 'Tecnologia' ? '💻' : c.nombre === 'Indumentaria' ? '👕' : c.nombre === 'Hogar' ? '🏠' : '🎁';
                   return <option key={c.id} value={c.id}>{emoji} {c.nombre}</option>;
                 })}
               </select>
