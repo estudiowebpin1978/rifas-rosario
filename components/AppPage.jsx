@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
 import ChatBox from '@/components/ChatBox';
-import { playClick, playCoin, playCelebration, playError, playSelect } from '@/lib/sounds';
+import { playCoin, playCelebration, playSelect } from '@/lib/sounds';
 import { HeroSectionSkeleton } from '@/components/SkeletonLoader';
 
 export default function AppPage() {
@@ -52,7 +52,6 @@ export default function AppPage() {
   };
   const [allProductos, setAllProductos] = useState([]);
   const [allBoletos, setAllBoletos] = useState([]);
-  const [hotProducts, setHotProducts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [receiptFile, setReceiptFile] = useState(null);
@@ -62,22 +61,21 @@ export default function AppPage() {
   const [showImageViewer, setShowImageViewer] = useState(null);
   const [favoriteNumbers, setFavoriteNumbers] = useState({});
   const [recentActivity, setRecentActivity] = useState([]);
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [timeNow, setTimeNow] = useState(Date.now());
   const touchStartX = useRef(null);
-
-  useEffect(() => {
-    if (!aliasUsado) setAliasUsado(pickAlias());
-    const iv = setInterval(() => setTimeNow(Date.now()), 1000);
-    return () => clearInterval(iv);
-  }, []);
 
   const WHATSAPP = '5493412500029';
   const ALIASES = ['eco.rifa', 'ecorifas', 'ecorifas.app'];
   const [aliasUsado, setAliasUsado] = useState('');
   const pickAlias = () => ALIASES[Math.floor(Math.random() * ALIASES.length)];
   const URL_APP = typeof window !== 'undefined' ? window.location.origin + '/app' : 'https://eco-rifas.vercel.app/app';
+
+  useEffect(() => {
+    if (!aliasUsado) setAliasUsado(pickAlias());
+    const iv = setInterval(() => setTimeNow(Date.now()), 1000);
+    return () => clearInterval(iv);
+  }, []);
 
     const formatPrice = (precio) => {
     if (!precio) return '';

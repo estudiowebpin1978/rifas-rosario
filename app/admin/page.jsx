@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/lib/supabaseClient';
-import { generarMensajeGanador, generarMensajeNoGanador, generarMensajeAdmin, generarMensajeSorteoProgramado, abrirWhatsAppAdmin, abrirWhatsAppNumero } from '@/lib/notificaciones';
+import { generarMensajeGanador, generarMensajeAdmin, generarMensajeSorteoProgramado, abrirWhatsAppAdmin, abrirWhatsAppNumero } from '@/lib/notificaciones';
 
 export default function AdminPage() {
   const router = useRouter();

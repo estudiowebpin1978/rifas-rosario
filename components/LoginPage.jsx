@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
 
 export default function RifaApp() {
