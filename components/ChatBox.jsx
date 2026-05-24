@@ -70,16 +70,7 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
 
   const WHATSAPP_ADMIN = '5493412500029';
 
-  return (
-    <>
-      {minimized ? (
-        <button
-          onClick={() => setMinimized(false)}
-          className="fixed bottom-20 right-4 z-[90] btn-3d-pink rounded-full w-14 h-14 flex items-center justify-center shadow-2xl"
-        >
-          <img src="/asistentevirtual.png" alt="Asistente" className="w-10 h-10" />
-        </button>
-      ) : (
+  return minimized ? null : (
         <div className="fixed inset-0 z-[80] flex items-end justify-center" onClick={() => setMinimized(true)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
           <div
@@ -190,9 +181,7 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
                 </button>
               </form>
             </div>
-          </div>
         </div>
-      )}
-    </>
-  );
-}
+      </div>
+    );
+  }

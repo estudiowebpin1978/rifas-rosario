@@ -539,7 +539,7 @@ const copyAlias = (e) => {
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-gray-800 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="Eco Rifas" className="w-10 h-10" />
+            <img src="/logo.png" alt="Eco Rifas" className="w-10 h-10" />
             <div>
               <h1 className="text-xl font-black text-[#FE2C55]">ECO RIFAS</h1>
               <p className="text-[10px] text-gray-400 font-medium">los productos que amas, ahora los podes ganar en rifas economicas!</p>
