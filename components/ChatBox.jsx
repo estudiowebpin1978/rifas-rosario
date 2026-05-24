@@ -10,26 +10,53 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
   const [speakingId, setSpeakingId] = useState(null);
   const messagesEndRef = useRef(null);
 
-  const speakText = (text, msgId) => {
-    if (!window.speechSynthesis) return;
+  const speakText = async (text, msgId) => {
     if (speakingId === msgId) {
-      window.speechSynthesis.cancel();
+      window.speechSynthesis?.cancel();
       setSpeakingId(null);
       return;
     }
-    window.speechSynthesis.cancel();
+    window.speechSynthesis?.cancel();
+    setSpeakingId(null);
+
     const cleanText = text.replace(/[*#_`]/g, '').replace(/[🎉🎰🛒💳🎁🏆🍀🤖👋😅👇✅❌💰💬📱⏰⭐🎲🔐📲📤🎟️💪😊🔥👕💻🏠]/g, '').trim();
     if (!cleanText) return;
-    const utterance = new SpeechSynthesisUtterance(cleanText);
+
+    setSpeakingId(msgId);
+
+    try {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: cleanText })
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.onended = () => { setSpeakingId(null); URL.revokeObjectURL(url); };
+        audio.onerror = () => { setSpeakingId(null); URL.revokeObjectURL(url); browserSpeak(cleanText, msgId); };
+        await audio.play();
+        return;
+      }
+    } catch {}
+
+    browserSpeak(cleanText, msgId);
+  };
+
+  const browserSpeak = (text, msgId) => {
+    if (!window.speechSynthesis) { setSpeakingId(null); return; }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'es-AR';
-    utterance.rate = 1.1;
-    utterance.pitch = 1.0;
+    utterance.rate = 0.95;
+    utterance.pitch = 1.05;
     const voices = window.speechSynthesis.getVoices();
-    const spanishVoice = voices.find(v => v.lang.startsWith('es'));
-    if (spanishVoice) utterance.voice = spanishVoice;
+    const preferred = voices.find(v => v.lang.includes('AR') || v.lang.includes('MX') || v.lang.includes('CO') || v.lang.includes('CL') || v.lang.includes('PE') || v.lang === 'es-LA');
+    const anySpanish = voices.find(v => v.lang.startsWith('es'));
+    utterance.voice = preferred || anySpanish || null;
     utterance.onend = () => setSpeakingId(null);
     utterance.onerror = () => setSpeakingId(null);
-    setSpeakingId(msgId);
     window.speechSynthesis.speak(utterance);
   };
 
