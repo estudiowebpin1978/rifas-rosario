@@ -491,7 +491,7 @@ export default function AdminPage() {
             <div className="flex gap-1">
               {['todos', 'pendiente', 'confirmado', 'cancelado'].map(f => (
                 <button key={f} onClick={() => setPagosFiltro(f)}
-                  className={`px-2 py-1 rounded text-xs font-bold ${pagosFiltro === f ? 'bg-[#111827] text-[#333]' : 'bg-gray-100 text-gray-500'}`}
+                  className={`px-2 py-1 rounded text-xs font-bold ${pagosFiltro === f ? 'bg-[#111827] text-white' : 'bg-gray-100 text-gray-500'}`}
                 >{f === 'todos' ? 'Todos' : f.charAt(0).toUpperCase() + f.slice(1)}</button>
               ))}
             </div>
