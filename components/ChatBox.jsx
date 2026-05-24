@@ -80,10 +80,10 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#1a1a2e] to-[#16213e] text-white flex-shrink-0">
               <div className="flex items-center gap-2 min-w-0">
-                <img src="/asistentevirtual.png" alt="Asistente" className="w-8 h-8 rounded-full flex-shrink-0" />
+                <img src="/asistentevirtual.png" alt="Asistente" className="w-12 h-12 rounded-full flex-shrink-0" />
                 <div className="min-w-0">
-                  <h2 className="font-bold text-sm leading-tight truncate">Asistente IA</h2>
-                  <p className="text-[10px] text-white/50 truncate">Consultame lo que quieras</p>
+                  <h2 className="font-bold text-lg leading-tight truncate">Asistente IA</h2>
+                  <p className="text-xs text-white/50 truncate">Consultame lo que quieras</p>
                 </div>
               </div>
               <button onClick={() => setMinimized(true)} className="p-1 hover:bg-white/20 rounded transition-colors">
@@ -107,7 +107,7 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
                     <div key={msg.id} className="flex justify-start mb-3">
                       <div className="max-w-[85%]">
                         <div className="flex items-center gap-1.5 mb-1">
-                          <img src="/asistentevirtual.png" alt="Asistente" className="w-5 h-5 rounded-full" />
+                          <img src="/asistentevirtual.png" alt="Asistente" className="w-8 h-8 rounded-full" />
                           <span className="text-[10px] font-bold text-gray-400">Asistente IA</span>
                         </div>
                         <div className="rounded-lg px-3 py-2 text-sm leading-relaxed break-words bg-[#1e293b] text-gray-100 rounded-bl-sm shadow-md border border-white/5">
@@ -145,7 +145,7 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
                 <div className="flex justify-start mb-3">
                   <div className="max-w-[85%]">
                     <div className="flex items-center gap-1.5 mb-1">
-                      <img src="/asistentevirtual.png" alt="Asistente" className="w-5 h-5 rounded-full" />
+                      <img src="/asistentevirtual.png" alt="Asistente" className="w-8 h-8 rounded-full" />
                       <span className="text-[10px] font-bold text-gray-400">Asistente IA</span>
                     </div>
                     <div className="rounded-lg px-3 py-2 bg-[#1e293b] text-gray-100 rounded-bl-sm shadow-md border border-white/5">

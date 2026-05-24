@@ -398,7 +398,7 @@ export default function AdminPage() {
           </div>
           {error && <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm mb-4">{error}</div>}
           <div className="space-y-3">
-            <input type="email" placeholder="Email (opcional)" value={email} onChange={e => setEmail(e.target.value)} className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#FE2C55] outline-none text-[#333]" />
+            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#FE2C55] outline-none text-[#333]" />
             <input type="password" placeholder="Contrasena" value={password} onChange={e => setPassword(e.target.value)} required className="w-full rounded-lg p-4 font-bold bg-white border border-[#EBEBEB] focus:border-[#FE2C55] outline-none text-[#333]" />
             <button disabled={loading} className="w-full bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-black font-bold py-4 rounded-lg shadow-lg">{loading ? '⏳' : 'INGRESAR →'}</button>
           </div>

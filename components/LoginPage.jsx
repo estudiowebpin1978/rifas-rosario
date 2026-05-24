@@ -83,7 +83,7 @@ export default function RifaApp() {
     <div className="min-h-screen bg-[#F5F5F5] text-[#333]">
 
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-gray-800">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-lg md:max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="Eco Rifas" className="w-12 h-12" />
             <div>
@@ -119,7 +119,7 @@ export default function RifaApp() {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#FE2C55]/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#25F4EE]/20 rounded-full blur-3xl"></div>
       </div>
-      <main className="max-w-lg mx-auto p-6 relative z-10">
+      <main className="max-w-lg md:max-w-4xl mx-auto p-6 relative z-10">
         <div className="text-center mb-8">
           <div className="w-36 h-36 mx-auto mb-6 rounded-3xl shadow-2xl bg-gradient-to-br from-[#111827] to-black border-2 border-[#FE2C55]/30 flex items-center justify-center">
             <img src="/logo.png" alt="Eco Rifas" className="w-28 h-28" />

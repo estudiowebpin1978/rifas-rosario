@@ -148,7 +148,7 @@ export default function ProfilePage() {
       </div>
 
       <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/10 px-4 py-3">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
+        <div className="max-w-lg md:max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => router.push('/app')} className="p-2 rounded-full bg-white/10">←</button>
             <h1 className="text-xl font-black">MI PERFIL</h1>
@@ -157,7 +157,7 @@ export default function ProfilePage() {
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto p-4 space-y-6 relative z-10">
+      <main className="max-w-lg md:max-w-4xl mx-auto p-4 space-y-6 relative z-10">
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 rounded-3xl blur-xl opacity-50"></div>
           <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-3xl p-6 border border-white/10 text-center">
@@ -252,11 +252,7 @@ export default function ProfilePage() {
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 z-50">
-        <div className="max-w-lg mx-auto flex justify-around">
-          <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400">
-            <span className="text-xl">🏆</span>
-            <span className="text-xs font-bold">Feed</span>
-          </button>
+        <div className="max-w-lg md:max-w-4xl mx-auto flex justify-around">
           <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-gray-400">
             <span className="text-xl">🎰</span>
             <span className="text-xs font-bold">Rifas</span>

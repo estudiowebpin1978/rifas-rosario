@@ -525,8 +525,7 @@ const copyAlias = (e) => {
         const totalPorcent = totalNumeros > 0 ? Math.round((totalVendidos / totalNumeros) * 100) : 0;
         return totalPorcent > 0 ? (
           <div className="bg-[#FE2C55]/10 border-b border-[#FE2C55]/30 px-4 py-2">
-            <div className="max-w-lg mx-auto flex items-center gap-3 text-xs">
-              <span className="text-[#3483FA] font-black animate-pulse">📊 EN VIVO</span>
+            <div className="max-w-lg md:max-w-4xl mx-auto flex items-center gap-3 text-xs">
               <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div className="h-full bg-[#3483FA] rounded-full" style={{ width: totalPorcent + '%' }}></div>
               </div>
@@ -537,7 +536,7 @@ const copyAlias = (e) => {
       })()}
 
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-gray-800 px-4 py-3">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
+        <div className="max-w-lg md:max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="Eco Rifas" className="w-10 h-10" />
             <div>
@@ -560,11 +559,11 @@ const copyAlias = (e) => {
 
       {showMiniAssistant && (
         <button onClick={() => { setAiPromptTrigger(n => n + 1); setShowMiniAssistant(false); }}
-          className="fixed bottom-24 left-4 z-[70] bg-gradient-to-r from-[#1a1a2e] to-[#16213e] text-white px-3 py-2 rounded-full shadow-2xl flex items-center gap-2 border border-white/10 hover:scale-105 transition-transform"
+          className="fixed bottom-24 left-4 z-[70] bg-gradient-to-r from-[#1a1a2e] to-[#16213e] text-white px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-3 border border-white/10 hover:scale-105 transition-transform"
           style={{ animation: 'slideUp 0.5s ease-out' }}
         >
-          <img src="/asistentevirtual.png" alt="Asistente" className="w-7 h-7 rounded-full" />
-          <span className="text-sm font-bold whitespace-nowrap">¿Te ayudo?</span>
+          <img src="/asistentevirtual.png" alt="Asistente" className="w-11 h-11 rounded-full" />
+          <span className="text-base font-bold whitespace-nowrap">¿Te ayudo?</span>
         </button>
       )}
 
@@ -576,8 +575,7 @@ const copyAlias = (e) => {
       />
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-50 shadow-[0_-1px_6px_rgba(0,0,0,0.05)]">
-        <div className="max-w-lg mx-auto flex justify-around">
-          <button onClick={() => router.push('/feed')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">🏆</span><span className="text-xs font-bold">Feed</span></button>
+        <div className="max-w-lg md:max-w-4xl mx-auto flex justify-around">
           <button onClick={() => router.push('/app')} className="flex flex-col items-center gap-1 text-[#3483FA]"><span className="text-xl">🎰</span><span className="text-xs font-bold">Rifas</span></button>
           <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#3483FA] transition-colors"><span className="text-xl">👤</span><span className="text-xs font-bold">Perfil</span></button>
           <button onClick={() => installApp()} className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#25F4EE] transition-colors"><span className="text-xl">📲</span><span className="text-xs font-bold">Instalar</span></button>
@@ -631,7 +629,7 @@ const copyAlias = (e) => {
           <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
             <h2 className="text-xl font-black text-center mb-6 text-[#111827]">Compartir en...</h2>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
               <button onClick={() => { shareWhatsApp(); setShowShare(false); }} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#39B54A] text-white shadow-sm hover:scale-105 transition-transform"><span className="text-3xl">💬</span><span className="text-xs font-bold">WhatsApp</span></button>
               <button onClick={() => { shareX(); setShowShare(false); }} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-black text-white shadow-sm hover:scale-105 transition-transform"><span className="text-3xl">𝕏</span><span className="text-xs font-bold">X</span></button>
               <button onClick={() => { shareFacebook(); setShowShare(false); }} className="flex flex-col items-center gap-2 p-4 rounded-lg bg-[#3483FA] text-white shadow-sm hover:scale-105 transition-transform"><span className="text-3xl">📘</span><span className="text-xs font-bold">Facebook</span></button>
@@ -645,7 +643,7 @@ const copyAlias = (e) => {
       )}
 
       {!productoSeleccionado ? (
-        <main className="max-w-lg mx-auto p-4 space-y-6 relative z-10">
+        <main className="max-w-lg md:max-w-4xl mx-auto p-4 space-y-6 relative z-10">
           {ganadores.length > 0 && (
             <div className="rounded-lg p-4 bg-white border border-[#EBEBEB] shadow-sm">
               <h2 className="font-black text-lg mb-3 flex items-center gap-2 text-[#333]"><span className="animate-bounce inline-block">🏆</span> GANADORES</h2>
@@ -776,7 +774,7 @@ const copyAlias = (e) => {
             <p className="text-xs font-bold text-[#111827]">🔥 <span className="text-[#FE2C55]">Muchos</span> ya participan · <span className="text-[#3483FA]">¿Y si el próximo ganador sos vos?</span></p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3">
             {productos.map(prod => {
               const prodBoletos = allBoletos.filter(b => b.producto_id === prod.id);
               const prodVend = prodBoletos.filter(b => b.estado === 'vendido').length;
@@ -835,8 +833,7 @@ const copyAlias = (e) => {
           </button>
         </main>
       ) : (
-        <main className="max-w-lg mx-auto p-4 space-y-4 relative z-10">
-          <button onClick={() => { setProductoSeleccionado(null); setSeleccionado(null); }} className="flex items-center gap-2 font-bold text-[#3483FA] hover:gap-3 transition-all">← Volver a rifas</button>
+        <main className="max-w-lg md:max-w-4xl mx-auto p-4 space-y-4 relative z-10">
           <button onClick={() => shareProduct(productoSeleccionado)} className="w-full btn-3d-green text-sm">📤 COMPARTIR ESTA RIFA 🚀</button>
 
           <div className="rounded-lg overflow-hidden bg-white border border-[#EBEBEB] shadow-sm">
