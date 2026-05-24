@@ -896,7 +896,7 @@ const copyAlias = (e) => {
                   </div>
                 </div>
                 <div className="grid grid-cols-10 gap-1.5">
-                  {boletos.map(b => {
+                  {[...boletos].sort((a, b) => a.numero - b.numero).map(b => {
                     const isSelected = selectedNumbers.includes(b.numero);
                     const isReserved = b.estado === 'reservado';
                     const isSold = b.estado === 'vendido';
