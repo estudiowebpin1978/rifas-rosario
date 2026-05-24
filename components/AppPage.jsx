@@ -32,7 +32,12 @@ export default function AppPage() {
   const [showMiniAssistant, setShowMiniAssistant] = useState(false);
   const [aiPromptTrigger, setAiPromptTrigger] = useState(0);
   useEffect(() => {
-    const t = setTimeout(() => setShowMiniAssistant(true), 15000);
+    let t;
+    const schedule = () => {
+      const delay = 15000 + Math.random() * 10000;
+      t = setTimeout(() => { setShowMiniAssistant(true); schedule(); }, delay);
+    };
+    schedule();
     return () => clearTimeout(t);
   }, []);
   const parseImages = (prod) => {
@@ -555,10 +560,10 @@ const copyAlias = (e) => {
 
       {showMiniAssistant && (
         <button onClick={() => { setAiPromptTrigger(n => n + 1); setShowMiniAssistant(false); }}
-          className="fixed bottom-24 left-4 z-[70] bg-gradient-to-r from-[#1a1a2e] to-[#16213e] text-white px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 animate-slideUp border border-white/10 hover:scale-105 transition-transform"
+          className="fixed bottom-24 left-4 z-[70] bg-gradient-to-r from-[#1a1a2e] to-[#16213e] text-white px-3 py-2 rounded-full shadow-2xl flex items-center gap-2 border border-white/10 hover:scale-105 transition-transform"
           style={{ animation: 'slideUp 0.5s ease-out' }}
         >
-          <span className="text-lg">🤖</span>
+          <img src="/asistentevirtual.svg" alt="Asistente" className="w-7 h-7 rounded-full" />
           <span className="text-sm font-bold whitespace-nowrap">¿Te ayudo?</span>
         </button>
       )}
