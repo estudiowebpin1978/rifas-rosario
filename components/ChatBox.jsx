@@ -21,12 +21,10 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
 
   useEffect(() => {
     if (!minimized && messages.length === 0) {
-      const prod = (productos || []).filter(p => !p.finalizado);
-      const prodList = prod.length > 0 ? '\n\n' + prod.map(p => '• **' + (p.title || p.nombre) + '** $' + (p.raffle_price || 0).toLocaleString('es-AR') + '/num').join('\n') : '';
       setMessages([{
         id: 'ai-welcome',
         user_name: 'Asistente IA',
-        message: '¡Hola! Soy el asistente de **Eco Rifas** 🎉\n\nElegí una opción:\n\n1️⃣ **Cómo comprar**\n2️⃣ **Cómo se sortea**\n3️⃣ **Medios de pago**\n4️⃣ **Ver productos**' + prodList + '\n\nRespondé con el número o lo que quieras saber 👇',
+        message: '🎉 ¡Bienvenido! Elegí una opción:\n\n1️⃣ **Cómo comprar**\n2️⃣ **Cómo se sortea**\n3️⃣ **Medios de pago**\n4️⃣ **Ver productos**\n\nRespondé con el número o lo que quieras saber 👇',
         created_at: new Date().toISOString(),
         is_ai: true
       }]);
