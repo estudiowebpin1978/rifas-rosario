@@ -55,7 +55,7 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
       });
       const data = await res.json();
       if (data.response) {
-        setMessages(prev => [...prev, { id: 'ai-' + Date.now(), user_name: 'Asistente IA', message: data.response, created_at: new Date().toISOString(), is_ai: true, product_suggestions: data.product_suggestions || null }]);
+        setMessages(prev => [...prev, { id: 'ai-' + Date.now(), user_name: 'Asistente IA', message: data.response, created_at: new Date().toISOString(), is_ai: true }]);
       } else {
         setAiError(data.error || 'Error al obtener respuesta');
       }
@@ -114,15 +114,6 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
                           {msg.message.split('\n').map((line, j) => <p key={j} className={line.startsWith('•') ? 'ml-2' : ''}>{line}</p>)}
                           <p className="text-[10px] mt-1 text-gray-600 text-right">{formatTime(msg.created_at)}</p>
                         </div>
-                        {msg.product_suggestions && msg.product_suggestions.length > 0 && (
-                          <div className="mt-1.5 flex flex-wrap gap-1">
-                            {msg.product_suggestions.map((p, j) => (
-                              <a key={j} href={(window.location.origin || 'https://eco-rifas.vercel.app') + '/app?producto=' + p.id} target="_blank" rel="noopener noreferrer"
-                                className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full font-bold hover:bg-cyan-500/40 transition-colors"
-                              >{p.title}</a>
-                            ))}
-                          </div>
-                        )}
                         <div className="mt-1 flex gap-1">
                           <button onClick={() => { window.open('https://wa.me/' + WHATSAPP_ADMIN + '?text=' + encodeURIComponent('Hola! Quiero comprar números en Eco Rifas 🎉'), '_blank'); }}
                             className="text-[9px] bg-green-500/20 text-green-300 px-2 py-0.5 rounded-full font-bold hover:bg-green-500/40 transition-colors"

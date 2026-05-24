@@ -1,13 +1,13 @@
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 const WHATSAPP_ADMIN = '5493412500029';
 const ALIASES = ['eco.rifa', 'ecorifas', 'ecorifas.app'];
+const APP_URL = 'https://eco-rifas.vercel.app/app';
 
 const SYSTEM_PROMPT = `Sos el asistente de Eco Rifas, rifas online argentinas.
 
 REGLAS ABSOLUTAS:
 - Respondé en español argento, breve, directo, con emojis.
 - MÁXIMO 5 LÍNEAS por respuesta. Sin excepción.
-- NUNCA liste todos los productos a menos que el usuario pregunte específicamente "qué productos hay" o "lista".
 - Cuando te pregunten "cómo funciona" o al inicio, respondé SOLO con opciones numeradas tipo menú:
 
 1️⃣ Cómo comprar
@@ -17,7 +17,7 @@ REGLAS ABSOLUTAS:
 
 Sin explicar nada más hasta que elija una opción.
 - Si elige una opción, respondé solo eso en 3 líneas máximo.
-- Si elige "productos", recién ahí mostrá la lista.
+- Si elige "productos" (opción 4), decile "Mirá todas las rifas disponibles acá: ${APP_URL}" — no listes productos en el chat.
 - IMPORTANTE: Si después de responder una opción el usuario pregunta algo relacionado (ej: "y cuánto cuesta?", "y cómo pago?"), respondé naturalmente sin volver al menú.
 - Solo volvé al menú si el usuario pide "menú", "volver" o saluda de nuevo.
 - Siempre terminá con "💬 wa.me/${WHATSAPP_ADMIN}" si corresponde.
@@ -27,16 +27,7 @@ DATOS (usar solo cuando pregunten específicamente):
 - 100 números del 00 al 99 por rifa
 - Precio por número: el de cada producto
 - Reserva 10 min, pagás por transferencia a ${ALIASES.join(', ')}
-- Sorteo con Quiniela Nacional Nocturna (21hs), últimas 2 cifras
-- Productos activos:
-{productos_info}`;
-
-function buildProductList(productos) {
-  if (!productos || productos.length === 0) return 'No hay productos activos en este momento.';
-  return productos.map(p =>
-    `- ${p.title}: $${(p.price || 0).toLocaleString('es-AR')}- por número. Vendidos: ${p.vendidos || 0}/${p.total || 100}.`
-  ).join('\n');
-}
+- Sorteo con Quiniela Nacional Nocturna (21hs), últimas 2 cifras`;
 
 function generateFallbackResponse(userMsg, productos) {
   const msg = userMsg.toLowerCase();
@@ -58,9 +49,9 @@ function generateFallbackResponse(userMsg, productos) {
     return '💳 Transferí a cualquiera:\n• `' + ALIASES[0] + '`\n• `' + ALIASES[1] + '`\n• `' + ALIASES[2] + '`\n\nEnvianos el comprobante y confirmamos ✅';
   }
 
-  if (msg === '4' || msg === '4️⃣' || msg.includes('producto') || msg.includes('rifa') || msg.includes('hay') || msg.includes('disponible') || msg.includes('qué tenés') || msg.includes('lista') || msg.includes('precio') || msg.includes('cuánto') || msg.includes('costo') || msg.includes('vale') || msg.includes('cuesta')) {
+  if (msg === '4' || msg === '4️⃣' || msg.includes('producto') || msg.includes('rifa') || msg.includes('hay') || msg.includes('disponible') || msg.includes('qué tenés') || msg.includes('lista')) {
     if (prod && prod.length > 0) {
-      return '🎁 **Rifas activas:**\n' + prod.map(p => '• **' + p.title + '** $' + (p.price || 0).toLocaleString('es-AR') + '/num (' + (p.vendidos || 0) + '/' + (p.total || 100) + ')').join('\n') + '\n\n💬 wa.me/' + WHATSAPP_ADMIN;
+      return '🎁 Mirá todas las rifas disponibles acá: **' + APP_URL + '**\n\n💬 wa.me/' + WHATSAPP_ADMIN;
     }
     return 'Ahora no hay rifas activas. Pronto vamos a tener más! 🎉';
   }
@@ -74,14 +65,14 @@ function generateFallbackResponse(userMsg, productos) {
 
   if (msg.includes('precio') || msg.includes('cuánto cuesta') || msg.includes('costo') || msg.includes('vale') || msg.includes('cuesta')) {
     if (productos && productos.length > 0) {
-      return '💰 Los precios varían según la rifa. Tocá "Ver productos" (opción 4) para verlos todos.\n\n💬 wa.me/' + WHATSAPP_ADMIN;
+      return '💰 Los precios varían según la rifa. Mirá todas las rifas acá: **' + APP_URL + '**\n\n💬 wa.me/' + WHATSAPP_ADMIN;
     }
     return 'Ahora no hay rifas activas. Pronto vamos a tener más! 🎉';
   }
 
   if ((msg.includes('cómo') || msg.includes('como') || msg.includes('que es') || msg.includes('qué es') || msg.includes('explica')) && !msg.includes('menú') && !msg.includes('menu') && !msg.includes('volver')) {
     if (productos && productos.length > 0) {
-      return '💰 Los precios y detalles varían. Decime "4" y te muestro las rifas disponibles! 🎁\n\n💬 wa.me/' + WHATSAPP_ADMIN;
+      return 'Mirá todas las rifas acá: **' + APP_URL + '**\n\n💬 wa.me/' + WHATSAPP_ADMIN;
     }
     return 'Ahora no hay rifas activas. Pronto vamos a tener más! 🎉';
   }
@@ -98,8 +89,7 @@ export async function POST(request) {
       return Response.json({ response: 'Decime algo! 😊' });
     }
 
-    const productListStr = buildProductList(productos_activos);
-    const systemPrompt = SYSTEM_PROMPT.replace('{productos_info}', productListStr);
+    const systemPrompt = SYSTEM_PROMPT;
 
     if (OPENAI_KEY) {
       try {
@@ -123,11 +113,7 @@ export async function POST(request) {
         const data = await res.json();
         if (data.choices && data.choices[0]) {
           const reply = data.choices[0].message.content.trim();
-          const hasProductLink = reply.includes('wa.me/');
-          return Response.json({
-            response: reply,
-            product_suggestions: hasProductLink && productos_activos ? productos_activos.slice(0, 3) : null
-          });
+          return Response.json({ response: reply });
         }
       } catch (e) {
         console.error('OpenAI error:', e);
@@ -135,11 +121,7 @@ export async function POST(request) {
     }
 
     const reply = generateFallbackResponse(message, productos_activos);
-    const hasProductLink = reply.includes('wa.me/');
-    return Response.json({
-      response: reply,
-      product_suggestions: hasProductLink && productos_activos ? productos_activos.slice(0, 3) : null
-    });
+    return Response.json({ response: reply });
 
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });
