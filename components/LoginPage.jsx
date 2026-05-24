@@ -28,7 +28,7 @@ export default function RifaApp() {
     
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user || null);
-    });
+    }).catch(() => {});
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user || null);

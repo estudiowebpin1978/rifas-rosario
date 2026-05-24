@@ -27,6 +27,10 @@ export default function AdminPage() {
   const [showNotifModal, setShowNotifModal] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showEditForm, setShowEditForm] = useState(null);
+  const [pagosData, setPagosData] = useState([]);
+  const [showPagosSection, setShowPagosSection] = useState(false);
+  const [pagosFiltro, setPagosFiltro] = useState('todos');
+  const [showPagoDetail, setShowPagoDetail] = useState(null);
   const WHATSAPP = '5493412500029';
 
   const [checkingSession, setCheckingSession] = useState(true);
@@ -70,6 +74,14 @@ export default function AdminPage() {
     }
   }, [isLoggedIn, refreshKey]);
 
+  useEffect(() => {
+    if (isLoggedIn) fetchPagos(pagosFiltro);
+  }, [isLoggedIn, refreshKey]);
+
+  useEffect(() => {
+    if (isLoggedIn) fetchPagos(pagosFiltro);
+  }, [pagosFiltro]);
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -87,6 +99,16 @@ export default function AdminPage() {
       }
     } catch (err) { console.error('Error:', err); }
     setLoading(false);
+  };
+
+  const fetchPagos = async (estado) => {
+    try {
+      const params = new URLSearchParams();
+      if (estado && estado !== 'todos') params.set('estado', estado);
+      const res = await fetch('/api/pagos?' + params.toString());
+      const result = await res.json();
+      if (result.success) setPagosData(result.data);
+    } catch (err) { console.error('Error fetching pagos:', err); }
   };
 
   const manualRefresh = () => { setRefreshKey(k => k + 1); fetchData(); };
@@ -235,6 +257,11 @@ export default function AdminPage() {
         setNotif(`✅ Venta confirmada! #${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}`);
         setShowConfirmModal(null);
         fetchData();
+        fetch('/api/pagos', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ boleto_id: boleto.id, estado: 'confirmado' })
+        }).catch(() => {});
 
         const producto = productos?.find(p => p.id === boleto.producto_id);
         const msgCompra = `✅ VENTA CONFIRMADA - Eco Rifas\n\n#${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}\n\nTus numeros están asegurados!\nEl sorteo se realizará cuando se vendan los 100.`;
@@ -314,6 +341,11 @@ export default function AdminPage() {
       if (result.success) {
         setNotif(`❌ Reserva cancelada #${boleto.numero}`);
         fetchData();
+        fetch('/api/pagos', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ boleto_id: boleto.id, estado: 'cancelado' })
+        }).catch(() => {});
       } else {
         alert('Error: ' + (result.error || 'No se pudo cancelar'));
       }
@@ -444,6 +476,53 @@ export default function AdminPage() {
                       <button onClick={() => cancelarReserva(b)} className="bg-red-500 text-white px-4 py-3 rounded-lg font-bold text-sm">❌</button>
                       {b.whatsapp && <button onClick={() => window.open('https://wa.me/' + b.whatsapp, '_blank')} className="bg-[#39B54A] text-white px-4 py-3 rounded-lg font-bold text-sm">📱</button>}
                     </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-lg bg-white border border-[#EBEBEB] p-4 shadow-sm">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="font-black text-[#333]">💳 PAGOS ({pagosData.length})</h2>
+            <div className="flex gap-1">
+              {['todos', 'pendiente', 'confirmado', 'cancelado'].map(f => (
+                <button key={f} onClick={() => setPagosFiltro(f)}
+                  className={`px-2 py-1 rounded text-xs font-bold ${pagosFiltro === f ? 'bg-[#111827] text-[#333]' : 'bg-gray-100 text-gray-500'}`}
+                >{f === 'todos' ? 'Todos' : f.charAt(0).toUpperCase() + f.slice(1)}</button>
+              ))}
+            </div>
+          </div>
+          {pagosData.length === 0 ? (
+            <div className="text-center py-4 text-gray-500"><p className="text-sm font-bold">Sin pagos registrados</p></div>
+          ) : (
+            <div className="space-y-2 max-h-80 overflow-y-auto">
+              {pagosData.map(p => {
+                const prod = productos.find(x => x.id === p.producto_id);
+                return (
+                  <div key={p.id} onClick={() => setShowPagoDetail(p)}
+                    className={`p-3 rounded-lg border cursor-pointer flex items-center gap-3 transition-colors hover:shadow-sm ${
+                      p.estado === 'pendiente' ? 'bg-amber-50 border-amber-200' :
+                      p.estado === 'confirmado' ? 'bg-green-50 border-green-200' :
+                      'bg-gray-50 border-gray-200'
+                    }`}
+                  >
+                    <span className="text-2xl font-black text-[#333]">#{String(p.numero).padStart(2,'0')}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm text-[#333] truncate">{p.nombre || 'Sin nombre'}</p>
+                      <p className="text-xs text-gray-500">{p.whatsapp} · ${parseFloat(p.monto || 0).toLocaleString('es-AR')}-</p>
+                      <p className="text-xs text-gray-400 truncate">{prod?.title || prod?.nombre} · {p.alias_usado}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${
+                        p.estado === 'pendiente' ? 'bg-amber-100 text-amber-700' :
+                        p.estado === 'confirmado' ? 'bg-green-100 text-green-700' :
+                        'bg-gray-200 text-gray-500'
+                      }`}>{p.estado}</span>
+                      <p className="text-[10px] text-gray-400 mt-1">{new Date(p.created_at).toLocaleDateString('es-AR')}</p>
+                    </div>
+                    {p.comprobante_url && <span className="text-lg">📸</span>}
                   </div>
                 );
               })}
@@ -814,6 +893,72 @@ export default function AdminPage() {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showPagoDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowPagoDetail(null)}></div>
+          <div className="relative w-full max-w-sm rounded-lg p-6 bg-white border border-[#EBEBEB] shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-black text-[#333]">💳 DETALLE PAGO</h2>
+              <button onClick={() => setShowPagoDetail(null)} className="text-2xl text-[#333]">✕</button>
+            </div>
+            <div className="space-y-3">
+              <div className="text-center">
+                <p className="text-5xl font-black text-[#333]">#{String(showPagoDetail.numero).padStart(2,'0')}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div><p className="text-gray-400">Nombre</p><p className="font-bold text-[#333]">{showPagoDetail.nombre || '-'}</p></div>
+                <div><p className="text-gray-400">WhatsApp</p><p className="font-bold text-[#333]">{showPagoDetail.whatsapp || '-'}</p></div>
+                <div><p className="text-gray-400">Monto</p><p className="font-bold text-[#39B54A]">${parseFloat(showPagoDetail.monto || 0).toLocaleString('es-AR')}-</p></div>
+                <div><p className="text-gray-400">Alias usado</p><p className="font-bold text-[#3483FA]">{showPagoDetail.alias_usado || '-'}</p></div>
+                <div><p className="text-gray-400">Estado</p>
+                  <span className={`text-xs font-bold px-2 py-1 rounded ${
+                    showPagoDetail.estado === 'pendiente' ? 'bg-amber-100 text-amber-700' :
+                    showPagoDetail.estado === 'confirmado' ? 'bg-green-100 text-green-700' :
+                    'bg-gray-200 text-gray-500'
+                  }`}>{showPagoDetail.estado}</span>
+                </div>
+                <div><p className="text-gray-400">Fecha</p><p className="font-bold text-[#333] text-xs">{new Date(showPagoDetail.created_at).toLocaleString('es-AR')}</p></div>
+              </div>
+              {showPagoDetail.comprobante_url && (
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Comprobante:</p>
+                  <a href={showPagoDetail.comprobante_url} target="_blank" rel="noopener noreferrer">
+                    <img src={showPagoDetail.comprobante_url} alt="Comprobante" className="w-full rounded-lg border border-[#EBEBEB] max-h-60 object-contain bg-gray-50" />
+                  </a>
+                </div>
+              )}
+              <div className="flex gap-2 pt-2">
+                {showPagoDetail.estado === 'pendiente' && (
+                  <>
+                    <button onClick={async () => {
+                      const res = await fetch('/api/pagos', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: showPagoDetail.id, estado: 'confirmado' })
+                      });
+                      const result = await res.json();
+                      if (result.success) { setShowPagoDetail(null); setRefreshKey(k => k + 1); setNotif('✅ Pago confirmado!'); }
+                      else alert('Error: ' + result.error);
+                    }} className="flex-1 bg-[#39B54A] text-white py-3 rounded-lg font-bold text-sm">✅ Confirmar</button>
+                    <button onClick={async () => {
+                      const res = await fetch('/api/pagos', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: showPagoDetail.id, estado: 'cancelado' })
+                      });
+                      const result = await res.json();
+                      if (result.success) { setShowPagoDetail(null); setRefreshKey(k => k + 1); setNotif('❌ Pago cancelado'); }
+                      else alert('Error: ' + result.error);
+                    }} className="bg-red-500 text-white px-4 py-3 rounded-lg font-bold text-sm">❌</button>
+                  </>
+                )}
+                <button onClick={() => setShowPagoDetail(null)} className={`py-3 rounded-lg font-bold text-sm ${showPagoDetail.estado === 'pendiente' ? 'flex-1 bg-gray-100 text-[#333] border border-[#EBEBEB]' : 'w-full bg-gray-100 text-[#333] border border-[#EBEBEB]'}`}>Cerrar</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

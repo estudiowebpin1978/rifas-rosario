@@ -28,6 +28,17 @@ export default function AppPage() {
   const [ganadorAnimado, setGanadorAnimado] = useState(null);
   const [showPremio, setShowPremio] = useState(false);
   const [showComoFunciona, setShowComoFunciona] = useState(false);
+  const productoRef = useRef(null);
+  const parseImages = (prod) => {
+    if (!prod) return [];
+    const imgs = [];
+    if (prod.image || prod.imagen) imgs.push(prod.image || prod.imagen);
+    if (prod.images) {
+      const extra = Array.isArray(prod.images) ? prod.images : (typeof prod.images === 'string' ? (() => { try { return JSON.parse(prod.images); } catch { return []; } })() : []);
+      extra.forEach(u => { if (u && !imgs.includes(u)) imgs.push(u); });
+    }
+    return imgs;
+  };
   const [allProductos, setAllProductos] = useState([]);
   const [allBoletos, setAllBoletos] = useState([]);
   const [hotProducts, setHotProducts] = useState([]);
@@ -118,7 +129,7 @@ const copyAlias = (e) => {
   const shareProduct = (prod) => {
     const prodName = prod.title || prod.nombre;
     const url = URL_APP + '?p=' + prod.id;
-    const text = '🔥 MIRA ESTA RIFA!! ' + prodName + ' solo $' + formatPrice(prod.raffle_price || prod.precio) + ' - Eco Rifas 🎉 ' + url;
+    const text = '🔥 MIRA ESTA RIFA!! ' + prodName + ' solo $' + formatPrice(prod.raffle_price || prod.precio) + ' - Eco Rifas 🎉';
     if (navigator.share) {
       try { navigator.share({ title: 'Eco Rifas - ' + prodName, text, url }); return; } catch {}
     }
@@ -145,7 +156,7 @@ const copyAlias = (e) => {
 
   const shareApp = async () => {
     const url = URL_APP;
-    const text = 'Mira estas rifas en Eco Rifas! 🎉 ' + url;
+    const text = 'Mira estas rifas en Eco Rifas! 🎉';
     if (navigator.share) {
       try {
         await navigator.share({ title: 'Eco Rifas 🎉', text, url });
@@ -159,7 +170,7 @@ const copyAlias = (e) => {
     if (supabase) {
       supabase.auth.getSession().then(({ data }) => {
         setCurrentUser(data.session?.user || null);
-      });
+      }).catch(() => {});
     }
     fetchCategorias();
     fetchProductos();
@@ -173,7 +184,7 @@ const copyAlias = (e) => {
         const sub = supabase.channel('cambios').on('postgres_changes', { event: '*', schema: 'public', table: 'boletos' }, () => {
           fetchProductos();
           fetchGanadores();
-          if (productoSeleccionado) fetchBoletos(productoSeleccionado.id);
+          if (productoRef.current) fetchBoletos(productoRef.current.id);
         }).on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => {
           fetchProductos();
           fetchGanadores();
@@ -187,6 +198,7 @@ const copyAlias = (e) => {
     }
   }, []);
 
+  useEffect(() => { productoRef.current = productoSeleccionado; }, [productoSeleccionado]);
   useEffect(() => { fetchProductos(); }, [categoriaActiva]);
   useEffect(() => { if (productoSeleccionado) { fetchBoletos(productoSeleccionado.id); window.scrollTo({ top: 0, behavior: 'smooth' }); } }, [productoSeleccionado]);
 
@@ -308,10 +320,26 @@ const copyAlias = (e) => {
           })
         });
         const result = await res.json();
-        if (result.success) successful++;
-        else console.error('Error reserva #' + num + ':', result.error);
+        if (result.success) {
+          successful++;
+          const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio || '0').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
+          fetch('/api/pagos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              boleto_id: result.data?.id || null,
+              producto_id: productoSeleccionado.id,
+              numero: num,
+              nombre: reservaForm.nombre,
+              whatsapp: reservaForm.whatsapp,
+              monto: precioUnit,
+              alias_usado: aliasUsado,
+              comprobante_url: receiptUrl || ''
+            })
+          }).catch(() => {});
+        }
       } catch (err) {
-        console.error('Error reservando #' + num + ':', err);
+        console.error('Error reserva #' + num + ':', err);
       }
     }
     
@@ -364,6 +392,21 @@ const copyAlias = (e) => {
       if (result.success) {
         playCoin();
         confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
+        const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio || '0').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
+        fetch('/api/pagos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            boleto_id: result.data?.id || null,
+            producto_id: productoSeleccionado.id,
+            numero: seleccionado,
+            nombre: reservaForm.nombre,
+            whatsapp: reservaForm.whatsapp,
+            monto: precioUnit,
+            alias_usado: aliasUsado,
+            comprobante_url: receiptUrl || ''
+          })
+        }).catch(() => {});
         const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: ' + aliasUsado + '\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago a ' + aliasUsado + ' y reservo tu numero!\n\n') + '⏳ Tu numero queda RESERVADO por 10 minutos.';
         window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
         setTimeout(() => { setShowReserva(false); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
@@ -383,14 +426,10 @@ const copyAlias = (e) => {
   const shareX = () => window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
   const shareFacebook = () => window.open('https://www.facebook.com/sharer.php?u=' + encodeURIComponent(URL_APP) + '&quote=' + encodeURIComponent('Mira estas rifas increibles! 🎉'), '_blank', 'width=600,height=400');
   const shareInstagram = () => {
-    const url = URL_APP;
-    const msg = 'Mira estas rifas increibles! 🎉 ' + url;
-    copyToClipboard(msg, 'Link copiado! Pegalo en tu Instagram 📷');
+    copyToClipboard(URL_APP, 'Link copiado! Pegalo en tu Instagram 📷');
   };
   const shareTikTok = () => {
-    const url = URL_APP;
-    const msg = 'Mira estas rifas increibles! 🎉 ' + url;
-    copyToClipboard(msg, 'Link copiado! Pegalo en tu TikTok 🎵');
+    copyToClipboard(URL_APP, 'Link copiado! Pegalo en tu TikTok 🎵');
   };
   const shareGmail = () => window.open('mailto:?subject=' + encodeURIComponent('Mira estas rifas increibles! 🎉') + '&body=' + encodeURIComponent('Echa un vistazo a esta app de rifas: ' + URL_APP));
   const contactarGanador = () => window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent('🎊 FELICIDADES! Ganaste ' + (productoSeleccionado?.title || productoSeleccionado?.nombre) + '!\n\nQuiero coordinar la entrega de mi premio.'), '_blank');
@@ -782,23 +821,14 @@ const copyAlias = (e) => {
           <div className="rounded-lg overflow-hidden bg-white border border-[#EBEBEB] shadow-sm">
             <div className="relative aspect-video bg-gray-50">
               {(() => {
-                try {
-                  const allImgs = [];
-                  if (productoSeleccionado.image || productoSeleccionado.imagen) allImgs.push(productoSeleccionado.image || productoSeleccionado.imagen);
-                  const extra = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : [];
-                  extra.forEach(u => { if (u && !allImgs.includes(u)) allImgs.push(u); });
+                  const allImgs = parseImages(productoSeleccionado);
                   const currentImg = allImgs[selectedImageIndex] || allImgs[0];
-                  return <><img src={currentImg} alt={productoSeleccionado.title || productoSeleccionado.nombre} className="w-full h-full object-contain cursor-pointer" onClick={() => setShowImageViewer(selectedImageIndex)} /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-1 rounded-full">🔍</div></>;
-                } catch(e) { return <span className="text-7xl">🎁</span>; }
+                  return currentImg ? <><img src={currentImg} alt={productoSeleccionado.title || productoSeleccionado.nombre} className="w-full h-full object-contain cursor-pointer" onClick={() => setShowImageViewer(selectedImageIndex)} /><div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-1 rounded-full">🔍</div></> : <span className="text-7xl">🎁</span>;
               })()}
               {productoSeleccionado.finalizado && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><span className="text-6xl">🏆</span></div>}
             </div>
             {(() => {
-              try {
-                const allImgs = [];
-                if (productoSeleccionado.image || productoSeleccionado.imagen) allImgs.push(productoSeleccionado.image || productoSeleccionado.imagen);
-                const extra = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : [];
-                extra.forEach(u => { if (u && !allImgs.includes(u)) allImgs.push(u); });
+                const allImgs = parseImages(productoSeleccionado);
                 if (allImgs.length > 1) {
                   return (
                     <div className="flex gap-2 p-2 overflow-x-auto scrollbar-hide">
@@ -810,7 +840,6 @@ const copyAlias = (e) => {
                     </div>
                   );
                 }
-              } catch(e) {}
               return null;
             })()}
             <div className="p-4">
@@ -1061,10 +1090,8 @@ const copyAlias = (e) => {
       )}
 
       {showImageViewer !== null && productoSeleccionado && (() => {
-        const allImgs = [];
-        if (productoSeleccionado.image || productoSeleccionado.imagen) allImgs.push(productoSeleccionado.image || productoSeleccionado.imagen);
-        try { const extra = productoSeleccionado.images ? JSON.parse(productoSeleccionado.images) : []; extra.forEach(u => { if (u && !allImgs.includes(u)) allImgs.push(u); }); } catch(e) {}
-        const currentIdx = showImageViewer;
+        const allImgs = parseImages(productoSeleccionado);
+        const currentIdx = Math.min(showImageViewer, allImgs.length - 1);
         const total = allImgs.length;
         const prevIdx = currentIdx > 0 ? currentIdx - 1 : total - 1;
         const nextIdx = currentIdx < total - 1 ? currentIdx + 1 : 0;
