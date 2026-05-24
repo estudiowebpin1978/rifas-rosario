@@ -7,7 +7,44 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
   const [loading, setLoading] = useState(false);
   const [minimized, setMinimized] = useState(true);
   const [aiError, setAiError] = useState('');
+  const [speakingId, setSpeakingId] = useState(null);
   const messagesEndRef = useRef(null);
+
+  const speakText = (text, msgId) => {
+    if (!window.speechSynthesis) return;
+    if (speakingId === msgId) {
+      window.speechSynthesis.cancel();
+      setSpeakingId(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const cleanText = text.replace(/[*#_`]/g, '').replace(/[🎉🎰🛒💳🎁🏆🍀🤖👋😅👇✅❌💰💬📱⏰⭐🎲🔐📲📤🎟️💪😊🔥👕💻🏠]/g, '').trim();
+    if (!cleanText) return;
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'es-AR';
+    utterance.rate = 1.1;
+    utterance.pitch = 1.0;
+    const voices = window.speechSynthesis.getVoices();
+    const spanishVoice = voices.find(v => v.lang.startsWith('es'));
+    if (spanishVoice) utterance.voice = spanishVoice;
+    utterance.onend = () => setSpeakingId(null);
+    utterance.onerror = () => setSpeakingId(null);
+    setSpeakingId(msgId);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  useEffect(() => {
+    // Load voices (Chrome needs this)
+    if (window.speechSynthesis) window.speechSynthesis.getVoices();
+  }, []);
+
+  useEffect(() => {
+    // Stop speech when minimized
+    if (minimized && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setSpeakingId(null);
+    }
+  }, [minimized]);
 
   const scrollToBottom = () => {
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
@@ -34,6 +71,8 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
   const handleSend = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || loading) return;
+
+    if (window.speechSynthesis) { window.speechSynthesis.cancel(); setSpeakingId(null); }
 
     const userMsg = { id: 'user-' + Date.now(), user_name: user?.email?.split('@')[0] || 'Vos', message: newMessage, created_at: new Date().toISOString(), is_ai: false };
     setMessages(prev => [...prev, userMsg]);
@@ -115,6 +154,9 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
                           <p className="text-[10px] mt-1 text-gray-600 text-right">{formatTime(msg.created_at)}</p>
                         </div>
                         <div className="mt-1 flex gap-1">
+                          <button onClick={() => speakText(msg.message, msg.id)}
+                            className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full font-bold hover:bg-cyan-500/40 transition-colors"
+                          >{speakingId === msg.id ? '🔊' : '🔈'} Escuchar</button>
                           <button onClick={() => { window.open('https://wa.me/' + WHATSAPP_ADMIN + '?text=' + encodeURIComponent('Hola! Quiero comprar números en Eco Rifas 🎉'), '_blank'); }}
                             className="text-[9px] bg-green-500/20 text-green-300 px-2 py-0.5 rounded-full font-bold hover:bg-green-500/40 transition-colors"
                           >💬 Hablar con vendedor</button>
