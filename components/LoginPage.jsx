@@ -15,6 +15,7 @@ export default function RifaApp() {
   const [authSuccess, setAuthSuccess] = useState('');
   const [user, setUser] = useState(null);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [ganadores, setGanadores] = useState([]);
 
   const WHATSAPP = '5493412500029';
 
@@ -34,6 +35,8 @@ export default function RifaApp() {
     });
 
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); setDeferredPrompt(e); });
+
+    fetch('/api/productos').then(r => r.json()).then(d => { if (d.productos) setGanadores(d.productos.filter(p => p.finalizado).slice(0, 10)); }).catch(() => {});
 
     return () => { subscription.unsubscribe(); };
   }, []);
@@ -143,7 +146,31 @@ export default function RifaApp() {
           <span className="trust-badge">✅ 100% Confiable</span>
         </div>
 
-        <div className="mt-8 text-center space-y-2">
+        {ganadores.length > 0 && (
+          <div className="mt-8 rounded-2xl p-5 bg-white border border-[#EBEBEB] shadow-sm">
+            <h2 className="text-lg font-black mb-4 flex items-center gap-2 text-[#111827]">
+              <span className="text-2xl animate-bounce">🏆</span> ÚLTIMOS GANADORES
+            </h2>
+            <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
+              {ganadores.map(g => (
+                <div key={g.id} className="flex-shrink-0 w-44 p-4 rounded-xl bg-gradient-to-br from-[#F5F5F5] to-white border border-[#EBEBEB] shadow-sm" style={{ scrollSnapAlign: 'start' }}>
+                  <div className="text-center">
+                    <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-[#FE2C55] to-[#C12045] flex items-center justify-center text-white text-xl font-black shadow-lg">🏆</div>
+                    <p className="font-black text-2xl text-[#39B54A]">#{String(g.ganador_num).padStart(2,'0')}</p>
+                    <p className="text-xs font-bold text-[#333] mt-1 truncate">{g.ganador_nombre || 'Anónimo'}</p>
+                    <p className="text-[10px] text-gray-400 mt-1 truncate">{g.title || g.nombre}</p>
+                    <div className="mt-2 text-[10px] text-[#FE2C55] font-bold">🎉 GANADOR</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 text-center">
+              <a href="/feed" className="text-xs font-bold text-[#3483FA] hover:underline">Ver todos los ganadores →</a>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 text-center space-y-2">
           <a href="/app" className="block text-[#FE2C55] font-bold text-lg hover:underline">
             Ver rifas disponibles sin cuenta →
           </a>

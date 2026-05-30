@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
 import ChatBox from '@/components/ChatBox';
+import LiveToast from '@/components/LiveToast';
+import OnboardingTour from '@/components/OnboardingTour';
 import { playCoin, playCelebration, playSelect } from '@/lib/sounds';
 import { HeroSectionSkeleton } from '@/components/SkeletonLoader';
 
@@ -63,6 +65,8 @@ export default function AppPage() {
   const [recentActivity, setRecentActivity] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [timeNow, setTimeNow] = useState(Date.now());
+  const [viewerCount, setViewerCount] = useState(0);
+  const [guiaPago, setGuiaPago] = useState(false);
   const touchStartX = useRef(null);
 
   const WHATSAPP = '5493412500029';
@@ -74,7 +78,13 @@ export default function AppPage() {
   useEffect(() => {
     if (!aliasUsado) setAliasUsado(pickAlias());
     const iv = setInterval(() => setTimeNow(Date.now()), 1000);
-    return () => clearInterval(iv);
+    const v = 5 + Math.floor(Math.random() * 20);
+    setViewerCount(v);
+    const vv = setInterval(() => {
+      const delta = Math.random() > 0.5 ? 1 : -1;
+      setViewerCount(prev => Math.max(3, Math.min(30, prev + delta)));
+    }, 6000 + Math.random() * 8000);
+    return () => { clearInterval(iv); clearInterval(vv); };
   }, []);
 
     const formatPrice = (precio) => {
@@ -580,6 +590,8 @@ const copyAlias = (e) => {
         allBoletos={allBoletos}
         aiPromptTrigger={aiPromptTrigger}
       />
+      <LiveToast productos={allProductos.filter(p => !p.finalizado)} />
+      <OnboardingTour />
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-50 shadow-[0_-1px_6px_rgba(0,0,0,0.05)]">
         <div className="max-w-lg md:max-w-4xl mx-auto flex justify-around">
@@ -598,8 +610,9 @@ const copyAlias = (e) => {
           </div>
           <nav className="space-y-4">
             <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">❓ Cómo Funciona?</button>
-            <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full btn-3d-pink">📤 Compartir App</button>
-            <button onClick={() => { setShowShare(true); setShowMenu(false); }} className="w-full btn-3d-cyan">📲 Compartir en Redes</button>
+              <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full btn-3d-pink">📤 Compartir App</button>
+              <button onClick={() => { setShowShare(true); setShowMenu(false); }} className="w-full btn-3d-cyan">📲 Compartir en Redes</button>
+              <button onClick={() => { copyToClipboard(URL_APP + '?ref=' + encodeURIComponent(reservaForm.whatsapp || 'amigo'), '🔗 Link de invitación copiado!'); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 font-bold text-lg text-center border border-yellow-500/30 shadow-sm hover:bg-yellow-500/30 transition-colors">👥 Invitá amigos · ¡Ganá números gratis!</button>
             <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
             <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>
             <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Términos y Condiciones</a>
@@ -708,6 +721,15 @@ const copyAlias = (e) => {
                     {heroPorcent >= 50 && <span className="bg-[#25F4EE] text-[#333] text-xs font-bold px-2 py-0.5 rounded-lg">🔥 TRENDING</span>}
                   </div>
                   <p className="text-3xl font-black text-[#39B54A]">{formatPrice(heroProd.raffle_price || heroProd.precio)}</p>
+                    {(() => {
+                      const ends = new Date(heroProd.created_at || Date.now());
+                      ends.setHours(ends.getHours() + 48);
+                      const diff = Math.max(0, Math.floor((ends.getTime() - timeNow) / 1000));
+                      const h = Math.floor(diff / 3600);
+                      const m = Math.floor((diff % 3600) / 60);
+                      if (h < 24) return <p className="text-xs text-orange-400 font-bold mt-1 flex items-center gap-1"><span className="animate-pulse">⏰</span> Oferta termina en {h}h {m}m</p>;
+                      return null;
+                    })()}
                     <div className="mt-3">
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-[#3483FA] font-bold">🎟 {heroVendidos}/{heroTotal}</span>
@@ -807,6 +829,15 @@ const copyAlias = (e) => {
                   <div className="p-3 space-y-2">
                     <h3 className="font-bold text-sm truncate text-[#111827]">{prod.title || prod.nombre}</h3>
                     <p className="text-[#39B54A] font-black text-base">{formatPrice(prod.raffle_price || prod.precio)}</p>
+                    {!prod.finalizado && (() => {
+                      const ends = new Date(prod.created_at || Date.now());
+                      ends.setHours(ends.getHours() + 48);
+                      const diff = Math.max(0, Math.floor((ends.getTime() - timeNow) / 1000));
+                      const h = Math.floor(diff / 3600);
+                      const m = Math.floor((diff % 3600) / 60);
+                      if (h < 24) return <p className="text-[10px] text-orange-500 font-bold flex items-center gap-1"><span className="animate-pulse">⏰</span> {h}h {m}m restantes</p>;
+                      return null;
+                    })()}
                     <div className="space-y-1">
                       <div className="flex justify-between text-[10px]">
                         <span className="text-gray-500">Vendidos</span>
@@ -881,8 +912,28 @@ const copyAlias = (e) => {
           {!productoSeleccionado.finalizado && (
             <>
               {/* 💡 CONVERSION PSYCHOLOGY */}
-              <div className="rounded-xl p-4 text-center bg-gradient-to-r from-[#111827] to-gray-800 border border-gray-700 shadow-lg">
+              <div className="rounded-xl p-4 text-center bg-gradient-to-r from-[#111827] to-gray-800 border border-gray-700 shadow-lg space-y-2">
                 <p className="text-sm font-bold text-white">🎯 <span className="text-[#FE2C55]">Elegí tu número favorito</span> antes que otro lo ocupe · <span className="text-[#25F4EE]">¿Y si hoy es tu día de suerte?</span></p>
+                <div className="flex items-center justify-center gap-4 text-[11px]">
+                  <span className="flex items-center gap-1.5 text-[#25F4EE] font-bold">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
+                    </span>
+                    {viewerCount} personas viendo ahora
+                  </span>
+                  <span className="flex items-center gap-1 text-amber-400 font-bold">
+                    <span className="animate-pulse-dot text-base leading-none">⏳</span>
+                    {(() => {
+                      const ends = new Date(productoSeleccionado.created_at || Date.now());
+                      ends.setHours(ends.getHours() + 48);
+                      const diff = Math.max(0, Math.floor((ends.getTime() - timeNow) / 1000));
+                      const h = Math.floor(diff / 3600);
+                      const m = Math.floor((diff % 3600) / 60);
+                      return `${h}h ${m}m`;
+                    })()}
+                  </span>
+                </div>
               </div>
 
               <div className="rounded-2xl p-5 bg-gradient-to-br from-[#111827] to-gray-900 border border-gray-700 shadow-xl">
@@ -1018,42 +1069,70 @@ const copyAlias = (e) => {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
           <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
-            <div className="text-center mb-4">
-              <p className="text-xs font-bold text-gray-500">🎲 TU NÚMERO DE LA SUERTE</p>
-              <p className="text-7xl font-black text-[#3483FA] animate-pulse">#{String(seleccionado).padStart(2,'0')}</p>
+            <div className="flex gap-1 mb-4 bg-gray-100 rounded-xl p-1">
+              <button onClick={() => setGuiaPago(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!guiaPago ? 'bg-white text-[#FE2C55] shadow-sm' : 'text-gray-400'}`}>📝 Formulario</button>
+              <button onClick={() => setGuiaPago(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${guiaPago ? 'bg-white text-[#FE2C55] shadow-sm' : 'text-gray-400'}`}>💡 Guía de pago</button>
             </div>
-            <div className="p-4 rounded-lg mb-4 bg-[#F5F5F5] border border-[#EBEBEB]">
-              <div className="flex items-center gap-3">
-                {(productoSeleccionado?.image || productoSeleccionado?.imagen) && <img src={productoSeleccionado.image || productoSeleccionado.imagen} className="w-16 h-16 rounded-lg object-cover" />}
-                <div>
-                  <p className="font-bold text-lg text-[#333]">{productoSeleccionado?.title || productoSeleccionado?.nombre}</p>
-                  <p className="text-2xl font-black text-[#39B54A]">{formatPrice(productoSeleccionado?.raffle_price || productoSeleccionado?.precio)}</p>
+            {guiaPago ? (
+              <div className="space-y-3 mb-4">
+                <div className="flex gap-3 items-start p-3 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
+                  <span className="w-7 h-7 rounded-full bg-[#3483FA] text-white flex items-center justify-center text-sm font-black flex-shrink-0">1</span>
+                  <div><p className="font-bold text-sm text-[#333]">Abrí Mercado Pago</p><p className="text-xs text-gray-500">Transferí el valor del número desde tu app de banco o MP</p></div>
                 </div>
+                <div className="flex gap-3 items-start p-3 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
+                  <span className="w-7 h-7 rounded-full bg-[#3483FA] text-white flex items-center justify-center text-sm font-black flex-shrink-0">2</span>
+                  <div><p className="font-bold text-sm text-[#333]">Buscá este alias</p><p className="text-lg font-black text-[#FE2C55] tracking-wider">{aliasUsado}</p><button onClick={copyAlias} className="mt-1 bg-[#FE2C55] text-white px-3 py-1 rounded-lg text-[10px] font-bold shadow-sm hover:bg-[#C12045] transition-colors inline-flex items-center gap-1">📋 COPIAR ALIAS</button></div>
+                </div>
+                <div className="flex gap-3 items-start p-3 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
+                  <span className="w-7 h-7 rounded-full bg-[#3483FA] text-white flex items-center justify-center text-sm font-black flex-shrink-0">3</span>
+                  <div><p className="font-bold text-sm text-[#333]">Transferí <span className="text-[#39B54A]">{formatPrice(productoSeleccionado?.raffle_price || productoSeleccionado?.precio)}</span></p><p className="text-xs text-gray-500">El número queda automáticamente reservado por 10 minutos</p></div>
+                </div>
+                <div className="flex gap-3 items-start p-3 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
+                  <span className="w-7 h-7 rounded-full bg-[#3483FA] text-white flex items-center justify-center text-sm font-black flex-shrink-0">4</span>
+                  <div><p className="font-bold text-sm text-[#333]">Subí el comprobante</p><p className="text-xs text-gray-500">Pasá a "Formulario", completá tus datos y adjuntá la foto del comprobante</p></div>
+                </div>
+                <button onClick={() => setGuiaPago(false)} className="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#3483FA] to-blue-600 shadow-md">📝 Ir al formulario</button>
               </div>
-            </div>
-            <div className="text-center p-3 rounded-lg mb-4 bg-gradient-to-r from-[#25F4EE]/10 to-[#FE2C55]/10 border border-[#25F4EE]/30">
-              <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
-              <p className="text-xl font-black text-[#333] tracking-wider">{aliasUsado}</p>
-              <button onClick={copyAlias} className="bg-[#FE2C55] text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#C12045] transition-colors">📋 COPIAR ALIAS</button>
-            </div>
-            <form onSubmit={handleReserva} className="space-y-3">
-              <div>
-                <label className="text-xs font-bold text-gray-500 mb-1 block">Tu nombre completo</label>
-                <input placeholder="Ej: Juan Perez" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
-                <input placeholder="Ej: 5493412500029" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-500 mb-1 block">Comprobante de pago (opcional)</label>
-                <input type="file" accept="image/*" onChange={e => setReceiptFile(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#3483FA] file:text-white hover:file:bg-[#2d6fd4]" />
-              </div>
-              <button disabled={loading} className="w-full btn-3d-gold disabled:opacity-50">
-                {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
-              </button>
-              <p className="text-[10px] text-center text-gray-500">Reservá tu número y te enviamos los datos de pago por WhatsApp</p>
-            </form>
+            ) : (
+              <>
+                <div className="text-center mb-4">
+                  <p className="text-xs font-bold text-gray-500">🎲 TU NÚMERO DE LA SUERTE</p>
+                  <p className="text-7xl font-black text-[#3483FA] animate-pulse">#{String(seleccionado).padStart(2,'0')}</p>
+                </div>
+                <div className="p-4 rounded-lg mb-4 bg-[#F5F5F5] border border-[#EBEBEB]">
+                  <div className="flex items-center gap-3">
+                    {(productoSeleccionado?.image || productoSeleccionado?.imagen) && <img src={productoSeleccionado.image || productoSeleccionado.imagen} className="w-16 h-16 rounded-lg object-cover" />}
+                    <div>
+                      <p className="font-bold text-lg text-[#333]">{productoSeleccionado?.title || productoSeleccionado?.nombre}</p>
+                      <p className="text-2xl font-black text-[#39B54A]">{formatPrice(productoSeleccionado?.raffle_price || productoSeleccionado?.precio)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-center p-3 rounded-lg mb-4 bg-gradient-to-r from-[#25F4EE]/10 to-[#FE2C55]/10 border border-[#25F4EE]/30">
+                  <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
+                  <p className="text-xl font-black text-[#333] tracking-wider">{aliasUsado}</p>
+                  <button onClick={copyAlias} className="bg-[#FE2C55] text-white px-4 py-1.5 rounded-lg text-xs font-bold mt-1 shadow-sm hover:bg-[#C12045] transition-colors">📋 COPIAR ALIAS</button>
+                </div>
+                <form onSubmit={handleReserva} className="space-y-3">
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Tu nombre completo</label>
+                    <input placeholder="Ej: Juan Perez" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
+                    <input placeholder="Ej: 5493412500029" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Comprobante de pago (opcional)</label>
+                    <input type="file" accept="image/*" onChange={e => setReceiptFile(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#3483FA] file:text-white hover:file:bg-[#2d6fd4]" />
+                  </div>
+                  <button disabled={loading} className="w-full btn-3d-gold disabled:opacity-50">
+                    {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
+                  </button>
+                  <p className="text-[10px] text-center text-gray-500">Reservá tu número y te enviamos los datos de pago por WhatsApp</p>
+                </form>
+              </>
+            )}
             <button onClick={() => setShowReserva(false)} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-black transition-colors">Cancelar</button>
           </div>
         </div>
@@ -1064,51 +1143,83 @@ const copyAlias = (e) => {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
           <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#FE2C55]" onClick={e => e.stopPropagation()}>
             <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
-            <div className="text-center mb-4">
-              <p className="text-xs font-bold text-gray-500">TUS NÚMEROS DE LA SUERTE</p>
-              <div className="flex flex-wrap justify-center gap-2 mt-2">
-                {selectedNumbers.map(n => (
-                  <span key={n} className="text-2xl font-black text-[#3483FA]">#{String(n).padStart(2,'0')}</span>
-                ))}
-              </div>
+            <div className="flex gap-1 mb-4 bg-gray-100 rounded-xl p-1">
+              <button onClick={() => setGuiaPago(false)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${!guiaPago ? 'bg-white text-[#FE2C55] shadow-sm' : 'text-gray-400'}`}>📝 Formulario</button>
+              <button onClick={() => setGuiaPago(true)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${guiaPago ? 'bg-white text-[#FE2C55] shadow-sm' : 'text-gray-400'}`}>💡 Guía de pago</button>
             </div>
-            <div className="p-4 rounded-lg mb-4 bg-[#F5F5F5] border border-[#EBEBEB]">
-              <div className="flex items-center gap-3">
-                {(productoSeleccionado?.image || productoSeleccionado?.imagen) && <img src={productoSeleccionado.image || productoSeleccionado.imagen} className="w-16 h-16 rounded-lg object-cover" />}
-                <div>
-                  <p className="font-bold text-[#333]">{productoSeleccionado?.title || productoSeleccionado?.nombre}</p>
-                  <p className="text-lg font-black text-[#39B54A]">{selectedNumbers.length} × {formatPrice(productoSeleccionado?.raffle_price || productoSeleccionado?.precio)}</p>
-                  <p className="text-2xl font-black text-[#333]">
+            {guiaPago ? (
+              <div className="space-y-3 mb-4">
+                <div className="flex gap-3 items-start p-3 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
+                  <span className="w-7 h-7 rounded-full bg-[#3483FA] text-white flex items-center justify-center text-sm font-black flex-shrink-0">1</span>
+                  <div><p className="font-bold text-sm text-[#333]">Abrí Mercado Pago</p><p className="text-xs text-gray-500">Transferí el total desde tu app de banco o MP</p></div>
+                </div>
+                <div className="flex gap-3 items-start p-3 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
+                  <span className="w-7 h-7 rounded-full bg-[#3483FA] text-white flex items-center justify-center text-sm font-black flex-shrink-0">2</span>
+                  <div><p className="font-bold text-sm text-[#333]">Buscá este alias</p><p className="text-lg font-black text-[#FE2C55] tracking-wider">{aliasUsado}</p><button onClick={copyAlias} className="mt-1 bg-[#FE2C55] text-white px-3 py-1 rounded-lg text-[10px] font-bold shadow-sm hover:bg-[#C12045] transition-colors inline-flex items-center gap-1">📋 COPIAR ALIAS</button></div>
+                </div>
+                <div className="flex gap-3 items-start p-3 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
+                  <span className="w-7 h-7 rounded-full bg-[#3483FA] text-white flex items-center justify-center text-sm font-black flex-shrink-0">3</span>
+                  <div><p className="font-bold text-sm text-[#333]">Transferí <span className="text-[#39B54A]">
                     {(() => {
                       try { const rf = productoSeleccionado?.raffle_price || parseFloat(String(productoSeleccionado?.precio).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')); const num = rf * selectedNumbers.length; return '$ ' + num.toLocaleString('es-AR') + '-'; } catch { return ''; }
                     })()}
-                  </p>
+                  </span></p><p className="text-xs text-gray-500">Los números quedan reservados por 10 minutos</p></div>
                 </div>
+                <div className="flex gap-3 items-start p-3 rounded-lg bg-[#F5F5F5] border border-[#EBEBEB]">
+                  <span className="w-7 h-7 rounded-full bg-[#3483FA] text-white flex items-center justify-center text-sm font-black flex-shrink-0">4</span>
+                  <div><p className="font-bold text-sm text-[#333]">Subí el comprobante</p><p className="text-xs text-gray-500">Pasá a "Formulario", completá tus datos y adjuntá la foto</p></div>
+                </div>
+                <button onClick={() => setGuiaPago(false)} className="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#3483FA] to-blue-600 shadow-md">📝 Ir al formulario</button>
               </div>
-            </div>
-            <div className="text-center p-3 rounded-lg mb-4 bg-gradient-to-r from-[#25F4EE]/10 to-[#FE2C55]/10 border border-[#25F4EE]/30">
-              <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
-              <p className="text-sm font-black text-[#333] mt-1">{aliasUsado}</p>
-              <button onClick={copyAlias} className="mt-1 text-xs text-[#FE2C55] font-bold">📋 COPIAR</button>
-            </div>
-            <form onSubmit={handleBulkReserva} className="space-y-3">
-              <div>
-                <label className="text-xs font-bold text-gray-500 mb-1 block">Tu nombre completo</label>
-                <input placeholder="Ej: Juan Perez" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
-                <input placeholder="Ej: 5493412500029" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-500 mb-1 block">Comprobante de pago (opcional)</label>
-                <input type="file" accept="image/*" onChange={e => setReceiptFile(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#3483FA] file:text-white hover:file:bg-[#2d6fd4]" />
-              </div>
-              <button disabled={loading} className="w-full btn-3d-gold disabled:opacity-50">
-                {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
-              </button>
-              <p className="text-[10px] text-center text-gray-500">Tus números quedan reservados al enviar el comprobante</p>
-            </form>
+            ) : (
+              <>
+                <div className="text-center mb-4">
+                  <p className="text-xs font-bold text-gray-500">TUS NÚMEROS DE LA SUERTE</p>
+                  <div className="flex flex-wrap justify-center gap-2 mt-2">
+                    {selectedNumbers.map(n => (
+                      <span key={n} className="text-2xl font-black text-[#3483FA]">#{String(n).padStart(2,'0')}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-4 rounded-lg mb-4 bg-[#F5F5F5] border border-[#EBEBEB]">
+                  <div className="flex items-center gap-3">
+                    {(productoSeleccionado?.image || productoSeleccionado?.imagen) && <img src={productoSeleccionado.image || productoSeleccionado.imagen} className="w-16 h-16 rounded-lg object-cover" />}
+                    <div>
+                      <p className="font-bold text-[#333]">{productoSeleccionado?.title || productoSeleccionado?.nombre}</p>
+                      <p className="text-lg font-black text-[#39B54A]">{selectedNumbers.length} × {formatPrice(productoSeleccionado?.raffle_price || productoSeleccionado?.precio)}</p>
+                      <p className="text-2xl font-black text-[#333]">
+                        {(() => {
+                          try { const rf = productoSeleccionado?.raffle_price || parseFloat(String(productoSeleccionado?.precio).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.')); const num = rf * selectedNumbers.length; return '$ ' + num.toLocaleString('es-AR') + '-'; } catch { return ''; }
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-center p-3 rounded-lg mb-4 bg-gradient-to-r from-[#25F4EE]/10 to-[#FE2C55]/10 border border-[#25F4EE]/30">
+                  <p className="text-xs font-bold text-gray-500">💳 ALIAS PARA TRANSFERENCIA</p>
+                  <p className="text-sm font-black text-[#333] mt-1">{aliasUsado}</p>
+                  <button onClick={copyAlias} className="mt-1 text-xs text-[#FE2C55] font-bold">📋 COPIAR</button>
+                </div>
+                <form onSubmit={handleBulkReserva} className="space-y-3">
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Tu nombre completo</label>
+                    <input placeholder="Ej: Juan Perez" required value={reservaForm.nombre} onChange={e => setReservaForm({...reservaForm, nombre: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Tu WhatsApp</label>
+                    <input placeholder="Ej: 5493412500029" required value={reservaForm.whatsapp} onChange={e => setReservaForm({...reservaForm, whatsapp: e.target.value})} className="w-full rounded-lg p-3.5 font-bold bg-white border border-[#EBEBEB] focus:border-[#3483FA] outline-none text-[#333]" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 mb-1 block">Comprobante de pago (opcional)</label>
+                    <input type="file" accept="image/*" onChange={e => setReceiptFile(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#3483FA] file:text-white hover:file:bg-[#2d6fd4]" />
+                  </div>
+                  <button disabled={loading} className="w-full btn-3d-gold disabled:opacity-50">
+                    {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
+                  </button>
+                  <p className="text-[10px] text-center text-gray-500">Tus números quedan reservados al enviar el comprobante</p>
+                </form>
+              </>
+            )}
             <button onClick={() => { setShowBulkReserva(false); setSelectedNumbers([]); }} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-black transition-colors">Cancelar</button>
           </div>
         </div>
