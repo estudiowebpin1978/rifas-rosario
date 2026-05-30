@@ -890,9 +890,9 @@ const copyAlias = (e) => {
                   <p className="font-black text-sm text-white flex items-center gap-2">🎰 <span className="bg-gradient-to-r from-[#FE2C55] to-[#25F4EE] bg-clip-text text-transparent">ELEGÍ TU(S) NUMERO(S)</span></p>
                   <div className="flex gap-2 text-[9px] font-bold">
                     <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-white to-gray-300 border border-gray-500 mr-0.5 shadow-sm"></span>Libre</span>
-                    <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-[#FE2C55] to-[#C12045] mr-0.5 shadow-sm"></span>Selected</span>
-                    <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-amber-400 to-orange-500 mr-0.5 shadow-sm"></span>Reserv</span>
-                    <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-gray-600 to-gray-700 mr-0.5 shadow-sm"></span>Pagado</span>
+                    <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-green-500 to-green-700 mr-0.5 shadow-sm"></span>Elegido</span>
+                    <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-yellow-400 to-yellow-600 mr-0.5 shadow-sm"></span>Reserv</span>
+                    <span className="text-gray-400"><span className="w-2.5 h-2.5 inline-block rounded-sm bg-gradient-to-br from-gray-600 to-gray-700 mr-0.5 shadow-sm"></span>Vendido</span>
                   </div>
                 </div>
                 <div className="grid grid-cols-10 gap-1.5">
@@ -904,21 +904,21 @@ const copyAlias = (e) => {
                     let btnClass = '';
                     let btnContent = String(b.numero).padStart(2, '0');
                     if (isSold) {
-                      btnClass = 'bg-gradient-to-br from-gray-700 to-gray-800 text-gray-500 cursor-not-allowed border border-gray-600 shadow-inner';
+                      btnClass = 'bg-gradient-to-br from-gray-700 to-gray-800 text-red-400 cursor-not-allowed border border-red-900/50 shadow-inner';
                       btnContent = '✕';
                     } else if (isReserved) {
                       const expiresAt = new Date(b.updated_at || b.created_at).getTime() + 10 * 60 * 1000;
                       const remaining = Math.max(0, Math.floor((expiresAt - timeNow) / 1000));
                       const mins = Math.floor(remaining / 60);
                       const secs = remaining % 60;
-                      btnClass = 'bg-gradient-to-br from-amber-600 to-orange-700 text-amber-200 cursor-not-allowed border border-amber-500/50 shadow-inner';
+                      btnClass = 'bg-gradient-to-br from-yellow-500 to-yellow-700 text-yellow-100 cursor-not-allowed border border-yellow-400/50 shadow-inner';
                       btnContent = <span className="text-[9px] leading-tight">{String(b.numero).padStart(2,'0')}<br/><span className="text-[7px] opacity-70">{mins}:{String(secs).padStart(2,'0')}</span></span>;
                     } else if (isSelected) {
-                      btnClass = 'bg-gradient-to-br from-[#FE2C55] to-[#C12045] text-white border-0 shadow-[0_4px_0_#8a1530,0_6px_12px_rgba(254,44,85,0.4)] scale-105 z-10';
+                      btnClass = 'bg-gradient-to-br from-green-500 to-green-700 text-white border-0 shadow-[0_4px_0_#166534,0_6px_12px_rgba(34,197,94,0.4)] scale-105 z-10';
                     } else if (isFav) {
                       btnClass = 'bg-gradient-to-br from-yellow-400 to-amber-500 text-[#111827] border-0 shadow-[0_3px_0_#b45309,0_4px_8px_rgba(251,191,36,0.3)]';
                     } else {
-                      btnClass = 'bg-gradient-to-br from-gray-800 to-gray-900 text-gray-300 border border-gray-600 hover:border-[#FE2C55] hover:text-white hover:shadow-[0_4px_0_#8a1530,0_6px_12px_rgba(254,44,85,0.3)] hover:-translate-y-0.5 active:translate-y-0.5';
+                      btnClass = 'bg-gradient-to-br from-gray-800 to-gray-900 text-gray-300 border border-gray-700 hover:border-green-500 hover:text-white hover:shadow-[0_4px_0_#166534,0_6px_12px_rgba(34,197,94,0.3)] hover:-translate-y-0.5 active:translate-y-0.5';
                     }
                     return (
                       <div key={b.id} className="relative">
@@ -944,7 +944,7 @@ const copyAlias = (e) => {
                       <p className="font-black text-xl text-white">{selectedNumbers.length} {selectedNumbers.length === 1 ? 'número seleccionado' : 'números seleccionados'}</p>
                       <div className="flex flex-wrap justify-center gap-1.5 mt-2">
                         {selectedNumbers.map(n => (
-                          <span key={n} className="inline-block px-2 py-1 rounded-lg text-xs font-black bg-gradient-to-br from-[#FE2C55] to-[#C12045] text-white shadow-[0_2px_0_#8a1530]">
+                          <span key={n} className="inline-block px-2 py-1 rounded-lg text-xs font-black bg-gradient-to-br from-green-500 to-green-700 text-white shadow-[0_2px_0_#166534]">
                             #{String(n).padStart(2,'0')}
                           </span>
                         ))}
