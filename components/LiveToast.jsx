@@ -7,20 +7,20 @@ export default function LiveToast({ productos }) {
   const [toasts, setToasts] = useState([]);
   const idxRef = useRef(0);
 
-  useEffect(() => {
-    if (!productos?.length) return;
-    const addToast = () => {
-      const name = NAMES[Math.floor(Math.random() * NAMES.length)];
-      const prod = productos[Math.floor(Math.random() * productos.length)];
-      const num = Math.floor(Math.random() * 100) + 1;
-      const id = Date.now() + idxRef.current++;
-      setToasts(prev => [...prev, { id, name, product: prod.nombre || prod.title, numero: String(num).padStart(2,'0') }]);
-      setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 5000);
-    };
-    addToast();
-    const t = setInterval(addToast, 18000 + Math.random() * 14000);
-    return () => clearInterval(t);
-  }, [productos]);
+    useEffect(() => {
+      if (!productos?.length) return;
+      const addToast = () => {
+        const name = NAMES[Math.floor(Math.random() * NAMES.length)];
+        const prod = productos[Math.floor(Math.random() * productos.length)];
+        const num = Math.floor(Math.random() * 100) + 1;
+        const id = Date.now() + idxRef.current++;
+        setToasts(prev => [...prev, { id, name, product: prod.nombre || prod.title, numero: String(num).padStart(2,'0') }]);
+        setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 5000);
+      };
+      addToast();
+      const t = setInterval(addToast, 60000);
+      return () => clearInterval(t);
+    }, [productos]);
 
   if (!toasts.length) return null;
 
