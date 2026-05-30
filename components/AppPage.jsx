@@ -905,7 +905,7 @@ const copyAlias = (e) => {
                     let btnContent = String(b.numero).padStart(2, '0');
                     if (isSold) {
                       btnClass = 'bg-gradient-to-br from-gray-700 to-gray-800 text-red-400 cursor-not-allowed border border-red-900/50 shadow-inner';
-                      btnContent = '✕';
+                      btnContent = <span className="text-2xl font-black leading-none">✕</span>;
                     } else if (isReserved) {
                       const expiresAt = new Date(b.updated_at || b.created_at).getTime() + 10 * 60 * 1000;
                       const remaining = Math.max(0, Math.floor((expiresAt - timeNow) / 1000));
