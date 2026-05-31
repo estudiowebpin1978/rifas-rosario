@@ -4,7 +4,6 @@ import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
 import ChatBox from '@/components/ChatBox';
-import LiveToast from '@/components/LiveToast';
 import OnboardingTour from '@/components/OnboardingTour';
 import { playCoin, playCelebration, playSelect } from '@/lib/sounds';
 import { HeroSectionSkeleton } from '@/components/SkeletonLoader';
@@ -590,7 +589,6 @@ const copyAlias = (e) => {
         allBoletos={allBoletos}
         aiPromptTrigger={aiPromptTrigger}
       />
-      <LiveToast productos={allProductos.filter(p => !p.finalizado)} />
       <OnboardingTour />
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#EBEBEB] px-4 py-3 z-50 shadow-[0_-1px_6px_rgba(0,0,0,0.05)]">
