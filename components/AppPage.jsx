@@ -610,7 +610,7 @@ const copyAlias = (e) => {
             <button onClick={() => { setShowMenu(false); setShowComoFunciona(true); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">❓ Cómo Funciona?</button>
               <button onClick={() => { shareApp(); setShowMenu(false); }} className="w-full btn-3d-pink">📤 Compartir App</button>
               <button onClick={() => { setShowShare(true); setShowMenu(false); }} className="w-full btn-3d-cyan">📲 Compartir en Redes</button>
-            <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
+            <a href={'https://wa.me/' + WHATSAPP} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 Enviar comprobantes</a>
             <button onClick={() => { installApp(); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>
             <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Términos y Condiciones</a>
             <button onClick={async () => { if (supabase) { await supabase.auth.signOut(); } setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-red-500/20 text-red-400 font-bold text-lg text-center border border-red-500/30 shadow-sm hover:bg-red-500/30 transition-colors">🚪 Cerrar Sesión</button>
