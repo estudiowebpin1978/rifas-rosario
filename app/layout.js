@@ -30,7 +30,7 @@ export const metadata = {
     images: ['/logo.png'],
   },
   other: {
-    'google-site-verification': 'verification',
+    'google-site-verification': 'jkL3am77s8I6GSyhTtXWRP8b1f2ORInPYZEWAdjUA8U',
   },
 }
 
