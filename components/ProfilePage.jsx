@@ -244,7 +244,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-4 border border-green-500/30">
-          <p className="text-center font-black text-sm">💡 INVITÁ A TUS AMIGOS Y SUBÍ EN EL RANKING!</p>
+          <p className="text-center font-black text-sm">💡 INVITÁ A TUS AMIGOS! MIENTRAS MAS RAPIDO SE VENDAN LAS RIFAS MAS RAPIDO PODRIAS OBTENER TU PREMIO🎁</p>
           <button onClick={shareToWhatsApp} className="w-full mt-3 bg-green-500 text-white font-black py-3 rounded-xl">
             COMPARTIR EN WHATSAPP 💬
           </button>
