@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { isQuinielaAvailableToday, getNextSorteoDate } from '@/lib/quinielaUtils';
+import { clonarProducto } from '@/lib/clonarProducto';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -135,6 +136,11 @@ export async function POST(request) {
         const resultado = await intentarSorteoQuiniela(supabase, producto, boletosVendidos);
 
         if (resultado.completado) {
+          try {
+            await clonarProducto(supabase, producto);
+          } catch (e) {
+            console.error('Error al clonar producto:', e);
+          }
           return Response.json({
             success: true,
             data: boletoActualizado,

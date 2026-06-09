@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { clonarProducto } from '@/lib/clonarProducto';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -100,6 +101,12 @@ export async function POST(request) {
 
     if (updateError) {
       return Response.json({ error: 'Error al actualizar producto: ' + updateError.message }, { status: 500 });
+    }
+
+    try {
+      await clonarProducto(supabase, producto);
+    } catch (e) {
+      console.error('Error al clonar producto:', e);
     }
 
     return Response.json({
