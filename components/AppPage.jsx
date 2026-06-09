@@ -58,6 +58,7 @@ export default function AppPage() {
   const [receiptFile, setReceiptFile] = useState(null);
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [sorteoNotification, setSorteoNotification] = useState(null);
+  const [sorteoCompletadoNotif, setSorteoCompletadoNotif] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showImageViewer, setShowImageViewer] = useState(null);
   const [favoriteNumbers, setFavoriteNumbers] = useState({});
@@ -242,6 +243,24 @@ const copyAlias = (e) => {
   }, [allProductos]);
 
   useEffect(() => {
+    const completados = allProductos.filter(p => p.finalizado && p.ganador_num);
+    completados.forEach(p => {
+      if (!sorteoCompletadoNotif || sorteoCompletadoNotif.id !== p.id) {
+        try {
+          const shown = JSON.parse(localStorage.getItem('notif_completados') || '[]');
+          if (!shown.includes(p.id)) {
+            setSorteoCompletadoNotif(p);
+            shown.push(p.id);
+            localStorage.setItem('notif_completados', JSON.stringify(shown.slice(-50)));
+          }
+        } catch (e) {
+          if (!sorteoCompletadoNotif) setSorteoCompletadoNotif(p);
+        }
+      }
+    });
+  }, [allProductos, sorteoCompletadoNotif]);
+
+  useEffect(() => {
     if (!allBoletos || allBoletos.length === 0) return;
     const sold = allBoletos.filter(b => b.estado === 'vendido' || b.estado === 'reservado');
     if (sold.length === 0) return;
@@ -260,6 +279,7 @@ const copyAlias = (e) => {
   }, [allBoletos, allProductos]);
 
   const descartarSorteoNotification = () => setSorteoNotification(null);
+  const descartarSorteoCompletadoNotif = () => setSorteoCompletadoNotif(null);
 
   const fetchCategorias = async () => {
     try {
@@ -511,6 +531,35 @@ const copyAlias = (e) => {
                 <p className="text-lg font-black text-[#FE2C55]">QUINIELA NACIONAL NOCTURNA</p>
               </div>
               <button onClick={descartarSorteoNotification} className="w-full btn-3d-pink">
+                ENTENDIDO! ✅
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {sorteoCompletadoNotif && (
+        <div className="fixed inset-0 z-[85] flex items-end justify-center" onClick={descartarSorteoCompletadoNotif}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-md rounded-t-[2rem] p-6 bg-white shadow-2xl border-t-4 border-[#39B54A]" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-[#EBEBEB] rounded-full mx-auto mb-4"></div>
+            <div className="text-center">
+              <span className="text-6xl block mb-4 animate-bounce">🏆</span>
+              <h2 className="text-2xl font-black text-[#333]">SORTEO REALIZADO</h2>
+              <p className="text-lg font-bold mt-3 text-[#39B54A]">{sorteoCompletadoNotif.title || sorteoCompletadoNotif.nombre}</p>
+              <div className="mt-4 p-4 rounded-lg bg-[#39B54A]/10 border border-[#39B54A]/30">
+                <p className="text-sm font-bold text-[#333]">🎯 Número ganador</p>
+                <p className="text-4xl font-black text-[#39B54A] mt-1">#{String(sorteoCompletadoNotif.ganador_num).padStart(2,'0')}</p>
+                <p className="text-lg font-bold text-[#333] mt-1">{sorteoCompletadoNotif.ganador_nombre}</p>
+              </div>
+              <div className="mt-3 p-3 rounded-lg bg-[#25F4EE]/10 border border-[#25F4EE]/30">
+                <p className="font-bold text-sm text-[#333]">🀄 Método de sorteo:</p>
+                <p className="text-base font-black text-[#FE2C55]">QUINIELA NACIONAL NOCTURNA</p>
+                {sorteoCompletadoNotif.quiniela_numero && (
+                  <p className="text-xs text-gray-500 mt-1">N° Quiniela: {sorteoCompletadoNotif.quiniela_numero}</p>
+                )}
+              </div>
+              <button onClick={descartarSorteoCompletadoNotif} className="w-full mt-4 btn-3d-green">
                 ENTENDIDO! ✅
               </button>
             </div>
