@@ -559,7 +559,8 @@ export default function AdminPage() {
               <select value={formData.categoria_id} onChange={e => setFormData({...formData, categoria_id: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]">
                 <option value="">Selecciona categoria (opcional)</option>
                 {categorias.map(c => {
-                  const emoji = c.nombre === 'Tecnología' || c.nombre === 'Tecnologia' ? '💻' : c.nombre === 'Indumentaria' ? '👕' : c.nombre === 'Hogar' ? '🏠' : '🎁';
+                  const CAT_EMOJI = {'Zapatillas':'👟','Indumentaria':'👕','Belleza':'💄','Tecnología':'💻','Tecnologia':'💻','Celulares':'📱','Electrodomesticos':'🏠','Hogar y Muebles':'🛋️','Hogar':'🏠','Herramientas':'🔧','Deportes':'⚽','Juegos y Juguetes':'🎮','Bazar':'🍽️','Servicios':'📋'};
+                  const emoji = Object.entries(CAT_EMOJI).find(([k]) => c.nombre?.toLowerCase().includes(k.toLowerCase()))?.[1] || '🎁';
                   return <option key={c.id} value={c.id}>{emoji} {c.nombre}</option>;
                 })}
               </select>
@@ -787,7 +788,8 @@ export default function AdminPage() {
               <select value={showEditForm.categoria_id} onChange={e => setShowEditForm({...showEditForm, categoria_id: e.target.value})} className="w-full rounded-lg p-3 font-bold bg-white border border-[#EBEBEB] text-[#333]">
                 <option value="">Selecciona categoria (opcional)</option>
                 {categorias.map(c => {
-                  const emoji = c.nombre === 'Tecnología' || c.nombre === 'Tecnologia' ? '💻' : c.nombre === 'Indumentaria' ? '👕' : c.nombre === 'Hogar' ? '🏠' : '🎁';
+                  const CAT_EMOJI = {'Zapatillas':'👟','Indumentaria':'👕','Belleza':'💄','Tecnología':'💻','Tecnologia':'💻','Celulares':'📱','Electrodomesticos':'🏠','Hogar y Muebles':'🛋️','Hogar':'🏠','Herramientas':'🔧','Deportes':'⚽','Juegos y Juguetes':'🎮','Bazar':'🍽️','Servicios':'📋'};
+                  const emoji = Object.entries(CAT_EMOJI).find(([k]) => c.nombre?.toLowerCase().includes(k.toLowerCase()))?.[1] || '🎁';
                   return <option key={c.id} value={c.id}>{emoji} {c.nombre}</option>;
                 })}
               </select>

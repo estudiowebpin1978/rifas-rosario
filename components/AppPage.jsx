@@ -95,14 +95,26 @@ export default function AppPage() {
     return '$ ' + num.toLocaleString('es-AR') + '-';
   };
 
+  const CATEGORY_EMOJI = {
+    'zapatillas': '👟',
+    'indumentaria': '👕',
+    'belleza': '💄',
+    'tecnología': '💻',
+    'tecnologia': '💻',
+    'celulares': '📱',
+    'electrodomesticos': '🏠',
+    'hogar y muebles': '🛋️',
+    'hogar': '🏠',
+    'herramientas': '🔧',
+    'deportes': '⚽',
+    'juegos y juguetes': '🎮',
+    'bazar': '🍽️',
+    'servicios': '📋',
+  };
   const getCategoryEmoji = (catName) => {
-    const map = {
-      'Tecnologia': '💻', 'Tecnología': '💻',
-      'Indumentaria': '👕',
-      'Hogar': '🏠'
-    };
-    for (const [key, emoji] of Object.entries(map)) {
-      if (catName?.toLowerCase().includes(key.toLowerCase())) return emoji;
+    const lower = catName?.toLowerCase() || '';
+    for (const [key, emoji] of Object.entries(CATEGORY_EMOJI)) {
+      if (lower.includes(key)) return emoji;
     }
     return '🎁';
   };
@@ -812,7 +824,11 @@ const copyAlias = (e) => {
             <button onClick={() => setCategoriaActiva(null)} className={`flex-shrink-0 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 ${!categoriaActiva ? 'bg-gradient-to-r from-[#3483FA] to-blue-500 text-white shadow-lg scale-105' : 'bg-white/70 text-[#666] hover:bg-white/90 border border-[#EBEBEB] hover:shadow-md'}`}>
               🔥 Todas
             </button>
-            {categorias.map(cat => {
+            {[...categorias].sort((a,b) => {
+              const aCount = allProductos.filter(p => p.categoria_id === a.id && !p.finalizado).length;
+              const bCount = allProductos.filter(p => p.categoria_id === b.id && !p.finalizado).length;
+              return bCount - aCount;
+            }).map(cat => {
               const prodCount = allProductos.filter(p => p.categoria_id === cat.id && !p.finalizado).length;
               return (
                 <button key={cat.id} onClick={() => setCategoriaActiva(cat.id)} className={`flex-shrink-0 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 ${categoriaActiva === cat.id ? 'bg-gradient-to-r from-[#3483FA] to-blue-500 text-white shadow-lg scale-105' : 'bg-white/70 text-[#666] hover:bg-white/90 border border-[#EBEBEB] hover:shadow-md'}`}>
