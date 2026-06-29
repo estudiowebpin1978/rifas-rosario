@@ -1,5 +1,6 @@
 ﻿'use client';
 import { useState, useEffect, useRef } from 'react';
+import { trackAddToCart, trackPurchase, getConsent } from '@/lib/tracking';
 import { supabase } from '@/lib/supabaseClient';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
@@ -398,8 +399,10 @@ const copyAlias = (e) => {
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
       const numsStr = selectedNumbers.map(n => '#' + String(n).padStart(2,'0')).join(', ');
       const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio).replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
-      const total = formatPrice((precioUnit * selectedNumbers.length).toString());
+      const totalVal = precioUnit * selectedNumbers.length;
+      const total = formatPrice(totalVal.toString());
       const p = productoSeleccionado;
+      trackAddToCart(p.id, totalVal);
       const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: ' + aliasUsado + '\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago a ' + aliasUsado + ' y reservo tus numeros!\n\n') + '⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
       window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
       setTimeout(() => { setShowBulkReserva(false); setSelectedNumbers([]); fetchBoletos(productoSeleccionado.id); }, 2000);
@@ -443,6 +446,7 @@ const copyAlias = (e) => {
         playCoin();
         confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
         const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio || '0').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
+        trackAddToCart(productoSeleccionado.id, precioUnit);
         fetch('/api/pagos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -962,6 +966,22 @@ const copyAlias = (e) => {
               return null;
             })()}
             <div className="p-4">
+              <script type="application/ld+json" dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  '@context': 'https://schema.org',
+                  '@type': 'Product',
+                  name: productoSeleccionado.title || productoSeleccionado.nombre,
+                  description: productoSeleccionado.description || productoSeleccionado.descripcion || '',
+                  image: productoSeleccionado.image || productoSeleccionado.imagen || '/logo.png',
+                  offers: {
+                    '@type': 'Offer',
+                    price: productoSeleccionado.raffle_price || parseInt(String(productoSeleccionado.precio || '0').replace(/[^0-9]/g,'')),
+                    priceCurrency: 'ARS',
+                    availability: 'https://schema.org/InStock',
+                    url: 'https://eco-rifas.vercel.app/app',
+                  },
+                }),
+              }} />
               <span className="bg-[#3483FA]/10 text-[#3483FA] text-xs font-bold px-2 py-1 rounded">{productoSeleccionado.categorias?.nombre}</span>
               <h2 className="font-black text-xl mt-2 text-[#333]">{productoSeleccionado.title || productoSeleccionado.nombre}</h2>
               <p className="text-3xl font-black text-[#39B54A] mt-1">{formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio)}</p>

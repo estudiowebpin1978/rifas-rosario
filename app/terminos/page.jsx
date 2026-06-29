@@ -70,10 +70,17 @@ export default function TerminosPage() {
           </div>
 
           <div>
-            <h2 className="font-black text-lg text-[#111827] mb-2">7. PRIVACIDAD</h2>
+            <h2 className="font-black text-lg text-[#111827] mb-2">7. PRIVACIDAD Y PUBLICIDAD</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              Tus datos personales (nombre, WhatsApp) solo se usan para los fines de la rifa y no se comparten con terceros. 
+              Tus datos personales (nombre, WhatsApp) se usan exclusivamente para los fines de la rifa y no se venden ni ceden a terceros. 
               Al participar aceptas que tu nombre y numero ganador se publiquen en nuestra plataforma.
+            </p>
+            <p className="text-sm text-gray-600 leading-relaxed mt-3">
+              Esta aplicación utiliza píxeles de seguimiento de Google Ads, Meta (Facebook/Instagram) y TikTok 
+              para medir la efectividad de nuestras campañas publicitarias y mostrar anuncios relevantes. 
+              Estos píxeles recopilan datos anónimos de navegación y no identifican personalmente al usuario. 
+              Al aceptar el banner de cookies que aparece al ingresar al sitio, autorizas este uso. 
+              Podes rechazar el seguimiento en cualquier momento desde la configuracion de tu navegador.
             </p>
           </div>
 

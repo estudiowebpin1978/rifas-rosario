@@ -1,9 +1,12 @@
 import './globals.css'
+import dynamic from 'next/dynamic';
+
+const ConsentBanner = dynamic(() => import('@/components/ConsentBanner'), { ssr: false });
 
 export const metadata = {
   metadataBase: new URL('https://eco-rifas.vercel.app'),
   title: 'Eco Rifas - Los productos que amas, ahora los podes ganar en rifas economicas!',
-  description: '🔥 Participá en rifas transparentes con premios increibles. Sorteo por Quiniela Nacional. Elegí tus números de la suerte y ganá productos que amas.',
+  description: '🔥 Participá en rifas transparentes con premios increibles. Sorteo por Quiniela Nacional. Elegí tus números de la suerte y ganá!',
   manifest: '/manifest.json',
   icons: {
     icon: '/logo.png',
@@ -16,17 +19,17 @@ export const metadata = {
   },
   openGraph: {
     title: 'Eco Rifas - Ganá los productos que amas',
-    description: '🔥 Participá en rifas transparentes con premios increibles. Sorteo por Quiniela Nacional. Elegí tu número de la suerte y ganá!',
+    description: '🔥 Participá en rifas transparentes. Sorteo por Quiniela Nacional. Elegí tu número y ganá!',
     url: 'https://eco-rifas.vercel.app',
     siteName: 'Eco Rifas',
-    images: [{ url: '/logo.png', width: 512, height: 512 }],
+    images: [{ url: '/logo.png', width: 1200, height: 630 }],
     locale: 'es_AR',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Eco Rifas - Ganá los productos que amas',
-    description: '🔥 Participá en rifas transparentes con premios increibles. Sorteo por Quiniela Nacional.',
+    description: '🔥 Participá en rifas transparentes. Sorteo por Quiniela Nacional.',
     images: ['/logo.png'],
   },
   other: {
@@ -39,6 +42,7 @@ export default function RootLayout({ children }) {
     <html lang="es">
       <body className="transition-colors antialiased bg-[#F5F5F5]">
         {children}
+        <ConsentBanner />
       </body>
     </html>
   )

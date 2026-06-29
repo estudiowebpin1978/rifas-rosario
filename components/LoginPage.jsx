@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
+import { trackCompleteRegistration, trackLead } from '@/lib/tracking';
 
 export default function RifaApp() {
   const router = useRouter();
@@ -57,6 +58,7 @@ export default function RifaApp() {
         });
         if (error) setAuthError(error.message);
         else {
+          trackCompleteRegistration('email');
           setAuthSuccess('Cuenta creada! Ahora podes participar.');
           setTimeout(() => setShowAuth(false), 2000);
         }
@@ -67,6 +69,7 @@ export default function RifaApp() {
         });
         if (error) setAuthError('Email o contrasena incorrectos');
         else {
+          trackLead();
           setShowAuth(false);
           if (authForm.email === 'estudiowebpin@gmail.com') {
             router.push('/admin');
