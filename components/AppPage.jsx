@@ -256,20 +256,21 @@ const copyAlias = (e) => {
 
   useEffect(() => {
     const completados = allProductos.filter(p => p.finalizado && p.ganador_num);
-    completados.forEach(p => {
-      if (!sorteoCompletadoNotif || sorteoCompletadoNotif.id !== p.id) {
-        try {
-          const shown = JSON.parse(localStorage.getItem('notif_completados') || '[]');
-          if (!shown.includes(p.id)) {
-            setSorteoCompletadoNotif(p);
-            shown.push(p.id);
-            localStorage.setItem('notif_completados', JSON.stringify(shown.slice(-50)));
-          }
-        } catch (e) {
-          if (!sorteoCompletadoNotif) setSorteoCompletadoNotif(p);
-        }
-      }
+    const firstUnshown = completados.find(p => {
+      if (sorteoCompletadoNotif?.id === p.id) return false;
+      try {
+        const shown = JSON.parse(localStorage.getItem('notif_completados') || '[]');
+        return !shown.includes(p.id);
+      } catch { return true; }
     });
+    if (firstUnshown) {
+      try {
+        const shown = JSON.parse(localStorage.getItem('notif_completados') || '[]');
+        shown.push(firstUnshown.id);
+        localStorage.setItem('notif_completados', JSON.stringify(shown.slice(-50)));
+      } catch {}
+      setSorteoCompletadoNotif(firstUnshown);
+    }
   }, [allProductos, sorteoCompletadoNotif]);
 
   useEffect(() => {
