@@ -198,9 +198,9 @@ CREATE POLICY "pagos_mp_read_ownership" ON pagos_mp FOR SELECT
 -- 13. INSERTAR PLANES DEFAULT
 INSERT INTO planes (nombre, slug, precio_mensual, comision_pct, max_rifas, max_numeros, custom_domain, soporte_prioritario, estadisticas_avanzadas)
 VALUES
-  ('Gratis', 'free', 0, 12, 3, 100, false, false, false),
-  ('Pro', 'pro', 9999, 8, 50, 200, false, true, true),
-  ('Enterprise', 'enterprise', 29999, 5, 99999, 1000, true, true, true)
+  ('Gratis', 'free', 0, 15, 3, 100, false, false, false),
+  ('Pro', 'pro', 14999, 8, 50, 200, false, true, true),
+  ('Business', 'business', 39999, 5, 99999, 1000, true, true, true)
 ON CONFLICT (slug) DO NOTHING;
 
 -- 14. AGREGAR organization_id a productos

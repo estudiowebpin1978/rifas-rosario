@@ -58,7 +58,14 @@ export async function POST(req) {
 
           if (producto) {
             const monto = body.amount || producto.precio_boleto || 0;
-            const comision_pct = 8;
+
+            const { data: org } = await supabase
+              .from('organizaciones')
+              .select('commission_pct')
+              .eq('id', producto.organization_id)
+              .single();
+
+            const comision_pct = org?.commission_pct || 15;
             const monto_comision = Math.round(monto * comision_pct / 100);
 
             await supabase.from('pagos_organizacion').insert({

@@ -6,7 +6,7 @@ const PLANS = [
     nombre: 'Gratis',
     slug: 'free',
     precio: 0,
-    comision: '12%',
+    comision: '15%',
     rifas: '3',
     numeros: '100 por rifa',
     features: [
@@ -21,7 +21,7 @@ const PLANS = [
   {
     nombre: 'Pro',
     slug: 'pro',
-    precio: 9999,
+    precio: 14999,
     comision: '8%',
     rifas: '50',
     numeros: '200 por rifa',
@@ -39,9 +39,9 @@ const PLANS = [
     color: 'pink',
   },
   {
-    nombre: 'Enterprise',
-    slug: 'enterprise',
-    precio: 29999,
+    nombre: 'Business',
+    slug: 'business',
+    precio: 39999,
     comision: '5%',
     rifas: 'Ilimitadas',
     numeros: '1000 por rifa',
