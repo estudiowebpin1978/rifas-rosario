@@ -5,7 +5,7 @@ export const metadata = {
     title: 'Ganadores - Eco Rifas',
     description: 'Últimos ganadores de nuestras rifas. El próximo podrías ser vos!',
     url: 'https://eco-rifas.vercel.app/feed',
-    images: [{ url: '/logo.png', width: 1200, height: 630 }],
+    images: [{ url: '/og-image.svg', width: 1200, height: 630 }],
   },
 }
 

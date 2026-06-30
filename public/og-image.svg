@@ -1,0 +1,58 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a"/>
+      <stop offset="50%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0a0a0a"/>
+    </linearGradient>
+    <linearGradient id="pink" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FE2C55"/>
+      <stop offset="100%" style="stop-color:#FF6B8A"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#25F4EE"/>
+      <stop offset="100%" style="stop-color:#6CF8F5"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="100" cy="100" r="200" fill="#FE2C55" opacity="0.05"/>
+  <circle cx="1100" cy="530" r="250" fill="#25F4EE" opacity="0.05"/>
+  <circle cx="600" cy="315" r="400" fill="#FE2C55" opacity="0.03"/>
+  
+  <!-- Main content -->
+  <text x="600" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="900" fill="url(#pink)" filter="url(#glow)">ECO RIFAS</text>
+  
+  <text x="600" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#25F4EE" font-weight="700" letter-spacing="8">RAFFLE MARKETPLACE</text>
+  
+  <!-- Divider line -->
+  <rect x="400" y="290" width="400" height="2" fill="url(#cyan)" rx="1"/>
+  
+  <!-- Features -->
+  <text x="600" y="360" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" fill="white" font-weight="700">Participá en rifas de</text>
+  <text x="600" y="410" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" fill="white" font-weight="700">organizaciones verificadas</text>
+  
+  <!-- Stats -->
+  <text x="200" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="900" fill="#FE2C55">53+</text>
+  <text x="200" y="555" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#888" font-weight="600">RIFAS ACTIVAS</text>
+  
+  <text x="600" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="900" fill="#25F4EE">13</text>
+  <text x="600" y="555" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#888" font-weight="600">CATEGORÍAS</text>
+  
+  <text x="1000" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="900" fill="#FFD700">24/7</text>
+  <text x="1000" y="555" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#888" font-weight="600">SIEMPRE ACTIVA</text>
+  
+  <!-- Bottom bar -->
+  <rect x="0" y="600" width="1200" height="30" fill="url(#pink)" opacity="0.8"/>
+  <text x="600" y="620" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="white" font-weight="700" letter-spacing="3">eco-rifas.vercel.app</text>
+</svg>

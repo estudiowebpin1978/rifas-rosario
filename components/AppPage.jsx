@@ -30,6 +30,7 @@ export default function AppPage() {
   const [ganadorAnimado, setGanadorAnimado] = useState(null);
   const [showPremio, setShowPremio] = useState(false);
   const [showComoFunciona, setShowComoFunciona] = useState(false);
+  const [pagoUalaLoading, setPagoUalaLoading] = useState(false);
   const productoRef = useRef(null);
   const [showMiniAssistant, setShowMiniAssistant] = useState(false);
   const [aiPromptTrigger, setAiPromptTrigger] = useState(0);
@@ -472,6 +473,66 @@ const copyAlias = (e) => {
       alert('Error al reservar. Probá de nuevo.');
     }
     setLoading(false);
+  };
+
+  const handlePagarUala = async (isBulk = false) => {
+    if (isBulk && selectedNumbers.length > 0) {
+      setPagoUalaLoading(true);
+      try {
+        const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio || '0').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
+        const total = precioUnit * selectedNumbers.length;
+        const first = selectedNumbers[0];
+        const res = await fetch('/api/pago-uala', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            producto_id: productoSeleccionado.id,
+            boleto_id: first,
+            monto: total,
+            titulo: `${productoSeleccionado.title || productoSeleccionado.nombre} - ${selectedNumbers.length} numeros`,
+            descripcion: `Numeros: ${selectedNumbers.map(n => '#' + String(n).padStart(2,'0')).join(', ')}`,
+            quantity: 1,
+          }),
+        });
+        const data = await res.json();
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          alert('Error al crear el pago. Intentá de nuevo.');
+        }
+      } catch (e) {
+        console.error('Uala error:', e);
+        alert('Error al conectar con Uala.');
+      }
+      setPagoUalaLoading(false);
+    } else if (!isBulk && seleccionado) {
+      setPagoUalaLoading(true);
+      try {
+        const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio || '0').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
+        const res = await fetch('/api/pago-uala', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            producto_id: productoSeleccionado.id,
+            boleto_id: seleccionado,
+            monto: precioUnit,
+            titulo: `${productoSeleccionado.title || productoSeleccionado.nombre} - Numero #${String(seleccionado).padStart(2,'0')}`,
+            descripcion: `Boleto #${String(seleccionado).padStart(2,'0')}`,
+            quantity: 1,
+          }),
+        });
+        const data = await res.json();
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          alert('Error al crear el pago. Intentá de nuevo.');
+        }
+      } catch (e) {
+        console.error('Uala error:', e);
+        alert('Error al conectar con Uala.');
+      }
+      setPagoUalaLoading(false);
+    }
   };
 
   const handleSeleccionarNumero = (numero) => { setSeleccionado(numero); setShowReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); setAliasUsado(pickAlias()); confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); };
@@ -1212,7 +1273,20 @@ const copyAlias = (e) => {
                   <button disabled={loading} className="w-full btn-3d-gold disabled:opacity-50">
                     {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
                   </button>
-                  <p className="text-[10px] text-center text-gray-500">Reservá tu número y te enviamos los datos de pago por WhatsApp</p>
+                  <div className="flex items-center gap-3 my-2">
+                    <div className="flex-1 h-px bg-gray-200"></div>
+                    <span className="text-[10px] font-bold text-gray-400">O PAGÁ AHORA</span>
+                    <div className="flex-1 h-px bg-gray-200"></div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={pagoUalaLoading || !reservaForm.nombre || !reservaForm.whatsapp}
+                    onClick={() => handlePagarUala(false)}
+                    className="w-full py-3 rounded-xl font-bold text-white bg-[#6C2DC7] hover:bg-[#5a24b0] disabled:opacity-50 transition-all shadow-lg flex items-center justify-center gap-2"
+                  >
+                    {pagoUalaLoading ? '⏳ REDIRIGIENDO...' : '💳 PAGAR CON UALA'}
+                  </button>
+                  <p className="text-[10px] text-center text-gray-500">Pagá con tarjeta, transferencia o efectivo vía Uala</p>
                 </form>
               </>
             )}
@@ -1299,6 +1373,20 @@ const copyAlias = (e) => {
                   <button disabled={loading} className="w-full btn-3d-gold disabled:opacity-50">
                     {loading ? '⏳ RESERVANDO...' : '🎟️ RESERVAR Y PAGAR'}
                   </button>
+                  <div className="flex items-center gap-3 my-2">
+                    <div className="flex-1 h-px bg-gray-200"></div>
+                    <span className="text-[10px] font-bold text-gray-400">O PAGÁ AHORA</span>
+                    <div className="flex-1 h-px bg-gray-200"></div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={pagoUalaLoading || !reservaForm.nombre || !reservaForm.whatsapp}
+                    onClick={() => handlePagarUala(true)}
+                    className="w-full py-3 rounded-xl font-bold text-white bg-[#6C2DC7] hover:bg-[#5a24b0] disabled:opacity-50 transition-all shadow-lg flex items-center justify-center gap-2"
+                  >
+                    {pagoUalaLoading ? '⏳ REDIRIGIENDO...' : '💳 PAGAR CON UALA'}
+                  </button>
+                  <p className="text-[10px] text-center text-gray-500">Pagá con tarjeta, transferencia o efectivo vía Uala</p>
                   <p className="text-[10px] text-center text-gray-500">Tus números quedan reservados al enviar el comprobante</p>
                 </form>
               </>

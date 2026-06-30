@@ -22,7 +22,7 @@ export const metadata = {
     description: '🔥 Participá en rifas transparentes. Sorteo por Quiniela Nacional. Elegí tu número y ganá!',
     url: 'https://eco-rifas.vercel.app',
     siteName: 'Eco Rifas',
-    images: [{ url: '/logo.png', width: 1200, height: 630 }],
+    images: [{ url: '/og-image.svg', width: 1200, height: 630 }],
     locale: 'es_AR',
     type: 'website',
   },
@@ -30,7 +30,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Eco Rifas - Ganá los productos que amas',
     description: '🔥 Participá en rifas transparentes. Sorteo por Quiniela Nacional.',
-    images: ['/logo.png'],
+    images: ['/og-image.svg'],
   },
   other: {
     'google-site-verification': 'jkL3am77s8I6GSyhTtXWRP8b1f2ORInPYZEWAdjUA8U',

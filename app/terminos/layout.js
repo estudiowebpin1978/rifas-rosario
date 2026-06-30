@@ -5,7 +5,7 @@ export const metadata = {
     title: 'Términos y Condiciones - Eco Rifas',
     description: 'Términos, condiciones y política de privacidad de Eco Rifas.',
     url: 'https://eco-rifas.vercel.app/terminos',
-    images: [{ url: '/logo.png', width: 1200, height: 630 }],
+    images: [{ url: '/og-image.svg', width: 1200, height: 630 }],
   },
 }
 

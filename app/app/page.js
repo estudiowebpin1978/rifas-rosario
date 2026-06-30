@@ -7,7 +7,7 @@ export const metadata = {
     title: 'Eco Rifas - Todas las rifas disponibles',
     description: 'Elegí tu producto favorito y participá en rifas transparentes con sorteo por Quiniela Nacional.',
     url: 'https://eco-rifas.vercel.app/app',
-    images: [{ url: '/logo.png', width: 1200, height: 630 }],
+    images: [{ url: '/og-image.svg', width: 1200, height: 630 }],
   },
 }
 
