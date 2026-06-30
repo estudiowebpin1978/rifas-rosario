@@ -111,8 +111,12 @@ export default function RifaApp() {
             <button onClick={() => setShowMenu(false)} className="text-3xl text-white">✕</button>
           </div>
           <nav className="space-y-4">
-            <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full btn-3d-pink">👤 Mi Cuenta</button>
-            <button onClick={() => { router.push('/app'); setShowMenu(false); }} className="w-full btn-3d-cyan">🎰 Ver Rifas</button>
+            <button onClick={() => { setShowAuth(true); setAuthMode('signup'); setShowMenu(false); }} className="w-full btn-3d-pink">🚀 Creá tu rifa gratis</button>
+            <a href="/app" className="block p-4 rounded-lg bg-white/10 text-white font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">🎰 Ver Rifas</a>
+            <a href="/marketplace" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">🔍 Marketplace</a>
+            <a href="/planes" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">💎 Planes</a>
+            <a href="/afiliados" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">🤝 Afiliados</a>
+            <button onClick={() => { setShowAuth(true); setAuthMode('login'); setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">👤 Mi Cuenta</button>
             <a href={`https://wa.me/${WHATSAPP}`} target="_blank" className="block p-4 rounded-lg bg-[#39B54A] text-white font-bold text-lg text-center shadow-sm hover:bg-[#2d9e3d] transition-colors">📱 WhatsApp</a>
             <button onClick={async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') setDeferredPrompt(null); } else { try { await navigator.clipboard.writeText('https://eco-rifas.vercel.app'); alert('📲 Abrí eco-rifas.vercel.app desde tu navegador y agregala a la pantalla de inicio'); } catch { alert('📲 Abrí eco-rifas.vercel.app desde tu navegador'); } } setShowMenu(false); }} className="w-full block p-4 rounded-lg bg-gray-800 text-white font-bold text-lg text-center shadow-sm hover:bg-gray-700 transition-colors">📲 Instalar App</button>
             <a href="/terminos" className="block p-4 rounded-lg bg-white/10 text-gray-300 font-bold text-lg text-center border border-gray-700 shadow-sm hover:bg-white/20 transition-colors">📜 Terminos y Condiciones</a>
@@ -130,23 +134,59 @@ export default function RifaApp() {
             <img src="/logo.png" alt="Eco Rifas" className="w-28 h-28" />
           </div>
           <h2 className="text-4xl font-black mb-2 text-[#111827]">ECO RIFAS</h2>
-          <p className="text-lg font-medium text-[#666]">🛒 Los productos que amas · ahora en rifas economicas!</p>
+          <p className="text-lg font-medium text-[#666]">🎁 Por menos que un café podés participar por premios increíbles</p>
         </div>
 
-        <div className="space-y-4">
-          <button onClick={() => { setShowAuth(true); setAuthMode('login'); }} className="w-full btn-3d-pink text-lg">
-            🚀 Entrar a Eco Rifas
+        <div className="space-y-3">
+          <button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className="w-full btn-3d-pink text-lg">
+            🚀 Creá tu rifa gratis
           </button>
-          
-          <button onClick={() => { setShowAuth(true); setAuthMode('signup'); }} className="w-full font-bold py-4 rounded-2xl text-lg bg-white border-2 border-[#FE2C55] text-[#333] shadow-md hover:bg-[#FE2C55]/10 hover:shadow-lg transition-all active:scale-[0.98]">
-            ✨ Crear cuenta gratis
+
+          <button onClick={() => { router.push('/app'); }} className="w-full font-bold py-4 rounded-2xl text-lg bg-white border-2 border-[#3483FA] text-[#333] shadow-md hover:bg-[#3483FA]/10 hover:shadow-lg transition-all active:scale-[0.98]">
+            🎰 Ver rifas disponibles
           </button>
+
+          <a href="/planes" className="block w-full font-bold py-4 rounded-2xl text-lg bg-white border-2 border-[#EBEBEB] text-[#333] shadow-sm hover:shadow-md transition-all active:scale-[0.98] text-center">
+            💎 Ver planes y precios
+          </a>
         </div>
 
         <div className="mt-6 flex justify-center gap-3 flex-wrap">
           <span className="trust-badge">🔒 Pago Seguro</span>
           <span className="trust-badge">🀄 Sorteo Transparente</span>
           <span className="trust-badge">✅ 100% Confiable</span>
+          <span className="trust-badge">📱 Notificaciones</span>
+        </div>
+
+        <div className="mt-8 rounded-2xl p-5 bg-white border border-[#EBEBEB] shadow-sm">
+          <h2 className="text-lg font-black mb-4 text-[#111827]">✨ ¿Cómo funciona Eco Rifas?</h2>
+          <div className="space-y-3">
+            {[
+              { icon: '🎁', title: 'Elegí tu premio', desc: 'Descubrí rifas increíbles: tecnología, indumentaria, hogar y más' },
+              { icon: '🎟️', title: 'Comprá un número', desc: 'Por menos de un café, participá por premios que amás' },
+              { icon: '🀄', title: 'Sorteo transparente', desc: 'Sorteo por Quiniela Nacional Nocturna - 100% verificable' },
+              { icon: '🏆', title: '¡Ganá!', desc: 'Si tu número sale, ¡el premio es tuyo!' },
+            ].map((step, i) => (
+              <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-[#F5F5F5]">
+                <span className="text-2xl flex-shrink-0">{step.icon}</span>
+                <div>
+                  <p className="font-bold text-sm text-[#333]">{step.title}</p>
+                  <p className="text-xs text-gray-500">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-2xl p-5 bg-gradient-to-r from-[#FE2C55]/10 to-[#25F4EE]/10 border border-[#FE2C55]/20">
+          <h2 className="text-lg font-black mb-2 text-[#111827]">🚀 ¿Organizás rifas?</h2>
+          <p className="text-sm text-gray-600 mb-3">Eco Rifas es la plataforma para que clubes, escuelas, iglesias, ONGs y emprendedores organicen rifas y recauden fácil.</p>
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="bg-white rounded-xl p-2 text-center"><p className="text-lg font-black text-[#333]">2 min</p><p className="text-[10px] text-gray-500">Para crear</p></div>
+            <div className="bg-white rounded-xl p-2 text-center"><p className="text-lg font-black text-[#39B54A]">8%</p><p className="text-[10px] text-gray-500">Comisión</p></div>
+            <div className="bg-white rounded-xl p-2 text-center"><p className="text-lg font-black text-[#3483FA]">24/7</p><p className="text-[10px] text-gray-500">Automático</p></div>
+          </div>
+          <a href="/planes" className="block text-center py-3 rounded-xl font-bold bg-[#111827] text-white">Ver planes →</a>
         </div>
 
         {ganadores.length > 0 && (
@@ -174,8 +214,11 @@ export default function RifaApp() {
         )}
 
         <div className="mt-6 text-center space-y-2">
-          <a href="/app" className="block text-[#FE2C55] font-bold text-lg hover:underline">
-            Ver rifas disponibles sin cuenta →
+          <a href="/marketplace" className="block text-[#3483FA] font-bold hover:underline">
+            🔍 Explorar marketplace de organizaciones →
+          </a>
+          <a href="/afiliados" className="block text-[#39B54A] font-bold hover:underline">
+            🤝 Programa de afiliados - Ganá 10% →
           </a>
           <div className="mt-4">
             <a href="/admin" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
