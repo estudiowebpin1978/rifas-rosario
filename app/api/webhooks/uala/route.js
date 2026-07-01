@@ -52,12 +52,12 @@ export async function POST(req) {
         if (producto_id) {
           const { data: producto } = await supabase
             .from('productos')
-            .select('id, organization_id, precio_boleto')
+            .select('id, organization_id, raffle_price')
             .eq('id', producto_id)
             .single();
 
           if (producto) {
-            const monto = body.amount || producto.precio_boleto || 0;
+            const monto = body.amount || producto.raffle_price || 0;
 
             const { data: org } = await supabase
               .from('organizaciones')

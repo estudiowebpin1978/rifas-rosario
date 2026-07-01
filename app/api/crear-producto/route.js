@@ -87,9 +87,15 @@ export async function POST(request) {
     }
 
     if (organization_id) {
-      await supabase.rpc('incrementar_rifas', { org_id: organization_id }).catch(() => {
-        supabase.from('organizaciones').update({ total_rifas: (body.current_rifas || 0) + 1 }).eq('id', organization_id);
-      });
+      const { count } = await supabase
+        .from('productos')
+        .select('id', { count: 'exact', head: true })
+        .eq('organization_id', organization_id);
+
+      await supabase
+        .from('organizaciones')
+        .update({ total_rifas: count || 1 })
+        .eq('id', organization_id);
     }
 
     return Response.json({ success: true, producto });

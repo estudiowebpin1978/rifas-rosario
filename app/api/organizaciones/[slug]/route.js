@@ -19,12 +19,31 @@ export async function GET(request, { params }) {
       return Response.json({ error: 'Organización no encontrada' }, { status: 404 });
     }
 
-    const { data: productos } = await supabase
+    const { data: productosRaw } = await supabase
       .from('productos')
       .select('*, categorias!inner(id, nombre)')
       .eq('organization_id', org.id)
       .eq('finalizado', false)
       .order('created_at', { ascending: false });
+
+    const productos = [];
+    for (const p of (productosRaw || [])) {
+      const { count: vendidos } = await supabase
+        .from('boletos')
+        .select('id', { count: 'exact', head: true })
+        .eq('producto_id', p.id)
+        .eq('estado', 'pagado');
+      const { count: reservados } = await supabase
+        .from('boletos')
+        .select('id', { count: 'exact', head: true })
+        .eq('producto_id', p.id)
+        .eq('estado', 'reservado');
+      const { count: total } = await supabase
+        .from('boletos')
+        .select('id', { count: 'exact', head: true })
+        .eq('producto_id', p.id);
+      productos.push({ ...p, vendidos: vendidos || 0, reservados: reservados || 0, boletos_count: total || 100 });
+    }
 
     const { data: ganadores } = await supabase
       .from('productos')
