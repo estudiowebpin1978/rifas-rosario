@@ -4,15 +4,15 @@ import { createClient } from '@supabase/supabase-js';
 const UALA_AUTH_URL = 'https://auth.developers.ar.ua.la/v2/api/auth/token';
 const UALA_CHECKOUT_URL = 'https://checkout.developers.ar.ua.la/v2/api/checkout';
 
-async function getUalaToken() {
+async function getUalaToken(username, clientId, clientSecret) {
   const res = await fetch(UALA_AUTH_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       grant_type: 'client_credentials',
-      client_id: process.env.UALA_CLIENT_ID,
-      client_secret_id: process.env.UALA_CLIENT_SECRET,
-      username: process.env.UALA_USERNAME,
+      client_id: clientId || process.env.UALA_CLIENT_ID,
+      client_secret_id: clientSecret || process.env.UALA_CLIENT_SECRET,
+      username: username || process.env.UALA_USERNAME,
     }),
   });
   if (!res.ok) throw new Error('Uala auth failed');
@@ -39,9 +39,25 @@ export async function POST(req) {
       .eq('id', producto_id)
       .single();
 
+    let orgCredentials = null;
+    if (producto?.organization_id) {
+      const { data: org } = await supabase
+        .from('organizaciones')
+        .select('uala_username, uala_client_id, uala_client_secret, uala_connected')
+        .eq('id', producto.organization_id)
+        .single();
+      if (org?.uala_connected && org.uala_client_id) {
+        orgCredentials = org;
+      }
+    }
+
     const webhookUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://eco-rifas.vercel.app'}/api/webhooks/uala`;
 
-    const token = await getUalaToken();
+    const token = await getUalaToken(
+      orgCredentials?.uala_username,
+      orgCredentials?.uala_client_id,
+      orgCredentials?.uala_client_secret
+    );
 
     const checkoutBody = {
       referenceId: String(boleto_id),
