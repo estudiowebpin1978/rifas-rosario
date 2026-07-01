@@ -24,13 +24,12 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateOrg, setShowCreateOrg] = useState(false);
   const [showCreateRifa, setShowCreateRifa] = useState(false);
-  const [showConnectUala, setShowConnectUala] = useState(false);
+  const [showPagoConfig, setShowPagoConfig] = useState(false);
   const [activeTab, setActiveTab] = useState('rifas');
   const [orgForm, setOrgForm] = useState({ nombre: '', descripcion: '', whatsapp: '', ciudad: '' });
   const [rifaForm, setRifaForm] = useState({ nombre: '', precio: '', categoria_id: '', numbers_total: '100', imagen: '', descripcion: '' });
-  const [ualaForm, setUalaForm] = useState({ username: '', client_id: '', client_secret: '' });
+  const [pagoForm, setPagoForm] = useState({ alias_cobro: '', mp_alias: '', uala_alias: '' });
   const [creating, setCreating] = useState(false);
-  const WHATSAPP = '5493412500029';
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -47,6 +46,11 @@ export default function DashboardPage() {
       const myOrg = data.organizaciones?.find(o => o.user_id === userId);
       if (myOrg) {
         setOrg(myOrg);
+        setPagoForm({
+          alias_cobro: myOrg.alias_cobro || '',
+          mp_alias: myOrg.mp_alias || '',
+          uala_alias: myOrg.uala_alias || '',
+        });
         const orgRes = await fetch(`/api/organizaciones/${myOrg.slug}`);
         const orgData = await orgRes.json();
         setProductos(orgData.productos || []);
@@ -106,45 +110,32 @@ export default function DashboardPage() {
     setCreating(false);
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-  };
-
-  const connectUala = async (e) => {
+  const savePagoConfig = async (e) => {
     e.preventDefault();
-    if (!org || !ualaForm.username || !ualaForm.client_id || !ualaForm.client_secret) return;
+    if (!org) return;
     setCreating(true);
     try {
       const { error } = await supabase
         .from('organizaciones')
         .update({
-          uala_username: ualaForm.username,
-          uala_client_id: ualaForm.client_id,
-          uala_client_secret: ualaForm.client_secret,
-          uala_connected: true,
+          alias_cobro: pagoForm.alias_cobro || null,
+          mp_alias: pagoForm.mp_alias || null,
+          uala_alias: pagoForm.uala_alias || null,
         })
         .eq('id', org.id);
       if (error) throw error;
-      setOrg({ ...org, uala_connected: true, uala_username: ualaForm.username });
-      setShowConnectUala(false);
-      setUalaForm({ username: '', client_id: '', client_secret: '' });
-      alert('✅ Uala conectada correctamente!');
+      setOrg({ ...org, ...pagoForm });
+      setShowPagoConfig(false);
+      alert('✅ Métodos de cobro guardados!');
     } catch (e) {
-      alert('Error al conectar: ' + e.message);
+      alert('Error: ' + e.message);
     }
     setCreating(false);
   };
 
-  const disconnectUala = async () => {
-    if (!confirm('Desconectar Uala?')) return;
-    const { error } = await supabase
-      .from('organizaciones')
-      .update({ uala_connected: false, uala_username: null, uala_client_id: null, uala_client_secret: null })
-      .eq('id', org.id);
-    if (!error) {
-      setOrg({ ...org, uala_connected: false });
-    }
+  const logout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
   };
 
   const copyLink = () => {
@@ -167,17 +158,13 @@ export default function DashboardPage() {
     </div>
   );
 
-  const totalVendidos = productos.reduce((acc, p) => {
-    const total = p.boletos_count || 100;
-    const sold = p.vendidos || 0;
-    return acc + sold;
-  }, 0);
-
   const totalRecaudado = productos.reduce((acc, p) => {
     const sold = p.vendidos || 0;
     const precio = p.raffle_price || 0;
     return acc + (sold * precio);
   }, 0);
+
+  const comisionPendiente = Math.round(totalRecaudado * (org?.commission_pct || 15) / 100);
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
@@ -255,33 +242,31 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {showConnectUala && (
+      {showPagoConfig && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowConnectUala(false)} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowPagoConfig(false)} />
           <div className="relative w-full max-w-md rounded-2xl p-6 bg-white shadow-2xl border border-[#EBEBEB]">
-            <h2 className="text-2xl font-black text-[#111827] mb-2">💳 Conectar Uala</h2>
-            <p className="text-sm text-gray-500 mb-4">Los pagos van directo a tu cuenta</p>
-            <form onSubmit={connectUala} className="space-y-3">
-              <div>
-                <label className="text-xs font-bold text-gray-500 mb-1 block">Username de Uala *</label>
-                <input placeholder="Ej: miusuario123" required value={ualaForm.username} onChange={e => setUalaForm({...ualaForm, username: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#6C2DC7] outline-none" />
+            <h2 className="text-2xl font-black text-[#111827] mb-2">💰 Mis métodos de cobro</h2>
+            <p className="text-sm text-gray-500 mb-4">Completá los que uses. Los participantes verán estos datos.</p>
+            <form onSubmit={savePagoConfig} className="space-y-4">
+              <div className="bg-[#39B54A]/10 rounded-xl p-4">
+                <p className="text-xs font-bold text-[#333] mb-2">🏦 Alias para transferencia (obligatorio)</p>
+                <input placeholder="Ej: mi.alias" required value={pagoForm.alias_cobro} onChange={e => setPagoForm({...pagoForm, alias_cobro: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#39B54A] outline-none" />
+                <p className="text-[10px] text-gray-500 mt-1">Recibís transferencias desde cualquier banco o billetera</p>
               </div>
-              <div>
-                <label className="text-xs font-bold text-gray-500 mb-1 block">Client ID *</label>
-                <input placeholder="Tu Client ID de Uala" required value={ualaForm.client_id} onChange={e => setUalaForm({...ualaForm, client_id: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#6C2DC7] outline-none" />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-gray-500 mb-1 block">Client Secret *</label>
-                <input type="password" placeholder="Tu Client Secret de Uala" required value={ualaForm.client_secret} onChange={e => setUalaForm({...ualaForm, client_secret: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#6C2DC7] outline-none" />
+              <div className="bg-[#3483FA]/10 rounded-xl p-4">
+                <p className="text-xs font-bold text-[#333] mb-2">💙 Mercado Pago (opcional)</p>
+                <input placeholder="Alias de Mercado Pago" value={pagoForm.mp_alias} onChange={e => setPagoForm({...pagoForm, mp_alias: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#3483FA] outline-none" />
               </div>
               <div className="bg-[#6C2DC7]/10 rounded-xl p-4">
-                <p className="text-xs text-[#333]">🔒 Tus credenciales se guardan de forma segura y solo se usan para procesar pagos de tus rifas.</p>
+                <p className="text-xs font-bold text-[#333] mb-2">💜 Uala (opcional)</p>
+                <input placeholder="Alias de Uala" value={pagoForm.uala_alias} onChange={e => setPagoForm({...pagoForm, uala_alias: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#6C2DC7] outline-none" />
               </div>
-              <button type="submit" disabled={creating} className="w-full py-3 rounded-xl font-black text-lg bg-[#6C2DC7] text-white shadow-lg disabled:opacity-50">
-                {creating ? '⏳ CONECTANDO...' : '💳 CONECTAR UALA'}
+              <button type="submit" disabled={creating} className="w-full py-3 rounded-xl font-black text-lg bg-gradient-to-r from-[#39B54A] to-[#2d8a3a] text-white shadow-lg disabled:opacity-50">
+                {creating ? '⏳ GUARDANDO...' : '✅ GUARDAR MÉTODOS'}
               </button>
             </form>
-            <button onClick={() => setShowConnectUala(false)} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-black transition-colors">Cancelar</button>
+            <button onClick={() => setShowPagoConfig(false)} className="w-full mt-3 py-3 font-bold text-gray-400 hover:text-black transition-colors">Cancelar</button>
           </div>
         </div>
       )}
@@ -300,7 +285,7 @@ export default function DashboardPage() {
                   <p className="text-xs opacity-60 mt-1">/{org.slug}</p>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <button onClick={copyLink} className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">📋 Copiar link</button>
+                  <button onClick={copyLink} className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">📋 Link</button>
                   <button onClick={shareWhatsApp} className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">💬 Compartir</button>
                 </div>
               </div>
@@ -320,10 +305,10 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="flex gap-2 bg-white rounded-xl p-1 border border-[#EBEBEB]">
-              {['rifas', 'pagos', 'uala'].map(tab => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === tab ? 'bg-[#111827] text-white shadow' : 'text-gray-500 hover:bg-gray-100'}`}>
-                  {tab === 'rifas' ? '🎰 Mis Rifas' : tab === 'pagos' ? '💰 Comisiones' : '💳 Mi Uala'}
+            <div className="flex gap-2 bg-white rounded-xl p-1 border border-[#EBEBEB] overflow-x-auto">
+              {['rifas', 'cobro', 'pagos'].map(tab => (
+                <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all whitespace-nowrap ${activeTab === tab ? 'bg-[#111827] text-white shadow' : 'text-gray-500 hover:bg-gray-100'}`}>
+                  {tab === 'rifas' ? '🎰 Mis Rifas' : tab === 'cobro' ? '💰 Mi Cobro' : '📋 Comisión'}
                 </button>
               ))}
             </div>
@@ -372,10 +357,58 @@ export default function DashboardPage() {
               </div>
             )}
 
+            {activeTab === 'cobro' && (
+              <div className="space-y-3">
+                <div className="bg-white rounded-2xl p-6 border border-[#EBEBEB]">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-black text-lg text-[#333]">💰 Mis métodos de cobro</h3>
+                    <button onClick={() => setShowPagoConfig(true)} className="text-[#3483FA] text-sm font-bold">✏️ Editar</button>
+                  </div>
+                  {!org.alias_cobro && !org.mp_alias && !org.uala_alias ? (
+                    <div className="bg-[#FE2C55]/10 rounded-xl p-4 text-center">
+                      <p className="text-sm text-[#333] font-bold">⚠️ Configurá tus métodos de cobro</p>
+                      <p className="text-xs text-gray-500 mt-1">Los participantes necesitan saber a dónde transferir</p>
+                      <button onClick={() => setShowPagoConfig(true)} className="mt-3 px-4 py-2 rounded-xl bg-[#39B54A] text-white text-sm font-bold">Configurar ahora</button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {org.alias_cobro && (
+                        <div className="bg-[#39B54A]/10 rounded-xl p-4">
+                          <p className="text-xs font-bold text-gray-500 mb-1">🏦 Alias transferencia</p>
+                          <p className="text-lg font-black text-[#333] tracking-wider">{org.alias_cobro}</p>
+                        </div>
+                      )}
+                      {org.mp_alias && (
+                        <div className="bg-[#3483FA]/10 rounded-xl p-4">
+                          <p className="text-xs font-bold text-gray-500 mb-1">💙 Mercado Pago</p>
+                          <p className="text-lg font-black text-[#333] tracking-wider">{org.mp_alias}</p>
+                        </div>
+                      )}
+                      {org.uala_alias && (
+                        <div className="bg-[#6C2DC7]/10 rounded-xl p-4">
+                          <p className="text-xs font-bold text-gray-500 mb-1">💜 Uala</p>
+                          <p className="text-lg font-black text-[#333] tracking-wider">{org.uala_alias}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="bg-white rounded-2xl p-6 border border-[#EBEBEB]">
+                  <h3 className="font-black text-lg text-[#333] mb-2">📋 Cómo funciona</h3>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <p>1. Configurás tus alias de cobro</p>
+                    <p>2. Creás tu rifa y compartís el link</p>
+                    <p>3. Los participantes pagan a tu alias</p>
+                    <p>4. ¡El dinero es tuyo!</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'pagos' && (
               <div className="space-y-3">
                 <div className="bg-white rounded-2xl p-6 border border-[#EBEBEB]">
-                  <h3 className="font-black text-lg text-[#333] mb-3">💰 Comisión de la plataforma</h3>
+                  <h3 className="font-black text-lg text-[#333] mb-3">📋 Comisión pendiente</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-500">Total recaudado</span>
@@ -383,69 +416,27 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-500">Comisión ({org.commission_pct || 15}%)</span>
-                      <span className="font-black text-[#FE2C55]">-${Math.round(totalRecaudado * (org.commission_pct || 15) / 100).toLocaleString('es-AR')}</span>
-                    </div>
-                    <div className="border-t border-gray-100 pt-3 flex justify-between items-center">
-                      <span className="text-sm font-bold text-[#333]">Neto para vos</span>
-                      <span className="text-xl font-black text-[#39B54A]">${Math.round(totalRecaudado * (1 - (org.commission_pct || 15) / 100)).toLocaleString('es-AR')}</span>
+                      <span className="font-black text-[#FE2C55]">-${comisionPendiente.toLocaleString('es-AR')}</span>
                     </div>
                   </div>
+                </div>
+                <div className="bg-[#FE2C55]/10 rounded-2xl p-6 border border-[#FE2C55]/20">
+                  <h3 className="font-black text-lg text-[#333] mb-2">💸 Enviar comisión</h3>
+                  <p className="text-sm text-gray-600 mb-3">Transferí la comisión a este alias:</p>
+                  <div className="bg-white rounded-xl p-4 text-center">
+                    <p className="text-2xl font-black text-[#FE2C55] tracking-wider">ecorifas</p>
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-2 text-center">Alias de Eco Rifas para recibir comisiones</p>
+                  <button onClick={() => { navigator.clipboard.writeText('ecorifas'); alert('Alias copiado!'); }} className="w-full mt-3 py-3 rounded-xl font-bold bg-[#FE2C55] text-white">📋 Copiar alias</button>
                 </div>
                 <div className="bg-white rounded-2xl p-6 border border-[#EBEBEB]">
-                  <h3 className="font-black text-lg text-[#333] mb-2">📋 Cómo funciona</h3>
+                  <h3 className="font-black text-lg text-[#333] mb-2">📋 Cómo pagás la comisión</h3>
                   <div className="space-y-2 text-sm text-gray-600">
-                    <p>1. Conectás tu cuenta Uala</p>
-                    <p>2. Creás tu rifa y compartís el link</p>
-                    <p>3. Los participantes pagan vía Uala → va directo a tu cuenta</p>
-                    <p>4. La comisión se registra automáticamente</p>
-                    <p>5. Nos transferís la comisión cuando quieras</p>
+                    <p>1. Entrás acá y ves cuánto debés</p>
+                    <p>2. Transferís al alias <span className="font-bold text-[#FE2C55]">ecorifas</span></p>
+                    <p>3. Listo! Seguí participando</p>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {activeTab === 'uala' && (
-              <div className="space-y-3">
-                {org.uala_connected ? (
-                  <div className="bg-white rounded-2xl p-6 border border-[#EBEBEB]">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-[#6C2DC7]/10 flex items-center justify-center text-2xl">💳</div>
-                      <div>
-                        <p className="font-black text-[#333]">Uala Conectada</p>
-                        <p className="text-sm text-[#39B54A] font-bold">✅ Activa</p>
-                      </div>
-                    </div>
-                    <div className="bg-[#F5F5F5] rounded-xl p-4 mb-4">
-                      <p className="text-xs text-gray-500 mb-1">Tu usuario Uala</p>
-                      <p className="font-bold text-[#333]">{org.uala_username}</p>
-                    </div>
-                    <div className="bg-[#39B54A]/10 rounded-xl p-4 mb-4">
-                      <p className="text-sm text-[#333]">Los pagos van directo a tu cuenta Uala. La plataforma solo registra la comisión.</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => setShowConnectUala(true)} className="flex-1 py-3 rounded-xl font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">✏️ Editar credenciales</button>
-                      <button onClick={disconnectUala} className="py-3 px-4 rounded-xl font-bold bg-[#FE2C55]/10 text-[#FE2C55] hover:bg-[#FE2C55]/20 transition-colors">🔌 Desconectar</button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-2xl p-6 border border-[#EBEBEB] text-center">
-                    <div className="text-5xl mb-4">💳</div>
-                    <p className="font-black text-[#333] text-lg mb-2">Conectá tu Uala</p>
-                    <p className="text-sm text-gray-500 mb-6">Así los participantes pagan directo a tu cuenta</p>
-                    <button onClick={() => setShowConnectUala(true)} className="w-full py-3 rounded-xl font-black text-white bg-[#6C2DC7] hover:bg-[#5a24b0] transition-all shadow-lg">
-                      💳 CONECTAR MI UALA
-                    </button>
-                    <div className="mt-6 bg-[#F5F5F5] rounded-xl p-4 text-left">
-                      <p className="font-bold text-sm text-[#333] mb-2">📋 Necesitás tener:</p>
-                      <ul className="space-y-1 text-xs text-gray-600">
-                        <li>✅ Cuenta Uala (gratis)</li>
-                        <li>✅ Cuenta de desarrollador en Uala</li>
-                        <li>✅ Client ID y Client Secret</li>
-                      </ul>
-                      <a href="https://developers.ar.ua.la/" target="_blank" className="mt-3 inline-block text-xs text-[#6C2DC7] font-bold hover:underline">Crear cuenta de desarrollador →</a>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </>

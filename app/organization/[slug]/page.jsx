@@ -130,6 +130,44 @@ export default function OrganizationPage() {
             💬 Contactar por WhatsApp
           </a>
         )}
+
+        {(org.alias_cobro || org.mp_alias || org.uala_alias) && (
+          <div className="bg-white rounded-2xl p-5 border border-[#EBEBEB]">
+            <h3 className="font-black text-[#333] mb-3">💳 Medios de pago</h3>
+            <div className="space-y-2">
+              {org.alias_cobro && (
+                <div className="flex items-center gap-3 bg-[#39B54A]/10 rounded-xl p-3">
+                  <span className="text-xl">🏦</span>
+                  <div className="flex-1">
+                    <p className="text-[10px] text-gray-500">Alias transferencia</p>
+                    <p className="font-black text-[#333]">{org.alias_cobro}</p>
+                  </div>
+                  <button onClick={() => { navigator.clipboard.writeText(org.alias_cobro); alert('Copiado!'); }} className="text-[#39B54A] text-xs font-bold">📋 Copiar</button>
+                </div>
+              )}
+              {org.mp_alias && (
+                <div className="flex items-center gap-3 bg-[#3483FA]/10 rounded-xl p-3">
+                  <span className="text-xl">💙</span>
+                  <div className="flex-1">
+                    <p className="text-[10px] text-gray-500">Mercado Pago</p>
+                    <p className="font-black text-[#333]">{org.mp_alias}</p>
+                  </div>
+                  <button onClick={() => { navigator.clipboard.writeText(org.mp_alias); alert('Copiado!'); }} className="text-[#3483FA] text-xs font-bold">📋 Copiar</button>
+                </div>
+              )}
+              {org.uala_alias && (
+                <div className="flex items-center gap-3 bg-[#6C2DC7]/10 rounded-xl p-3">
+                  <span className="text-xl">💜</span>
+                  <div className="flex-1">
+                    <p className="text-[10px] text-gray-500">Uala</p>
+                    <p className="font-black text-[#333]">{org.uala_alias}</p>
+                  </div>
+                  <button onClick={() => { navigator.clipboard.writeText(org.uala_alias); alert('Copiado!'); }} className="text-[#6C2DC7] text-xs font-bold">📋 Copiar</button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
