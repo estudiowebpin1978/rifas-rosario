@@ -6,7 +6,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { nombre, descripcion, imagen, images, price, precio, categoria_id, numbers_total } = body;
+    const { nombre, descripcion, imagen, images, precio, categoria_id, numbers_total, organization_id } = body;
 
     if (!nombre || !precio) {
       return Response.json({ error: 'Faltan campos requeridos: nombre, precio' }, { status: 400 });
@@ -17,6 +17,33 @@ export async function POST(request) {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    if (organization_id) {
+      const { data: org } = await supabase
+        .from('organizaciones')
+        .select('id, plan')
+        .eq('id', organization_id)
+        .single();
+
+      if (!org) {
+        return Response.json({ error: 'Organización no encontrada' }, { status: 404 });
+      }
+
+      const { data: plan } = await supabase
+        .from('planes')
+        .select('max_rifas')
+        .eq('slug', org.plan || 'free')
+        .single();
+
+      const { count } = await supabase
+        .from('productos')
+        .select('id', { count: 'exact', head: true })
+        .eq('organization_id', organization_id);
+
+      if (plan && count >= (plan.max_rifas || 3)) {
+        return Response.json({ error: `Tu plan ${org.plan} permite máximo ${plan.max_rifas} rifas. Mejorá tu plan para crear más.` }, { status: 403 });
+      }
+    }
 
     const totalNumeros = parseInt(numbers_total) || 100;
     const imagesJson = Array.isArray(images) ? JSON.stringify(images.filter(Boolean)) : null;
@@ -36,9 +63,9 @@ export async function POST(request) {
         images: imagesJson,
         title: nombre,
         image: imagen || null,
-        price: parseFloat(price) || 0,
         raffle_price: precioNum,
-        numbers_total: totalNumeros
+        numbers_total: totalNumeros,
+        organization_id: organization_id || null,
       }])
       .select('id')
       .single();
@@ -57,6 +84,12 @@ export async function POST(request) {
     if (boletosError) {
       await supabase.from('productos').delete().eq('id', producto.id);
       return Response.json({ error: 'Error al crear numeros: ' + boletosError.message }, { status: 400 });
+    }
+
+    if (organization_id) {
+      await supabase.rpc('incrementar_rifas', { org_id: organization_id }).catch(() => {
+        supabase.from('organizaciones').update({ total_rifas: (body.current_rifas || 0) + 1 }).eq('id', organization_id);
+      });
     }
 
     return Response.json({ success: true, producto });

@@ -3,16 +3,31 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 
+const CATEGORIAS = [
+  'Tecnología', 'Electrodomesticos', 'Celulares', 'Hogar y Muebles',
+  'Herramientas', 'Deportes', 'Zapatillas', 'Indumentaria',
+  'Juegos y Juguetes', 'Belleza', 'Bazar', 'Servicios', 'Otros'
+];
+
+const CATEGORY_EMOJI = {
+  'Tecnología': '💻', 'Electrodomesticos': '🏠', 'Celulares': '📱',
+  'Hogar y Muebles': '🛋️', 'Herramientas': '🔧', 'Deportes': '🎲',
+  'Zapatillas': '👟', 'Indumentaria': '👕', 'Juegos y Juguetes': '🎮',
+  'Belleza': '💄', 'Bazar': '🍽️', 'Servicios': '📋', 'Otros': '📦',
+};
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [org, setOrg] = useState(null);
   const [productos, setProductos] = useState([]);
-  const [comisiones, setComisiones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateOrg, setShowCreateOrg] = useState(false);
-  const [orgForm, setOrgForm] = useState({ nombre: '', descripcion: '', whatsapp: '', ciudad: '' });
+  const [showCreateRifa, setShowCreateRifa] = useState(false);
   const [activeTab, setActiveTab] = useState('rifas');
+  const [orgForm, setOrgForm] = useState({ nombre: '', descripcion: '', whatsapp: '', ciudad: '' });
+  const [rifaForm, setRifaForm] = useState({ nombre: '', precio: '', categoria_id: '', numbers_total: '100', imagen: '', descripcion: '' });
+  const [creating, setCreating] = useState(false);
   const WHATSAPP = '5493412500029';
 
   useEffect(() => {
@@ -57,9 +72,52 @@ export default function DashboardPage() {
     }
   };
 
+  const createRifa = async (e) => {
+    e.preventDefault();
+    if (!org || !rifaForm.nombre || !rifaForm.precio) return;
+    setCreating(true);
+    try {
+      const res = await fetch('/api/crear-producto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: rifaForm.nombre,
+          descripcion: rifaForm.descripcion,
+          imagen: rifaForm.imagen || null,
+          precio: rifaForm.precio,
+          categoria_id: rifaForm.categoria_id || null,
+          numbers_total: rifaForm.numbers_total || 100,
+          organization_id: org.id,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowCreateRifa(false);
+        setRifaForm({ nombre: '', precio: '', categoria_id: '', numbers_total: '100', imagen: '', descripcion: '' });
+        loadOrg(user.id);
+      } else {
+        alert(data.error || 'Error al crear rifa');
+      }
+    } catch (e) {
+      alert('Error de conexión');
+    }
+    setCreating(false);
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     router.push('/');
+  };
+
+  const copyLink = () => {
+    const link = `${window.location.origin}/organization/${org?.slug}`;
+    navigator.clipboard.writeText(link);
+    alert('Link copiado!');
+  };
+
+  const shareWhatsApp = () => {
+    const link = `${window.location.origin}/organization/${org?.slug}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent('¡Mirá mis rifas! 🎉 ' + link)}`, '_blank');
   };
 
   if (loading) return (
@@ -70,6 +128,18 @@ export default function DashboardPage() {
       </div>
     </div>
   );
+
+  const totalVendidos = productos.reduce((acc, p) => {
+    const total = p.boletos_count || 100;
+    const sold = p.vendidos || 0;
+    return acc + sold;
+  }, 0);
+
+  const totalRecaudado = productos.reduce((acc, p) => {
+    const sold = p.vendidos || 0;
+    const precio = p.raffle_price || 0;
+    return acc + (sold * precio);
+  }, 0);
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
@@ -95,9 +165,53 @@ export default function DashboardPage() {
             <form onSubmit={createOrg} className="space-y-3">
               <input placeholder="Nombre de tu organización" required value={orgForm.nombre} onChange={e => setOrgForm({...orgForm, nombre: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" />
               <textarea placeholder="Descripción (opcional)" value={orgForm.descripcion} onChange={e => setOrgForm({...orgForm, descripcion: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" rows="2" />
-              <input placeholder="WhatsApp (opcional)" value={orgForm.whatsapp} onChange={e => setOrgForm({...orgForm, whatsapp: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" />
-              <input placeholder="Ciudad (opcional)" value={orgForm.ciudad} onChange={e => setOrgForm({...orgForm, ciudad: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" />
-              <button type="submit" className="w-full btn-3d-pink font-black text-lg">✨ CREAR ORGANIZACIÓN</button>
+              <input placeholder="WhatsApp (ej: 5493412500029)" value={orgForm.whatsapp} onChange={e => setOrgForm({...orgForm, whatsapp: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" />
+              <input placeholder="Ciudad (ej: Rosario)" value={orgForm.ciudad} onChange={e => setOrgForm({...orgForm, ciudad: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" />
+              <button type="submit" className="w-full py-3 rounded-xl font-black text-lg bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-white shadow-lg">✨ CREAR ORGANIZACIÓN</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showCreateRifa && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowCreateRifa(false)} />
+          <div className="relative w-full max-w-md rounded-2xl p-6 bg-white shadow-2xl border border-[#EBEBEB] max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-black text-[#111827] mb-2">🎰 Crear nueva rifa</h2>
+            <p className="text-sm text-gray-500 mb-4">Completá los datos de tu rifa</p>
+            <form onSubmit={createRifa} className="space-y-3">
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Nombre del producto *</label>
+                <input placeholder="Ej: Samsung Galaxy A54" required value={rifaForm.nombre} onChange={e => setRifaForm({...rifaForm, nombre: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Precio por número *</label>
+                <input type="number" placeholder="Ej: 500" required value={rifaForm.precio} onChange={e => setRifaForm({...rifaForm, precio: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Categoría</label>
+                <select value={rifaForm.categoria_id} onChange={e => setRifaForm({...rifaForm, categoria_id: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none">
+                  <option value="">Seleccionar categoría</option>
+                  {CATEGORIAS.map((c, i) => (
+                    <option key={i} value={i + 2}>{CATEGORY_EMOJI[c]} {c}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Cantidad de números</label>
+                <input type="number" placeholder="100" value={rifaForm.numbers_total} onChange={e => setRifaForm({...rifaForm, numbers_total: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">URL de imagen (opcional)</label>
+                <input placeholder="https://..." value={rifaForm.imagen} onChange={e => setRifaForm({...rifaForm, imagen: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 mb-1 block">Descripción (opcional)</label>
+                <textarea placeholder="Describí tu producto..." value={rifaForm.descripcion} onChange={e => setRifaForm({...rifaForm, descripcion: e.target.value})} className="w-full rounded-xl p-3 font-bold bg-white border border-[#EBEBEB] text-[#333] focus:border-[#FE2C55] outline-none" rows="2" />
+              </div>
+              <button type="submit" disabled={creating} className="w-full py-3 rounded-xl font-black text-lg bg-gradient-to-r from-[#FE2C55] to-[#C12045] text-white shadow-lg disabled:opacity-50">
+                {creating ? '⏳ CREANDO...' : '✨ CREAR RIFA'}
+              </button>
             </form>
           </div>
         </div>
@@ -111,39 +225,45 @@ export default function DashboardPage() {
                 <div className="w-16 h-16 rounded-xl bg-white/20 flex items-center justify-center text-2xl font-black">
                   {org.nombre?.charAt(0)}
                 </div>
-                <div>
+                <div className="flex-1">
                   <h2 className="text-xl font-black">{org.nombre}</h2>
                   <p className="text-sm opacity-80">{org.ciudad || 'Argentina'} · Plan {org.plan?.toUpperCase()}</p>
                   <p className="text-xs opacity-60 mt-1">/{org.slug}</p>
                 </div>
+                <div className="flex flex-col gap-2">
+                  <button onClick={copyLink} className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">📋 Copiar link</button>
+                  <button onClick={shareWhatsApp} className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">💬 Compartir</button>
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-3 mt-4">
                 <div className="bg-white/10 rounded-xl p-3 text-center">
-                  <p className="text-2xl font-black">{org.total_rifas || 0}</p>
+                  <p className="text-2xl font-black">{productos.length}</p>
                   <p className="text-[10px] opacity-70">Rifas</p>
                 </div>
                 <div className="bg-white/10 rounded-xl p-3 text-center">
-                  <p className="text-2xl font-black">${(org.total_recaudado || 0).toLocaleString('es-AR')}</p>
+                  <p className="text-2xl font-black">${totalRecaudado.toLocaleString('es-AR')}</p>
                   <p className="text-[10px] opacity-70">Recaudado</p>
                 </div>
                 <div className="bg-white/10 rounded-xl p-3 text-center">
-                  <p className="text-2xl font-black">{org.commission_pct || 8}%</p>
+                  <p className="text-2xl font-black">{org.commission_pct || 15}%</p>
                   <p className="text-[10px] opacity-70">Comisión</p>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-2 bg-white rounded-xl p-1 border border-[#EBEBEB]">
-              {['rifas', 'ganadores', 'pagos'].map(tab => (
+              {['rifas', 'pagos'].map(tab => (
                 <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === tab ? 'bg-[#111827] text-white shadow' : 'text-gray-500 hover:bg-gray-100'}`}>
-                  {tab === 'rifas' ? '🎰 Rifas' : tab === 'ganadores' ? '🏆 Ganadores' : '💰 Pagos'}
+                  {tab === 'rifas' ? '🎰 Mis Rifas' : '💰 Mis Ganancias'}
                 </button>
               ))}
             </div>
 
             {activeTab === 'rifas' && (
               <div className="space-y-3">
-                <a href="/app" className="block w-full btn-3d-pink text-center">+ Crear nueva rifa</a>
+                <button onClick={() => setShowCreateRifa(true)} className="w-full py-3 rounded-xl font-black text-white bg-gradient-to-r from-[#FE2C55] to-[#C12045] shadow-lg hover:shadow-xl transition-all">
+                  + CREAR NUEVA RIFA
+                </button>
                 {productos.length === 0 ? (
                   <div className="bg-white rounded-2xl p-8 text-center border border-[#EBEBEB]">
                     <p className="text-4xl mb-3">🎰</p>
@@ -151,39 +271,65 @@ export default function DashboardPage() {
                     <p className="text-sm text-gray-500 mt-1">Creá tu primera rifa para empezar a recaudar</p>
                   </div>
                 ) : (
-                  productos.map(p => (
-                    <div key={p.id} className="bg-white rounded-xl p-4 border border-[#EBEBEB] flex items-center gap-3">
-                      <img src={p.imagen || '/logo.png'} alt="" className="w-14 h-14 rounded-lg object-cover" />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-sm text-[#333] truncate">{p.title || p.nombre}</p>
-                        <p className="text-xs text-gray-500">{p.precio} · {p.categorias?.nombre || 'Sin categoría'}</p>
+                  productos.map(p => {
+                    const total = p.boletos_count || 100;
+                    const sold = p.vendidos || 0;
+                    const pct = Math.round((sold / total) * 100);
+                    return (
+                      <div key={p.id} className="bg-white rounded-xl p-4 border border-[#EBEBEB]">
+                        <div className="flex items-center gap-3">
+                          <img src={p.imagen || '/logo.png'} alt="" className="w-14 h-14 rounded-lg object-cover" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-sm text-[#333] truncate">{p.title || p.nombre}</p>
+                            <p className="text-xs text-gray-500">{p.precio} · {p.categorias?.nombre || 'Sin categoría'}</p>
+                          </div>
+                          <span className={`px-2 py-1 rounded-lg text-[10px] font-bold ${p.finalizado ? 'bg-gray-100 text-gray-400' : 'bg-[#39B54A]/10 text-[#39B54A]'}`}>
+                            {p.finalizado ? 'Finalizada' : 'Activa'}
+                          </span>
+                        </div>
+                        <div className="mt-3">
+                          <div className="flex justify-between text-[10px] text-gray-500 mb-1">
+                            <span>{sold}/{total} vendidos</span>
+                            <span>{pct}%</span>
+                          </div>
+                          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-to-r from-[#39B54A] to-[#2d8a3a] rounded-full transition-all" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
                       </div>
-                      <span className={`px-2 py-1 rounded-lg text-[10px] font-bold ${p.finalizado ? 'bg-gray-100 text-gray-400' : 'bg-[#39B54A]/10 text-[#39B54A]'}`}>
-                        {p.finalizado ? 'Finalizada' : 'Activa'}
-                      </span>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
-              </div>
-            )}
-
-            {activeTab === 'ganadores' && (
-              <div className="space-y-3">
-                <div className="bg-white rounded-2xl p-8 text-center border border-[#EBEBEB]">
-                  <p className="text-4xl mb-3">🏆</p>
-                  <p className="font-bold text-[#333]">Ganadores verificados</p>
-                  <p className="text-sm text-gray-500 mt-1">Cuando finalices una rifa, podrás subir fotos y testimonios de ganadores reales</p>
-                </div>
               </div>
             )}
 
             {activeTab === 'pagos' && (
               <div className="space-y-3">
                 <div className="bg-white rounded-2xl p-6 border border-[#EBEBEB]">
-                  <h3 className="font-black text-lg text-[#333] mb-3">💰 Tu saldo</h3>
-                  <p className="text-3xl font-black text-[#39B54A]">$0</p>
-                  <p className="text-xs text-gray-500 mt-1">Disponible para retirar</p>
-                  <button className="w-full mt-4 py-3 rounded-xl font-bold bg-gray-100 text-gray-400 cursor-not-allowed">Retirar (próximamente)</button>
+                  <h3 className="font-black text-lg text-[#333] mb-3">💰 Resumen</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Total recaudado</span>
+                      <span className="font-black text-[#39B54A]">${totalRecaudado.toLocaleString('es-AR')}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Comisión ({org.commission_pct || 15}%)</span>
+                      <span className="font-black text-[#FE2C55]">-${Math.round(totalRecaudado * (org.commission_pct || 15) / 100).toLocaleString('es-AR')}</span>
+                    </div>
+                    <div className="border-t border-gray-100 pt-3 flex justify-between items-center">
+                      <span className="text-sm font-bold text-[#333]">Neto</span>
+                      <span className="text-xl font-black text-[#39B54A]">${Math.round(totalRecaudado * (1 - (org.commission_pct || 15) / 100)).toLocaleString('es-AR')}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-6 border border-[#EBEBEB]">
+                  <h3 className="font-black text-lg text-[#333] mb-2">📋 Cómo cobrás</h3>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <p>1. Creás tu rifa y compartís el link</p>
+                    <p>2. Los participantes pagan con <span className="font-bold text-[#6C2DC7]">Uala</span></p>
+                    <p>3. La plataforma cobra automáticamente la comisión</p>
+                    <p>4. El resto es tuyo</p>
+                  </div>
                 </div>
               </div>
             )}
