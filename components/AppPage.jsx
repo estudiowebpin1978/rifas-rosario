@@ -77,6 +77,17 @@ export default function AppPage() {
   const pickAlias = () => ALIASES[Math.floor(Math.random() * ALIASES.length)];
   const URL_APP = typeof window !== 'undefined' ? window.location.origin + '/app' : 'https://eco-rifas.vercel.app/app';
 
+  const getOrgWhatsApp = () => productoSeleccionado?.organizacion?.whatsapp || WHATSAPP;
+  const getOrgAliases = () => {
+    const org = productoSeleccionado?.organizacion;
+    if (!org) return ALIASES;
+    const aliases = [];
+    if (org.alias_cobro) aliases.push(org.alias_cobro);
+    if (org.mp_alias) aliases.push(org.mp_alias);
+    if (org.uala_alias) aliases.push(org.uala_alias);
+    return aliases.length > 0 ? aliases : ALIASES;
+  };
+
   useEffect(() => {
     if (!aliasUsado) setAliasUsado(pickAlias());
     const iv = setInterval(() => setTimeNow(Date.now()), 1000);
@@ -339,7 +350,7 @@ const copyAlias = (e) => {
     playSelect();
   };
 
-  const openBulkReserva = () => { if (selectedNumbers.length > 0) { setShowBulkReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); setAliasUsado(pickAlias()); } };
+  const openBulkReserva = () => { if (selectedNumbers.length > 0) { setShowBulkReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); setAliasUsado(getOrgAliases()[0]); } };
 
   const handleBulkReserva = async (e) => {
     e.preventDefault();
@@ -405,7 +416,7 @@ const copyAlias = (e) => {
       const p = productoSeleccionado;
       trackAddToCart(p.id, totalVal);
       const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numeros reservados: ' + numsStr + '\n🎁 Producto: ' + (p.title || p.nombre) + '\n💰 Total: ' + selectedNumbers.length + ' x ' + formatPrice(p.raffle_price || p.precio) + ' = ' + total + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: ' + aliasUsado + '\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago a ' + aliasUsado + ' y reservo tus numeros!\n\n') + '⏳ Tus numeros quedan RESERVADOS por 10 minutos.';
-      window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
+      window.open('https://wa.me/' + getOrgWhatsApp() + '?text=' + encodeURIComponent(msg), '_blank');
       setTimeout(() => { setShowBulkReserva(false); setSelectedNumbers([]); fetchBoletos(productoSeleccionado.id); }, 2000);
     } else {
       alert('Error al reservar. Probá de nuevo.');
@@ -463,7 +474,7 @@ const copyAlias = (e) => {
           })
         }).catch(() => {});
         const msg = '🎟️ RIFA RESERVADA - Eco Rifas\n\n✅ Numero reservado: #' + String(seleccionado).padStart(2,'0') + '\n🎁 Producto: ' + (productoSeleccionado.title || productoSeleccionado.nombre) + '\n💰 Precio: ' + formatPrice(productoSeleccionado.raffle_price || productoSeleccionado.precio) + '\n\n👤 Nombre: ' + reservaForm.nombre + '\n📱 WhatsApp: ' + reservaForm.whatsapp + '\n\n💳 PAGÁ AHORA (Alias):\nAlias: ' + aliasUsado + '\n\n' + (receiptUrl ? '📸 Comprobante: ' + receiptUrl + '\n\n' : '📋 Enviame el comprobante de pago a ' + aliasUsado + ' y reservo tu numero!\n\n') + '⏳ Tu numero queda RESERVADO por 10 minutos.';
-        window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
+        window.open('https://wa.me/' + getOrgWhatsApp() + '?text=' + encodeURIComponent(msg), '_blank');
         setTimeout(() => { setShowReserva(false); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); }, 2000);
       } else {
         alert('Error al reservar: ' + (result.error || 'desconocido'));
@@ -535,7 +546,7 @@ const copyAlias = (e) => {
     }
   };
 
-  const handleSeleccionarNumero = (numero) => { setSeleccionado(numero); setShowReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); setAliasUsado(pickAlias()); confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); };
+  const handleSeleccionarNumero = (numero) => { setSeleccionado(numero); setShowReserva(true); setReservaForm({ nombre: '', whatsapp: '' }); setAliasUsado(getOrgAliases()[0]); confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } }); };
 
   const shareWhatsApp = () => window.open('https://wa.me/?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
   const shareX = () => window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('Mira estas rifas increibles! 🎉 ' + URL_APP));
@@ -756,7 +767,7 @@ const copyAlias = (e) => {
             <div className="space-y-4">
               <div className="flex gap-4 items-start"><span className="text-3xl">🛒</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TU PRODUCTO</p><p className="text-gray-500 text-sm">Navegá los productos populares y elegí el que más te guste. Solo 100 números por rifa.</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">2️⃣</span><div><p className="font-black text-sm text-[#333]">ELEGÍ TUS NÚMEROS</p><p className="text-gray-500 text-sm">Seleccioná del 1 al 100. Comprando más números aumentás tus chances de ganar.</p></div></div>
-              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá por transferencia a uno de estos alias: {ALIASES.join(', ')}</p></div></div>
+              <div className="flex gap-4 items-start"><span className="text-3xl">3️⃣</span><div><p className="font-black text-sm text-[#333]">RESERVÁ Y PAGÁ</p><p className="text-gray-500 text-sm">Completá tus datos y pagá por transferencia a uno de estos alias: {getOrgAliases().join(', ')}</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">🀄</span><div><p className="font-black text-sm text-[#333]">SORTEO POR QUINIENA NACIONAL NOCTURNA</p><p className="text-gray-500 text-sm">Cuando se vendan los 100 números, el ganador se define con las últimas 2 cifras del sorteo Nocturna (21hs) de la Quiniela Nacional. 100% transparente.</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">👨‍👩‍👧‍👦</span><div><p className="font-black text-sm text-[#333]">INVITÁ A TU FAMILIA Y AMIGOS</p><p className="text-gray-500 text-sm">Entre más participen, más chances tienen de ganar. Compartí la rifa con todos!</p></div></div>
               <div className="flex gap-4 items-start"><span className="text-3xl">🏆</span><div><p className="font-black text-sm text-[#333]">RECLAMÁ TU PREMIO</p><p className="text-gray-500 text-sm">Si ganaste, contactanos por WhatsApp y coordiná la entrega. Subí tu foto ganadora al chat!</p></div></div>

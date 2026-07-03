@@ -54,19 +54,40 @@ export async function GET(request) {
       }
     }
     
-    const productosConCategoria = productos.map(p => ({
+    const productosConCategoria = productos.map(p => {
+      const org = p.organization_id ? null : null; // Will be populated below
+      return {
+        ...p,
+        categorias: categorias.find(c => c.id === p.categoria_id) || null,
+        title: p.title || p.nombre,
+        description: p.description || p.descripcion,
+        image: p.image || p.imagen,
+        price: p.price || 0,
+        raffle_price: p.raffle_price || parseInt(String(p.precio || '0').replace(/[^0-9]/g,'')) || 0,
+        numbers_total: p.numbers_total || 100,
+      };
+    });
+
+    // Fetch organization data for products that have organization_id
+    const orgIds = [...new Set(productos.filter(p => p.organization_id).map(p => p.organization_id))];
+    let orgsMap = {};
+    if (orgIds.length > 0) {
+      const { data: orgs } = await supabase
+        .from('organizaciones')
+        .select('id, nombre, slug, whatsapp, alias_cobro, mp_alias, uala_alias, commission_pct')
+        .in('id', orgIds);
+      if (orgs) {
+        orgsMap = Object.fromEntries(orgs.map(o => [o.id, o]));
+      }
+    }
+
+    const productosFinales = productosConCategoria.map(p => ({
       ...p,
-      categorias: categorias.find(c => c.id === p.categoria_id) || null,
-      title: p.title || p.nombre,
-      description: p.description || p.descripcion,
-      image: p.image || p.imagen,
-      price: p.price || 0,
-      raffle_price: p.raffle_price || parseInt(String(p.precio || '0').replace(/[^0-9]/g,'')) || 0,
-      numbers_total: p.numbers_total || 100,
+      organizacion: p.organization_id ? orgsMap[p.organization_id] || null : null,
     }));
     
     return Response.json({ 
-      productos: productosConCategoria || [], 
+      productos: productosFinales || [], 
       categorias: categorias || [],
       boletos: boletos || []
     });
