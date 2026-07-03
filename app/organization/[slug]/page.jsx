@@ -131,7 +131,7 @@ export default function OrganizationPage() {
           </a>
         )}
 
-        {(org.alias_cobro || org.mp_alias || org.uala_alias) && (
+        {(org.alias_cobro || org.mp_alias || org.uala_alias) ? (
           <div className="bg-white rounded-2xl p-5 border border-[#EBEBEB]">
             <h3 className="font-black text-[#333] mb-3">💳 Medios de pago</h3>
             <div className="space-y-2">
@@ -166,6 +166,12 @@ export default function OrganizationPage() {
                 </div>
               )}
             </div>
+          </div>
+        ) : (
+          <div className="bg-[#FE2C55]/10 rounded-2xl p-5 border border-[#FE2C55]/20 text-center">
+            <p className="text-3xl mb-2">⚠️</p>
+            <p className="font-black text-[#333]">Sin métodos de cobro configurados</p>
+            <p className="text-sm text-gray-500 mt-1">El organizador aún no configuró sus datos de pago. Contactalo por WhatsApp para coordinar.</p>
           </div>
         )}
       </main>

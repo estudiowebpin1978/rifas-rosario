@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
+const ADMIN_EMAIL = 'estudiowebpin@gmail.com';
+
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -15,8 +17,8 @@ export async function POST(request) {
       return Response.json({ success: true });
     }
 
-    // Fallback: check via supabase auth with admin email
-    if (email) {
+    // Fallback: only allow admin email via supabase auth
+    if (email && email === ADMIN_EMAIL) {
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -24,12 +26,11 @@ export async function POST(request) {
           const supabase = createClient(supabaseUrl, supabaseKey);
           const { error } = await supabase.auth.signInWithPassword({ email, password });
           if (!error) {
-            // Valid admin credentials via supabase
             return Response.json({ success: true });
           }
         }
       } catch (e) {
-        // Fallback failed, continue to error
+        // Fallback failed
       }
     }
 

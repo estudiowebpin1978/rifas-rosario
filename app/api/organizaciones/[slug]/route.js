@@ -10,7 +10,7 @@ export async function GET(request, { params }) {
 
     const { data: org, error: orgError } = await supabase
       .from('organizaciones')
-      .select('*')
+      .select('id, user_id, nombre, slug, descripcion, whatsapp, email, ciudad, provincia, logo_url, plan, commission_pct, activa, total_rifas, total_recaudado, alias_cobro, mp_alias, uala_alias, uala_connected, created_at')
       .eq('slug', slug)
       .eq('activa', true)
       .single();

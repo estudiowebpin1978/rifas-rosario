@@ -69,23 +69,20 @@ export async function POST(req) {
             const monto_comision = Math.round(monto * comision_pct / 100);
 
             await supabase.from('pagos_organizacion').insert({
-              organization_id: producto.organization_id,
-              boleto_id,
-              monto_total: monto,
-              monto_comision,
-              metodo_pago: 'uala',
+              organizacion_id: producto.organization_id,
+              monto: monto,
+              metodo: 'uala',
               estado: 'completado',
-              uala_reference: referenceId,
-            });
+            }).select();
 
             await supabase.from('comisiones').insert({
-              producto_id,
-              organization_id: producto.organization_id,
+              organizacion_id: producto.organization_id,
+              producto_id: producto_id,
               monto_venta: monto,
-              porcentaje: comision_pct,
-              monto_comision,
+              comision_pct: comision_pct,
+              comision_monto: monto_comision,
               estado: 'completada',
-            });
+            }).select();
           }
         }
 
