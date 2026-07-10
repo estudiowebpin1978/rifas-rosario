@@ -10,6 +10,7 @@ export default function AfiliadosPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (!supabase) { setLoading(false); return; }
     supabase.auth.getSession().then(({ data }) => {
       if (data.session?.user) {
         setUser(data.session.user);

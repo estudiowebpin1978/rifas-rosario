@@ -32,6 +32,7 @@ export default function DashboardPage() {
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
+    if (!supabase) { setLoading(false); return; }
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session?.user) { router.push('/'); return; }
       setUser(data.session.user);

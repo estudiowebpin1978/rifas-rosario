@@ -31,12 +31,12 @@ export async function POST(request) {
         organization_id: organization_id || null,
       },
       back_urls: {
-        success: 'https://eco-rifas.vercel.app/app',
-        failure: 'https://eco-rifas.vercel.app/app',
-        pending: 'https://eco-rifas.vercel.app/app',
+        success: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://eco-rifas.vercel.app'}/app`,
+        failure: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://eco-rifas.vercel.app'}/app`,
+        pending: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://eco-rifas.vercel.app'}/app`,
       },
       auto_return: 'approved',
-      notification_url: 'https://eco-rifas.vercel.app/api/mercadopago/webhook',
+      notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://eco-rifas.vercel.app'}/api/mercadopago/webhook`,
     };
 
     const mpRes = await fetch('https://api.mercadopago.com/v1/preferences', {

@@ -43,10 +43,10 @@ export async function POST(req) {
         .eq('id', boleto_id)
         .single();
 
-      if (existing && existing.estado !== 'pagado') {
+      if (existing && existing.estado !== 'vendido') {
         await supabase
           .from('boletos')
-          .update({ estado: 'pagado' })
+          .update({ estado: 'vendido' })
           .eq('id', boleto_id);
 
         if (producto_id) {
@@ -81,7 +81,7 @@ export async function POST(req) {
               monto_venta: monto,
               comision_pct: comision_pct,
               comision_monto: monto_comision,
-              estado: 'completada',
+              estado: 'pendiente',
             }).select();
           }
         }
@@ -96,20 +96,20 @@ export async function POST(req) {
           if (producto_id && boleto) {
             const { data: config } = await supabase
               .from('rifa_config')
-              .select('auto_assign')
+              .select('*')
               .eq('producto_id', producto_id)
               .single();
 
-            if (config?.auto_assign) {
+            if (config) {
               const { data: pagados } = await supabase
                 .from('boletos')
                 .select('id')
                 .eq('producto_id', producto_id)
-                .eq('estado', 'pagado');
+                .eq('estado', 'vendido');
 
               const { data: configCompleta } = await supabase
                 .from('rifa_config')
-                .select('min_boletos')
+                .select('*')
                 .eq('producto_id', producto_id)
                 .single();
 
@@ -119,7 +119,7 @@ export async function POST(req) {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ producto_id }),
-                });
+                }).catch(() => {});
               }
             }
           }

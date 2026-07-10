@@ -65,12 +65,19 @@ export async function POST(request) {
               .single();
 
             if (prod && prod.organization_id) {
+              const { data: org } = await supabase
+                .from('organizaciones')
+                .select('commission_pct')
+                .eq('id', prod.organization_id)
+                .single();
+              const comisionPct = org?.commission_pct || 15;
               await supabase.from('comisiones').insert([{
                 organizacion_id: prod.organization_id,
                 producto_id: boleto.producto_id,
                 monto_venta: prod.raffle_price || 0,
-                comision_pct: 8,
-                comision_monto: (prod.raffle_price || 0) * 0.08,
+                comision_pct: comisionPct,
+                comision_monto: Math.round((prod.raffle_price || 0) * comisionPct / 100),
+                estado: 'pendiente',
               }]);
             }
 
@@ -87,7 +94,7 @@ export async function POST(request) {
 
     return Response.json({ ok: true });
   } catch (err) {
-    return Response.json({ ok: true, error: err.message });
+    return Response.json({ ok: false, error: err.message }, { status: 500 });
   }
 }
 

@@ -172,7 +172,7 @@ const copyAlias = (e) => {
   const shareProduct = (prod) => {
     const prodName = prod.title || prod.nombre;
     const url = URL_APP + '?p=' + prod.id;
-    const text = '🔥 MIRA ESTA RIFA!! ' + prodName + ' solo $' + formatPrice(prod.raffle_price || prod.precio) + ' - Eco Rifas 🎉';
+    const text = '🔥 MIRA ESTA RIFA!! ' + prodName + ' solo ' + formatPrice(prod.raffle_price || prod.precio) + ' - Eco Rifas 🎉';
     if (navigator.share) {
       try { navigator.share({ title: 'Eco Rifas - ' + prodName, text, url }); return; } catch {}
     }
@@ -243,7 +243,7 @@ const copyAlias = (e) => {
 
   useEffect(() => { productoRef.current = productoSeleccionado; }, [productoSeleccionado]);
   useEffect(() => { fetchProductos(); }, [categoriaActiva]);
-  useEffect(() => { if (productoSeleccionado) { fetchBoletos(productoSeleccionado.id); window.scrollTo({ top: 0, behavior: 'smooth' }); } }, [productoSeleccionado]);
+  useEffect(() => { if (productoSeleccionado) { setSelectedNumbers([]); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); window.scrollTo({ top: 0, behavior: 'smooth' }); } }, [productoSeleccionado]);
 
   useEffect(() => {
     if (toastMsg) {
@@ -492,13 +492,14 @@ const copyAlias = (e) => {
       try {
         const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio || '0').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
         const total = precioUnit * selectedNumbers.length;
-        const first = selectedNumbers[0];
+        const firstNumero = selectedNumbers[0];
+        const firstBoleto = boletos.find(b => b.numero === firstNumero);
         const res = await fetch('/api/pago-uala', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             producto_id: productoSeleccionado.id,
-            boleto_id: first,
+            boleto_id: firstBoleto?.id || firstNumero,
             monto: total,
             titulo: `${productoSeleccionado.title || productoSeleccionado.nombre} - ${selectedNumbers.length} numeros`,
             descripcion: `Numeros: ${selectedNumbers.map(n => '#' + String(n).padStart(2,'0')).join(', ')}`,
@@ -520,12 +521,13 @@ const copyAlias = (e) => {
       setPagoUalaLoading(true);
       try {
         const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio || '0').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
+        const selectedBoleto = boletos.find(b => b.numero === seleccionado);
         const res = await fetch('/api/pago-uala', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             producto_id: productoSeleccionado.id,
-            boleto_id: seleccionado,
+            boleto_id: selectedBoleto?.id || seleccionado,
             monto: precioUnit,
             titulo: `${productoSeleccionado.title || productoSeleccionado.nombre} - Numero #${String(seleccionado).padStart(2,'0')}`,
             descripcion: `Boleto #${String(seleccionado).padStart(2,'0')}`,
