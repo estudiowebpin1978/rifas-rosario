@@ -30,7 +30,7 @@ export async function POST(request) {
           payment_id: String(paymentId),
           boleto_id: data?.metadata?.boleto_id || null,
           producto_id: data?.metadata?.producto_id || null,
-          organization_id: data?.metadata?.organization_id || null,
+          organizacion_id: data?.metadata?.organization_id || null,
           monto: data?.transaction_amount || 0,
           estado: data?.status === 'approved' ? 'aprobado' : data?.status || 'pendiente',
           metadata: data || {},

@@ -97,12 +97,20 @@ export async function POST(request) {
     }
 
     if (referido_por) {
-      await supabase.from('referidos').insert([{
-        afiliado_id: null,
-        organizacion_id: org.id,
-        user_id,
-        estado: 'convertido',
-      }]);
+      const { data: afiliado } = await supabase
+        .from('afiliados')
+        .select('id')
+        .eq('codigo', referido_por)
+        .single();
+
+      if (afiliado) {
+        await supabase.from('referidos').insert([{
+          afiliado_id: afiliado.id,
+          organizacion_id: org.id,
+          user_id,
+          estado: 'convertido',
+        }]);
+      }
     }
 
     return Response.json({ success: true, organizacion: org });

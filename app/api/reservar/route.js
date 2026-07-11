@@ -38,7 +38,8 @@ export async function POST(request) {
       .update({ 
         estado: 'reservado', 
         nombre: nombre || '', 
-        whatsapp: whatsapp || '' 
+        whatsapp: whatsapp || '',
+        updated_at: new Date().toISOString()
       })
       .eq('id', existing.id)
       .eq('estado', 'disponible')

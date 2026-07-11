@@ -32,7 +32,7 @@ export async function GET(request, { params }) {
         .from('boletos')
         .select('id', { count: 'exact', head: true })
         .eq('producto_id', p.id)
-        .eq('estado', 'pagado');
+        .eq('estado', 'vendido');
       const { count: reservados } = await supabase
         .from('boletos')
         .select('id', { count: 'exact', head: true })
