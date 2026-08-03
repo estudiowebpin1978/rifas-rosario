@@ -1,6 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAuth } from '@/lib/auth';
 
 export async function POST(request) {
+  try {
+    await requireAuth(request);
+  } catch (e) {
+    return e;
+  }
+
   try {
     const body = await request.json();
     const { numero, producto_id, nombre, whatsapp } = body;
@@ -35,9 +42,9 @@ export async function POST(request) {
 
     const { data, error } = await supabase
       .from('boletos')
-      .update({ 
-        estado: 'reservado', 
-        nombre: nombre || '', 
+      .update({
+        estado: 'reservado',
+        nombre: nombre || '',
         whatsapp: whatsapp || '',
         updated_at: new Date().toISOString()
       })
@@ -47,7 +54,7 @@ export async function POST(request) {
       .single();
 
     if (error) {
-      return Response.json({ error: error.message, details: error }, { status: 500 });
+      return Response.json({ error: 'Error al reservar boleto' }, { status: 500 });
     }
 
     if (!data) {
@@ -55,7 +62,7 @@ export async function POST(request) {
     }
 
     return Response.json({ success: true, data });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

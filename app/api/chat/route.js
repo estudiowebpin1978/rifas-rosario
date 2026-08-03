@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAuth } from '@/lib/auth';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -25,16 +26,22 @@ export async function GET(request) {
       .range(offset, offset + limit - 1);
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 400 });
+      return Response.json({ error: 'Error al obtener mensajes' }, { status: 400 });
     }
 
     return Response.json({ messages: messages || [] });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
 
 export async function POST(request) {
+  try {
+    await requireAuth(request);
+  } catch (e) {
+    return e;
+  }
+
   try {
     const body = await request.json();
     const { user_id, user_name, message, image_url, producto_id, whatsapp } = body;
@@ -61,7 +68,7 @@ export async function POST(request) {
       .insert([{
         user_id: user_id || null,
         user_name: user_name || 'Anónimo',
-        message: message || null,
+        message: message?.slice(0, 1000) || null,
         image_url: image_url || null,
         producto_id: producto_id ? parseInt(producto_id) : null,
         is_winner: is_winner
@@ -70,11 +77,11 @@ export async function POST(request) {
       .single();
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 400 });
+      return Response.json({ error: 'Error al enviar mensaje' }, { status: 400 });
     }
 
     return Response.json({ success: true, message: data });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

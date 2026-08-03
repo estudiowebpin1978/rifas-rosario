@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/lib/supabaseClient';
+import { authFetch } from '@/lib/authFetch';
 import { generarMensajeGanador, generarMensajeAdmin, generarMensajeSorteoProgramado, abrirWhatsAppAdmin, abrirWhatsAppNumero } from '@/lib/notificaciones';
 
 export default function AdminPage() {
@@ -78,16 +79,12 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isLoggedIn) fetchPagos(pagosFiltro);
-  }, [isLoggedIn, refreshKey]);
-
-  useEffect(() => {
-    if (isLoggedIn) fetchPagos(pagosFiltro);
-  }, [pagosFiltro]);
+  }, [isLoggedIn, refreshKey, pagosFiltro]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/productos?_=' + Date.now());
+      const res = await authFetch('/api/productos?_=' + Date.now());
       const result = await res.json();
       if (result.productos) setProductos(result.productos);
       if (result.categorias) setCategorias(result.categorias);
@@ -107,7 +104,7 @@ export default function AdminPage() {
     try {
       const params = new URLSearchParams();
       if (estado && estado !== 'todos') params.set('estado', estado);
-      const res = await fetch('/api/pagos?' + params.toString());
+      const res = await authFetch('/api/pagos?' + params.toString());
       const result = await res.json();
       if (result.success) setPagosData(result.data);
     } catch (err) { console.error('Error fetching pagos:', err); }
@@ -151,7 +148,7 @@ export default function AdminPage() {
     const uploadFormData = new FormData();
     uploadFormData.append('image', file);
     try {
-      const res = await fetch('/api/upload-image', { method: 'POST', body: uploadFormData });
+      const res = await authFetch('/api/upload-image', { method: 'POST', body: uploadFormData });
       const data = await res.json();
       if (data.url) {
         const newImages = [...formData.images];
@@ -177,7 +174,7 @@ export default function AdminPage() {
       numbers_total: parseInt(formData.numbers_total) || 100
     };
     try {
-      const res = await fetch('/api/crear-producto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(productoData) });
+      const res = await authFetch('/api/crear-producto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(productoData) });
       const result = await res.json();
       if (!res.ok) alert('Error: ' + (result.error || 'Error desconocido'));
       else {
@@ -193,7 +190,7 @@ export default function AdminPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/actualizar-producto', {
+      const res = await authFetch('/api/actualizar-producto', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -221,7 +218,7 @@ export default function AdminPage() {
   const eliminarProducto = async (id, nombre) => {
     if (!confirm(`Eliminar "${nombre}"?\n\nEsto eliminará el producto y sus 100 números.`)) return;
     try {
-      const res = await fetch(`/api/productos?id=${id}`, { method: 'DELETE' });
+      const res = await authFetch(`/api/productos?id=${id}`, { method: 'DELETE' });
       if (res.ok) fetchData();
       else alert('Error al eliminar');
     } catch (err) { alert('Error'); }
@@ -230,7 +227,7 @@ export default function AdminPage() {
   const regenerarBoletos = async (productoId, nombre) => {
     if (!confirm(`¿Regenerar números para "${nombre}"?\n\nSolo se crearán si el producto no tiene números.`)) return;
     try {
-      const res = await fetch('/api/generar-boletos', {
+      const res = await authFetch('/api/generar-boletos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ producto_id: productoId })
@@ -247,7 +244,7 @@ export default function AdminPage() {
 
   const confirmarVenta = async (boleto) => {
     try {
-      const res = await fetch('/api/confirmar-pago', {
+      const res = await authFetch('/api/confirmar-pago', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ boleto_id: boleto.id, action: 'confirmar' })
@@ -259,7 +256,7 @@ export default function AdminPage() {
         setNotif(`✅ Venta confirmada! #${String(boleto.numero).padStart(2,'0')} - ${boleto.nombre}`);
         setShowConfirmModal(null);
         fetchData();
-        fetch('/api/pagos', {
+        authFetch('/api/pagos', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ boleto_id: boleto.id, estado: 'confirmado' })
@@ -333,7 +330,7 @@ export default function AdminPage() {
   const cancelarReserva = async (boleto) => {
     if (!confirm(`Cancelar reserva #${boleto.numero}?\n\nEl número volverá a estar disponible.`)) return;
     try {
-      const res = await fetch('/api/confirmar-pago', {
+      const res = await authFetch('/api/confirmar-pago', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ boleto_id: boleto.id, action: 'cancelar' })
@@ -343,7 +340,7 @@ export default function AdminPage() {
       if (result.success) {
         setNotif(`❌ Reserva cancelada #${boleto.numero}`);
         fetchData();
-        fetch('/api/pagos', {
+        authFetch('/api/pagos', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ boleto_id: boleto.id, estado: 'cancelado' })
@@ -622,7 +619,7 @@ export default function AdminPage() {
                       )}
                     </div>
                   </div>
-                  {vend >= 100 && !p.finalizado && (
+                  {vend >= totalNums && !p.finalizado && (
                     <div className="mt-3 space-y-2">
                       <div className="bg-[#39B54A] text-white text-center py-2 rounded-lg font-bold text-sm shadow-sm animate-pulse">🎉 TODOS VENDIDOS - LISTO PARA SORTEAR</div>
                       <button
@@ -813,7 +810,7 @@ export default function AdminPage() {
                               if (!file) return;
                               const fd = new FormData();
                               fd.append('image', file);
-                              const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+                              const res = await authFetch('/api/upload-image', { method: 'POST', body: fd });
                               const data = await res.json();
                               if (data.url) {
                                 const newImages = [...showEditForm.images];
@@ -888,7 +885,7 @@ export default function AdminPage() {
                   onClick={async () => {
                     setSorteando(true);
                     try {
-                      const res = await fetch('/api/sortear', {
+                      const res = await authFetch('/api/sortear', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ producto_id: showSorteoModal.id, metodo: 'quiniela' })
@@ -952,7 +949,7 @@ export default function AdminPage() {
                 {showPagoDetail.estado === 'pendiente' && (
                   <>
                     <button onClick={async () => {
-                      const res = await fetch('/api/pagos', {
+                      const res = await authFetch('/api/pagos', {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ id: showPagoDetail.id, estado: 'confirmado' })
@@ -962,7 +959,7 @@ export default function AdminPage() {
                       else alert('Error: ' + result.error);
                     }} className="flex-1 bg-[#39B54A] text-white py-3 rounded-lg font-bold text-sm">✅ Confirmar</button>
                     <button onClick={async () => {
-                      const res = await fetch('/api/pagos', {
+                      const res = await authFetch('/api/pagos', {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ id: showPagoDetail.id, estado: 'cancelado' })

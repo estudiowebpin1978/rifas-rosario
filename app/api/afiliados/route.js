@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAuth } from '@/lib/auth';
+import crypto from 'crypto';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -6,7 +8,8 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 function generateCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = 'ER-';
-  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  const randomBytes = crypto.randomBytes(8);
+  for (let i = 0; i < 8; i++) code += chars[randomBytes[i] % chars.length];
   return code;
 }
 
@@ -32,12 +35,18 @@ export async function GET(request) {
       .eq('afiliado_id', afiliado.id);
 
     return Response.json({ afiliado, referidos_count: referidosCount || 0 });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
 
 export async function POST(request) {
+  try {
+    await requireAuth(request);
+  } catch (e) {
+    return e;
+  }
+
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const body = await request.json();
@@ -72,10 +81,10 @@ export async function POST(request) {
       .select()
       .single();
 
-    if (error) return Response.json({ error: error.message }, { status: 400 });
+    if (error) return Response.json({ error: 'Error al crear afiliado' }, { status: 400 });
 
     return Response.json({ success: true, afiliado });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

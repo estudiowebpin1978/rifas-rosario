@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { trackAddToCart, trackPurchase, getConsent } from '@/lib/tracking';
 import { supabase } from '@/lib/supabaseClient';
+import { authFetch } from '@/lib/authFetch';
 import confetti from 'canvas-confetti';
 import { useRouter } from 'next/navigation';
 import ChatBox from '@/components/ChatBox';
@@ -215,9 +216,7 @@ const copyAlias = (e) => {
         setCurrentUser(data.session?.user || null);
       }).catch(() => {});
     }
-    fetchCategorias();
     fetchProductos();
-    fetchGanadores();
     loadFavorites();
 
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); setDeferredPrompt(e); });
@@ -226,23 +225,25 @@ const copyAlias = (e) => {
       try {
         const sub = supabase.channel('cambios').on('postgres_changes', { event: '*', schema: 'public', table: 'boletos' }, () => {
           fetchProductos();
-          fetchGanadores();
           if (productoRef.current) fetchBoletos(productoRef.current.id);
         }).on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => {
           fetchProductos();
-          fetchGanadores();
         }).subscribe();
         return () => { supabase.removeChannel(sub); };
       } catch (e) { 
         console.log('Realtime no disponible, usando polling');
-        const iv2 = setInterval(() => { fetchProductos(); fetchCategorias(); fetchGanadores(); }, 8000);
+        const iv2 = setInterval(() => { fetchProductos(); }, 8000);
         return () => { clearInterval(iv2); };
       }
     }
   }, []);
 
   useEffect(() => { productoRef.current = productoSeleccionado; }, [productoSeleccionado]);
-  useEffect(() => { fetchProductos(); }, [categoriaActiva]);
+  useEffect(() => {
+    if (allProductos.length > 0) {
+      setProductos(categoriaActiva ? allProductos.filter(p => p.categoria_id === categoriaActiva) : allProductos.filter(p => !p.finalizado));
+    }
+  }, [categoriaActiva]);
   useEffect(() => { if (productoSeleccionado) { setSelectedNumbers([]); setSeleccionado(null); fetchBoletos(productoSeleccionado.id); window.scrollTo({ top: 0, behavior: 'smooth' }); } }, [productoSeleccionado]);
 
   useEffect(() => {
@@ -307,23 +308,17 @@ const copyAlias = (e) => {
   const descartarSorteoNotification = () => setSorteoNotification(null);
   const descartarSorteoCompletadoNotif = () => setSorteoCompletadoNotif(null);
 
-  const fetchCategorias = async () => {
-    try {
-      const res = await fetch('/api/productos');
-      const result = await res.json();
-      setCategorias(result.categorias || []);
-    } catch (err) { console.error('Error:', err); }
-  };
-
   const fetchProductos = async () => {
     try {
       const res = await fetch('/api/productos');
       const result = await res.json();
-      setAllProductos(result.productos || []);
-      setAllBoletos(result.boletos || []);
-      if (result.productos) {
-        setProductos(categoriaActiva ? result.productos.filter(p => p.categoria_id === categoriaActiva) : result.productos.filter(p => !p.finalizado));
-      }
+      const prods = result.productos || [];
+      const bols = result.boletos || [];
+      setAllProductos(prods);
+      setAllBoletos(bols);
+      setCategorias(result.categorias || []);
+      setProductos(categoriaActiva ? prods.filter(p => p.categoria_id === categoriaActiva) : prods.filter(p => !p.finalizado));
+      setGanadores(prods.filter(p => p.finalizado).slice(0, 5));
       setDataLoading(false);
     } catch (err) { console.error('Error:', err); setProductos([]); setDataLoading(false); }
   };
@@ -333,14 +328,6 @@ const copyAlias = (e) => {
       const res = await fetch('/api/productos');
       const result = await res.json();
       if (result.boletos) setBoletos(result.boletos.filter(b => b.producto_id === productoId));
-    } catch (err) { console.error('Error:', err); }
-  };
-
-  const fetchGanadores = async () => {
-    try {
-      const res = await fetch('/api/productos');
-      const result = await res.json();
-      if (result.productos) setGanadores(result.productos.filter(p => p.finalizado).slice(0, 5));
     } catch (err) { console.error('Error:', err); }
   };
 
@@ -362,7 +349,7 @@ const copyAlias = (e) => {
       const fd = new FormData();
       fd.append('image', receiptFile);
       try {
-        const uploadRes = await fetch('/api/upload-image', { method: 'POST', body: fd });
+        const uploadRes = await authFetch('/api/upload-image', { method: 'POST', body: fd });
         const uploadData = await uploadRes.json();
         if (uploadData.success) receiptUrl = uploadData.url;
       } catch (e) { console.log('Error subiendo comprobante'); }
@@ -372,7 +359,7 @@ const copyAlias = (e) => {
     let successful = 0;
     for (const num of selectedNumbers) {
       try {
-        const res = await fetch('/api/reservar', {
+        const res = await authFetch('/api/reservar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -386,7 +373,7 @@ const copyAlias = (e) => {
         if (result.success) {
           successful++;
           const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio || '0').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
-          fetch('/api/pagos', {
+          authFetch('/api/pagos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -434,7 +421,7 @@ const copyAlias = (e) => {
       const fd = new FormData();
       fd.append('image', receiptFile);
       try {
-        const uploadRes = await fetch('/api/upload-image', { method: 'POST', body: fd });
+        const uploadRes = await authFetch('/api/upload-image', { method: 'POST', body: fd });
         const uploadData = await uploadRes.json();
         if (uploadData.success) receiptUrl = uploadData.url;
       } catch (e) { console.log('Error subiendo comprobante'); }
@@ -442,7 +429,7 @@ const copyAlias = (e) => {
     }
     
     try {
-      const res = await fetch('/api/reservar', {
+      const res = await authFetch('/api/reservar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -459,7 +446,7 @@ const copyAlias = (e) => {
         confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
         const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio || '0').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
         trackAddToCart(productoSeleccionado.id, precioUnit);
-        fetch('/api/pagos', {
+        authFetch('/api/pagos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -494,7 +481,7 @@ const copyAlias = (e) => {
         const total = precioUnit * selectedNumbers.length;
         const firstNumero = selectedNumbers[0];
         const firstBoleto = boletos.find(b => b.numero === firstNumero);
-        const res = await fetch('/api/pago-uala', {
+        const res = await authFetch('/api/pago-uala', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -522,7 +509,7 @@ const copyAlias = (e) => {
       try {
         const precioUnit = productoSeleccionado.raffle_price || parseFloat(String(productoSeleccionado.precio || '0').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.'));
         const selectedBoleto = boletos.find(b => b.numero === seleccionado);
-        const res = await fetch('/api/pago-uala', {
+        const res = await authFetch('/api/pago-uala', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1052,9 +1039,9 @@ const copyAlias = (e) => {
                     price: productoSeleccionado.raffle_price || parseInt(String(productoSeleccionado.precio || '0').replace(/[^0-9]/g,'')),
                     priceCurrency: 'ARS',
                     availability: 'https://schema.org/InStock',
-                    url: 'https://eco-rifas.vercel.app/app',
+                    url: (typeof window !== 'undefined' ? window.location.origin : 'https://eco-rifas.vercel.app') + '/app',
                   },
-                }),
+                }).replace(/<\//g, '<\\/'),
               }} />
               <span className="bg-[#3483FA]/10 text-[#3483FA] text-xs font-bold px-2 py-1 rounded">{productoSeleccionado.categorias?.nombre}</span>
               <h2 className="font-black text-xl mt-2 text-[#333]">{productoSeleccionado.title || productoSeleccionado.nombre}</h2>

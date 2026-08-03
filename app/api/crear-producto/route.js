@@ -1,9 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/auth';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export async function POST(request) {
+  try {
+    await requireAdmin(request);
+  } catch (e) {
+    return e;
+  }
+
   try {
     const body = await request.json();
     const { nombre, descripcion, imagen, images, precio, categoria_id, numbers_total, organization_id } = body;
@@ -45,7 +52,7 @@ export async function POST(request) {
       }
     }
 
-    const totalNumeros = parseInt(numbers_total) || 100;
+    const totalNumeros = Math.min(parseInt(numbers_total) || 100, 1000);
     const imagesJson = Array.isArray(images) ? JSON.stringify(images.filter(Boolean)) : null;
     const precioNum = parseFloat(precio) || 0;
     const precioFormatted = '$ ' + precioNum.toLocaleString('es-AR') + '-';
@@ -71,7 +78,7 @@ export async function POST(request) {
       .single();
 
     if (errorProducto) {
-      return Response.json({ error: 'Error al crear producto: ' + errorProducto.message }, { status: 400 });
+      return Response.json({ error: 'Error al crear producto' }, { status: 400 });
     }
 
     const boletosInsert = [];
@@ -83,7 +90,7 @@ export async function POST(request) {
 
     if (boletosError) {
       await supabase.from('productos').delete().eq('id', producto.id);
-      return Response.json({ error: 'Error al crear numeros: ' + boletosError.message }, { status: 400 });
+      return Response.json({ error: 'Error al crear numeros' }, { status: 400 });
     }
 
     if (organization_id) {
@@ -99,7 +106,7 @@ export async function POST(request) {
     }
 
     return Response.json({ success: true, producto });
-  } catch (err) {
-    return Response.json({ error: 'Error interno: ' + err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

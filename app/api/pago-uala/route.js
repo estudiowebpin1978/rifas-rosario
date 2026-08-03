@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireAuth } from '@/lib/auth';
 
 const UALA_AUTH_URL = 'https://auth.developers.ar.ua.la/v2/api/auth/token';
 const UALA_CHECKOUT_URL = 'https://checkout.developers.ar.ua.la/v2/api/checkout';
@@ -22,6 +23,12 @@ async function getUalaToken(username, clientId, clientSecret) {
 
 export async function POST(req) {
   try {
+    await requireAuth(req);
+  } catch (e) {
+    return e;
+  }
+
+  try {
     const { producto_id, boleto_id, monto, titulo, descripcion, quantity } = await req.json();
 
     if (!producto_id || !boleto_id || !monto) {
@@ -35,12 +42,18 @@ export async function POST(req) {
 
     const { data: producto } = await supabase
       .from('productos')
-      .select('id, organization_id')
+      .select('id, organization_id, raffle_price')
       .eq('id', producto_id)
       .single();
 
+    if (!producto) {
+      return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+    }
+
+    const serverMonto = producto.raffle_price || monto;
+
     let orgCredentials = null;
-    if (producto?.organization_id) {
+    if (producto.organization_id) {
       const { data: org } = await supabase
         .from('organizaciones')
         .select('uala_username, uala_client_id, uala_client_secret, uala_connected')
@@ -63,7 +76,7 @@ export async function POST(req) {
       referenceId: String(boleto_id),
       externalReference: String(producto_id),
       concept: titulo || 'Boleto EcoRifas',
-      amount: monto,
+      amount: serverMonto,
       quantity: quantity || 1,
       currency: 'ARS',
       webhook: {
@@ -86,9 +99,8 @@ export async function POST(req) {
     });
 
     if (!res.ok) {
-      const errText = await res.text();
-      console.error('Uala checkout error:', errText);
-      return NextResponse.json({ error: 'Error creating checkout', details: errText }, { status: 500 });
+      console.error('Uala checkout error:', res.status);
+      return NextResponse.json({ error: 'Error al crear checkout' }, { status: 500 });
     }
 
     const data = await res.json();
@@ -97,8 +109,7 @@ export async function POST(req) {
       checkoutUrl: data.checkoutUrl || data.init_point || data.redirect_url,
       id: data.id,
     });
-  } catch (e) {
-    console.error('Pago Uala error:', e);
-    return NextResponse.json({ error: e.message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

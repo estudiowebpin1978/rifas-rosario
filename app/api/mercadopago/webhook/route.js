@@ -93,8 +93,8 @@ export async function POST(request) {
     }
 
     return Response.json({ ok: true });
-  } catch (err) {
-    return Response.json({ ok: false, error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ ok: true });
   }
 }
 

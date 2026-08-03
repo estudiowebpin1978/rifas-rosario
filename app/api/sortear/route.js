@@ -1,10 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/auth';
 import { clonarProducto } from '@/lib/clonarProducto';
+import crypto from 'crypto';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export async function POST(request) {
+  try {
+    await requireAdmin(request);
+  } catch (e) {
+    return e;
+  }
+
   try {
     const body = await request.json();
     const { producto_id, metodo } = body;
@@ -47,7 +55,9 @@ export async function POST(request) {
 
     if (metodo === 'quiniela' || producto.metodo_sorteo === 'quiniela') {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(request.url).origin;
-      const quinielaRes = await fetch(`${baseUrl}/api/quiniela`);
+      const quinielaRes = await fetch(`${baseUrl}/api/quiniela`, {
+        signal: AbortSignal.timeout(10000)
+      });
 
       if (quinielaRes.ok) {
         const quinielaData = await quinielaRes.json();
@@ -59,7 +69,8 @@ export async function POST(request) {
 
           if (!ganador) {
             const msg = `La Quiniela Nocturna dio el #${String(numeroGanador).padStart(2, '0')} pero ese boleto no fue vendido. Se usara sorteo aleatorio.`;
-            ganador = boletos[Math.floor(Math.random() * boletos.length)];
+            const indice = crypto.randomInt(boletos.length);
+            ganador = boletos[indice];
             ganador._quiniela_msg = msg;
           } else {
             ganador._quiniela_numero = numeroGanador;
@@ -78,7 +89,7 @@ export async function POST(request) {
 
     if (!ganador) {
       const total = boletos.length;
-      const indice = Math.floor(Math.random() * total);
+      const indice = crypto.randomInt(total);
       ganador = boletos[indice];
     }
 
@@ -100,13 +111,13 @@ export async function POST(request) {
       .eq('id', producto_id);
 
     if (updateError) {
-      return Response.json({ error: 'Error al actualizar producto: ' + updateError.message }, { status: 500 });
+      return Response.json({ error: 'Error al actualizar sorteo' }, { status: 500 });
     }
 
     try {
       await clonarProducto(supabase, producto);
-    } catch (e) {
-      console.error('Error al clonar producto:', e);
+    } catch {
+      // Clone failed silently
     }
 
     return Response.json({
@@ -124,7 +135,7 @@ export async function POST(request) {
       } : null,
       mensaje: ganador._quiniela_msg || null
     });
-  } catch (err) {
-    return Response.json({ error: 'Error interno: ' + err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

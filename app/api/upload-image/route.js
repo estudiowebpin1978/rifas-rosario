@@ -1,4 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAuth } from '@/lib/auth';
+import crypto from 'crypto';
+
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -19,11 +24,25 @@ async function uploadToImgbb(base64Image) {
 
 export async function POST(request) {
   try {
+    await requireAuth(request);
+  } catch (e) {
+    return e;
+  }
+
+  try {
     const formData = await request.formData();
     const file = formData.get('image');
-    
+
     if (!file) {
       return Response.json({ error: 'No image provided' }, { status: 400 });
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return Response.json({ error: 'Tipo de archivo no permitido. Solo JPG, PNG, WEBP, GIF' }, { status: 400 });
+    }
+
+    if (file.size > MAX_SIZE) {
+      return Response.json({ error: 'Archivo demasiado máximo 5MB' }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
@@ -35,7 +54,7 @@ export async function POST(request) {
 
     if (supabaseUrl && supabaseServiceKey) {
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+      const fileName = `${crypto.randomUUID()}.jpg`;
 
       const { error } = await supabase.storage
         .from('comprobantes')
@@ -56,7 +75,7 @@ export async function POST(request) {
     }
 
     return Response.json({ success: true, url: imageUrl });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

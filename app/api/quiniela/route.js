@@ -1,9 +1,15 @@
-// API de Quiniela Nacional Nocturna (21hs)
-// Obtiene las ultimas 2 cifras de la cabeza del sorteo Nocturno
-
 const URL_NACIONALLOTERIA = 'https://www.nacionalloteria.com/argentina/quiniela-nacional.php';
 
+let quinielaCache = null;
+let quinielaCacheTime = 0;
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
 async function fetchNocturna() {
+  const now = Date.now();
+  if (quinielaCache && now - quinielaCacheTime < CACHE_TTL) {
+    return quinielaCache;
+  }
+
   try {
     const res = await fetch(URL_NACIONALLOTERIA, {
       signal: AbortSignal.timeout(10000),
@@ -16,7 +22,9 @@ async function fetchNocturna() {
     const match = html.match(regex);
 
     if (match && match[1]) {
-      return { numero: match[1], fuente: 'nacionalloteria.com' };
+      quinielaCache = { numero: match[1], fuente: 'nacionalloteria.com' };
+      quinielaCacheTime = now;
+      return quinielaCache;
     }
     return null;
   } catch {
@@ -57,8 +65,8 @@ export async function GET() {
       mensaje: `El sorteo Nocturna de la Quiniela Nacional se realiza a las 21hs. Vuelve después de las 21hs (hoy es ${fechaArgentina}).`,
       horario: '21:00 hs'
     }, { status: 503 });
-  } catch (err) {
-    return Response.json({ success: false, error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ success: false, error: 'Error al obtener quiniela' }, { status: 500 });
   }
 }
 

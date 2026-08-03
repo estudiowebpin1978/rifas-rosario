@@ -17,7 +17,7 @@ export async function GET(request) {
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
     const offset = parseInt(searchParams.get('offset') || '0');
 
     const { data, error } = await supabase
@@ -27,7 +27,7 @@ export async function GET(request) {
       .order('total_rifas', { ascending: false })
       .range(offset, offset + limit - 1);
 
-    if (error) return Response.json({ error: error.message }, { status: 400 });
+    if (error) return Response.json({ error: 'Error al obtener organizaciones' }, { status: 400 });
 
     const { count } = await supabase
       .from('organizaciones')
@@ -35,8 +35,8 @@ export async function GET(request) {
       .eq('activa', true);
 
     return Response.json({ organizaciones: data || [], total: count || 0 });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
 
@@ -81,7 +81,7 @@ export async function POST(request) {
       .select()
       .single();
 
-    if (orgError) return Response.json({ error: orgError.message }, { status: 400 });
+    if (orgError) return Response.json({ error: 'Error al crear organización' }, { status: 400 });
 
     const { data: plan } = await supabase
       .from('planes')
@@ -114,7 +114,7 @@ export async function POST(request) {
     }
 
     return Response.json({ success: true, organizacion: org });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

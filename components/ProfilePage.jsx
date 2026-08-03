@@ -1,6 +1,7 @@
 ﻿'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { authFetch } from '@/lib/authFetch';
 import confetti from 'canvas-confetti';
 import Image from 'next/image';
 
@@ -66,7 +67,7 @@ export default function ProfilePage() {
     const formData = new FormData();
     formData.append('image', file);
     try {
-      const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+      const res = await authFetch('/api/upload-image', { method: 'POST', body: formData });
       const data = await res.json();
       if (data.url) {
         setFotoUrl(data.url);

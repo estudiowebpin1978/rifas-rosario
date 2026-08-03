@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { authFetch } from '@/lib/authFetch';
 
 export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }) {
   const [messages, setMessages] = useState([]);
@@ -25,7 +26,7 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
     setSpeakingId(msgId);
 
     try {
-      const res = await fetch('/api/tts', {
+      const res = await authFetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: cleanText })
@@ -110,7 +111,7 @@ export default function ChatBox({ user, productos, allBoletos, aiPromptTrigger }
 
     try {
       const prod = (productos || []).filter(p => !p.finalizado);
-      const res = await fetch('/api/chat-ai', {
+      const res = await authFetch('/api/chat-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

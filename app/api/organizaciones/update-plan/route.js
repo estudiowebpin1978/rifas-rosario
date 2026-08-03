@@ -1,9 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/auth';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export async function POST(request) {
+  try {
+    await requireAdmin(request);
+  } catch (e) {
+    return e;
+  }
+
   try {
     const body = await request.json();
     const { user_id, plan_slug } = body;
@@ -45,7 +52,7 @@ export async function POST(request) {
     if (error) throw error;
 
     return Response.json({ success: true, plan: plan.slug, commission_pct: plan.comision_pct });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

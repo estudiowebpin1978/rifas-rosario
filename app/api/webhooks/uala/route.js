@@ -5,7 +5,7 @@ import crypto from 'crypto';
 const UALA_ORDER_STATUS_URL = 'https://checkout.developers.ar.ua.la/v2/api/orders';
 
 function verifyUalaSignature(payload, signature, secret) {
-  if (!secret || !signature) return !secret;
+  if (!secret || !signature) return false;
   const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex');
   return expected === signature;
 }
@@ -16,7 +16,12 @@ export async function POST(req) {
     const signature = req.headers.get('x-ua-signature') || req.headers.get('x-webhook-signature') || '';
     const webhookSecret = process.env.UALA_WEBHOOK_SECRET;
 
-    if (webhookSecret && !verifyUalaSignature(rawBody, signature, webhookSecret)) {
+    if (!webhookSecret) {
+      console.error('UALA_WEBHOOK_SECRET not configured');
+      return NextResponse.json({ ok: true });
+    }
+
+    if (!verifyUalaSignature(rawBody, signature, webhookSecret)) {
       console.error('Uala webhook signature mismatch');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
@@ -57,7 +62,7 @@ export async function POST(req) {
             .single();
 
           if (producto) {
-            const monto = body.amount || producto.raffle_price || 0;
+            const monto = producto.raffle_price || 0;
 
             const { data: org } = await supabase
               .from('organizaciones')
@@ -115,7 +120,7 @@ export async function POST(req) {
 
               const minBoletos = configCompleta?.min_boletos || 20;
               if (pagados && pagados.length >= minBoletos) {
-                await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://eco-rifas.vercel.app'}/api/sortear-automatico`, {
+                await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://eco-rifas.vercel.app'}/api/sortear`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ producto_id }),
@@ -123,8 +128,8 @@ export async function POST(req) {
               }
             }
           }
-        } catch (e) {
-          console.error('Auto-sorteo check error:', e);
+        } catch {
+          // Auto-sorteo check failed silently
         }
       }
     } else if (status === 'rejected' || status === 'failed' || status === 'cancelled') {
@@ -135,8 +140,7 @@ export async function POST(req) {
     }
 
     return NextResponse.json({ ok: true });
-  } catch (e) {
-    console.error('Uala webhook error:', e);
-    return NextResponse.json({ error: e.message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ ok: true });
   }
 }

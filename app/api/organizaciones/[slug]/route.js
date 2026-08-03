@@ -26,24 +26,25 @@ export async function GET(request, { params }) {
       .eq('finalizado', false)
       .order('created_at', { ascending: false });
 
-    const productos = [];
-    for (const p of (productosRaw || [])) {
-      const { count: vendidos } = await supabase
+    const productoIds = (productosRaw || []).map(p => p.id);
+    let allBoletos = [];
+    if (productoIds.length > 0) {
+      const { data } = await supabase
         .from('boletos')
-        .select('id', { count: 'exact', head: true })
-        .eq('producto_id', p.id)
-        .eq('estado', 'vendido');
-      const { count: reservados } = await supabase
-        .from('boletos')
-        .select('id', { count: 'exact', head: true })
-        .eq('producto_id', p.id)
-        .eq('estado', 'reservado');
-      const { count: total } = await supabase
-        .from('boletos')
-        .select('id', { count: 'exact', head: true })
-        .eq('producto_id', p.id);
-      productos.push({ ...p, vendidos: vendidos || 0, reservados: reservados || 0, boletos_count: total || 100 });
+        .select('producto_id, estado')
+        .in('producto_id', productoIds);
+      allBoletos = data || [];
     }
+
+    const productos = (productosRaw || []).map(p => {
+      const bols = allBoletos.filter(b => b.producto_id === p.id);
+      return {
+        ...p,
+        vendidos: bols.filter(b => b.estado === 'vendido').length,
+        reservados: bols.filter(b => b.estado === 'reservado').length,
+        boletos_count: bols.length || p.numbers_total || 100,
+      };
+    });
 
     const { data: ganadores } = await supabase
       .from('productos')
@@ -57,8 +58,10 @@ export async function GET(request, { params }) {
       organizacion: org,
       productos: productos || [],
       ganadores: ganadores || [],
+    }, {
+      headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60' }
     });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

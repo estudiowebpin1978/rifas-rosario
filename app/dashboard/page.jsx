@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { authFetch } from '@/lib/authFetch';
 import { useRouter } from 'next/navigation';
 
 const CATEGORIAS = [
@@ -65,7 +66,7 @@ export default function DashboardPage() {
   const createOrg = async (e) => {
     e.preventDefault();
     if (!user) return;
-    const res = await fetch('/api/organizaciones', {
+    const res = await authFetch('/api/organizaciones', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: user.id, ...orgForm }),
@@ -84,7 +85,7 @@ export default function DashboardPage() {
     if (!org || !rifaForm.nombre || !rifaForm.precio) return;
     setCreating(true);
     try {
-      const res = await fetch('/api/crear-producto', {
+      const res = await authFetch('/api/crear-producto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

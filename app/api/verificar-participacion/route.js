@@ -23,14 +23,14 @@ export async function GET(request) {
       .eq('estado', 'vendido');
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 400 });
+      return Response.json({ error: 'Error al verificar participación' }, { status: 400 });
     }
 
     return Response.json({
       participa: boletos && boletos.length > 0,
       numeros: boletos || []
     });
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

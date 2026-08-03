@@ -85,6 +85,28 @@ function generateFallbackResponse(userMsg, productos) {
   return 'No entendí bien 😅 Decime "menú" para ver las opciones o preguntame directamente. 💬 wa.me/' + WHATSAPP_ADMIN;
 }
 
+const rateLimitMap = new Map();
+
+function cleanupRateLimit() {
+  const now = Date.now();
+  for (const [ip, record] of rateLimitMap) {
+    if (now - record.start > 120000) rateLimitMap.delete(ip);
+  }
+}
+
+function checkRateLimit(ip, maxRequests = 20, windowMs = 60000) {
+  if (rateLimitMap.size > 10000) cleanupRateLimit();
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  if (!record || now - record.start > windowMs) {
+    rateLimitMap.set(ip, { start: now, count: 1 });
+    return true;
+  }
+  record.count++;
+  if (record.count > maxRequests) return false;
+  return true;
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -92,6 +114,11 @@ export async function POST(request) {
 
     if (!message || !message.trim()) {
       return Response.json({ response: 'Decime algo! 😊' });
+    }
+
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    if (!checkRateLimit(ip)) {
+      return Response.json({ error: 'Demasiadas solicitudes. Esperá un momento.' }, { status: 429 });
     }
 
     const systemPrompt = SYSTEM_PROMPT;
@@ -108,7 +135,7 @@ export async function POST(request) {
             model: 'gpt-4o-mini',
             messages: [
               { role: 'system', content: systemPrompt },
-              { role: 'user', content: message }
+              { role: 'user', content: message.slice(0, 500) }
             ],
             max_tokens: 300,
             temperature: 0.7
@@ -120,15 +147,15 @@ export async function POST(request) {
           const reply = data.choices[0].message.content.trim();
           return Response.json({ response: reply });
         }
-      } catch (e) {
-        console.error('OpenAI error:', e);
+      } catch {
+        // OpenAI failed, use fallback
       }
     }
 
     const reply = generateFallbackResponse(message, productos_activos);
     return Response.json({ response: reply });
 
-  } catch (err) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch {
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
